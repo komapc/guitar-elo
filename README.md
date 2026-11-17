@@ -9,6 +9,8 @@ A 24-question self-assessment for guitarists, in Russian, answered with sliders,
 3. The rating is the weighted mean over answered questions. Each slider starts at "silly question, I'd rather not answer"; a question left there is not counted, so a classical player is not penalised for not using a pick. The rating appears after six answers.
 4. Practice time the visitor enters is not part of the score; it is only shown for comparison.
 
+Two questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count, and a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence. Clicks are scheduled on the Web Audio clock, and nothing on screen moves during the silent bars. The tests do not set the answer; the visitor still moves the slider.
+
 ## Where the curve comes from
 
 From Gobet & Campitelli (2007), 104 Argentine players rated 1490–2473 on the Argentine national scale (r = .89 with FIDE):
