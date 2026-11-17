@@ -7,7 +7,7 @@ const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</
 new Function(script); // the whole page script must parse
 
 const model = script.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS };')();
+const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks };')();
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
 let failed = 0;
 const check = (name, fn) => {
@@ -33,10 +33,37 @@ check('complete beginner stays near the floor', () => {
 check('top answers everywhere reach master range', () => {
   assert.ok(m.score(pick(q => q.o.length - 1)).elo > 2300);
 });
-check('"not my style" answers are left out of the score', () => {
-  const base = { ...m.EXAMPLE };
-  const skipped = { ...m.EXAMPLE, pick: 'skip', fingers: 'skip' };
-  assert.equal(m.score(skipped).n, m.score(base).n - 2);
+check('gap metronome: two bars of clicks, then the click returns after exactly N silent bars', () => {
+  for (const n of [1, 2, 4, 8, 16]) {
+    const bars = Array.from({ length: 3 * (n + 1) + 2 }, (_, b) => m.gapBarClicks(b, n));
+    assert.deepEqual(bars.slice(0, 2), [true, true], `n=${n} lead-in`);
+    for (let start = 1; start + n + 1 < bars.length; start += n + 1) {
+      assert.deepEqual(bars.slice(start + 1, start + n + 1), Array(n).fill(false), `n=${n} silence after bar ${start}`);
+      assert.equal(bars[start + n + 1], true, `n=${n} click back at bar ${start + n + 1}`);
+    }
+  }
+});
+check('self-tests sit under the questions they check', () => {
+  const tools = m.QUESTIONS.filter(q => q.tool).map(q => q.id + ':' + q.tool);
+  assert.deepEqual(tools, ['changes:minute', 'gap:gap']);
+});
+check('unanswered questions are left out of the score', () => {
+  const some = { chords: 3, metronome: 2, hardest: 1 };
+  assert.equal(m.score(some).n, 3);
+  assert.equal(m.score({}).n, 0);
+});
+check('every slider reaches professional hours, so strong players are not pulled down', () => {
+  for (const q of m.QUESTIONS) assert.ok(q.o[q.o.length - 1][1] >= 12000, q.id);
+});
+check('the example persona leaves at least one question unanswered', () => {
+  assert.ok(m.QUESTIONS.some(q => m.EXAMPLE[q.id] == null));
+  for (const id in m.EXAMPLE) assert.ok(m.QUESTIONS.find(q => q.id === id)?.o[m.EXAMPLE[id]], id);
+});
+check('question count in the page text matches the quiz', () => {
+  const n = m.QUESTIONS.length;
+  for (const re of [/name="description" content="(\d+) /, /<p class="lede">(\d+) /, /Отвечено 0 из (\d+)/]) {
+    assert.equal(Number(html.match(re)?.[1]), n, String(re));
+  }
 });
 
 if (failed) { console.log(`${failed} failed`); process.exit(1); }

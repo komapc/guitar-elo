@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Гитарный Elo — рейтинг гитариста по шахматной шкале</title>
-<meta name="description" content="15 вопросов о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
+<meta name="description" content="24 вопроса о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
 <link rel="canonical" href="https://guitar-elo.lipu.dev/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#F3F4F1" media="(prefers-color-scheme: light)">
@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="lipu.dev">
 <meta property="og:url" content="https://guitar-elo.lipu.dev/">
 <meta property="og:title" content="Гитарный Elo">
-<meta property="og:description" content="15 вопросов о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
+<meta property="og:description" content="24 вопроса о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;700&display=swap">
@@ -61,16 +61,43 @@ fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;g
 .qt{font-weight:600;font-size:16px;flex:1 1 auto;min-width:0;text-wrap:balance}
 .qelo{font-family:var(--f-mono);font-size:12px;color:var(--accent);white-space:nowrap;flex:none}
 .qelo.off{color:var(--muted)}
-.hint{clear:both;margin:-6px 0 10px;color:var(--muted);font-size:13.5px}
-.opts{clear:both;display:grid;gap:6px}
-.opt{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:border-color .12s,background-color .12s}
-.opt:hover{border-color:var(--muted)}
-.opt input{appearance:none;-webkit-appearance:none;margin:3px 0 0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--muted);background:var(--surface);cursor:pointer}
-.opt input:checked{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--surface)}
-.opt input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
-.opt.skip{border-style:dashed;color:var(--muted)}
-.opt.skip:has(input:checked){color:var(--ink)}
+.hint{clear:both;margin:-6px 0 8px;color:var(--muted);font-size:13.5px}
+.hint details{display:inline}
+.hint summary{display:inline;cursor:pointer;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.hint details[open] summary{margin-right:4px}
+.val{display:block;clear:both;min-height:2.8em;margin:0 0 2px;font-weight:500;font-size:15px;line-height:1.4}
+.q.unset .val{color:var(--muted);font-style:italic;font-weight:400}
+.rail{position:relative;height:32px}
+.rail::before{content:"";position:absolute;left:11px;right:11px;top:50%;height:4px;margin-top:-2px;border-radius:2px;background:var(--line)}
+.rail i{position:absolute;top:50%;width:2px;height:10px;margin:-5px 0 0 -1px;border-radius:1px;background:var(--muted);opacity:.45;pointer-events:none}
+.rail input{-webkit-appearance:none;appearance:none;position:relative;z-index:1;display:block;width:100%;height:32px;margin:0;background:transparent;cursor:pointer;touch-action:pan-y;--f:0}
+.rail input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--accent) calc(11px + (100% - 22px) * var(--f)),transparent 0)}
+.rail input::-moz-range-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--accent) calc(11px + (100% - 22px) * var(--f)),transparent 0)}
+.rail input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-top:-9px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.rail input::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--surface);box-shadow:0 0 0 1.5px var(--accent)}
+.q.unset .rail input::-webkit-slider-runnable-track{background:transparent}
+.q.unset .rail input::-moz-range-track{background:transparent}
+.q.unset .rail input::-webkit-slider-thumb{background:var(--surface);box-shadow:0 0 0 1.5px var(--muted)}
+.q.unset .rail input::-moz-range-thumb{background:var(--surface);box-shadow:0 0 0 1.5px var(--muted)}
+.rail input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.qfoot{display:flex;justify-content:flex-end;min-height:22px}
+.clear{font:13px var(--f-body);color:var(--muted);background:none;border:0;padding:2px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.clear:hover{color:var(--accent)}
+.clear:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.q.unset .clear{visibility:hidden}
+.tool{clear:both;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 12px;font-size:13.5px;color:var(--muted)}
+.tool .btn{padding:7px 12px;font-size:13.5px}
+.tool.on .tgo{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.tclock{font:500 20px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.tclock:empty{display:none}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.segb{font:500 13px var(--f-mono);min-width:2.6em;padding:8px 6px;border:0;border-left:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.segb:first-child{border-left:0}
+.segb[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.segb:focus-visible,.tbpm:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tbpm{font:500 13px var(--f-mono);margin-left:4px;padding:6px 4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.tout{flex-basis:100%}
+.tout:empty{display:none}
 
 .score{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:20px;min-width:0}
 .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
@@ -165,10 +192,10 @@ tr.calrow td{background:var(--accent-soft)}
 }
 @media (max-width:420px){
   .big{font-size:54px}
-  .cat{grid-template-columns:7.4em minmax(0,1fr) 3em}
+  .cat{grid-template-columns:8.8em minmax(0,1fr) 3em}
 }
 @media (prefers-reduced-motion: reduce){
-  .board .pin,.cat .bar i,.opt{transition:none}
+  .board .pin,.cat .bar i{transition:none}
 }
 /* page base (the artifact viewer supplied these) */
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -184,9 +211,13 @@ img{max-width:100%}
 <div class="wrap">
   <header class="top">
     <h1>Гитарный Elo</h1>
-    <p class="lede">15 вопросов о том, что ты умеешь на гитаре. Каждый ответ переводится в часы занятий, а часы — в шахматный рейтинг по одной общей кривой. Гитарист с рейтингом 1500 вложил в гитару примерно столько же часов, сколько шахматист с рейтингом 1500 — в шахматы.</p>
+    <p class="lede">24 вопроса о том, что ты умеешь на гитаре. Отвечай ползунком, а на дурацкие вопросы можно не отвечать. Каждый ответ переводится в часы занятий, а часы — в шахматный рейтинг по одной общей кривой. Гитарист с рейтингом 1500 вложил в гитару примерно столько же часов, сколько шахматист с рейтингом 1500 — в шахматы.</p>
   </header>
 
+  <div class="example" id="blank" hidden>
+    <p><b>Все вопросы пока «дурацкие».</b> Двигай ползунок там, где есть что ответить; рейтинг появится после шести ответов.</p>
+    <button class="btn" type="button" id="showExample">Показать пример</button>
+  </div>
   <div class="example" id="example" hidden>
     <p><b>Это пример.</b> Так отвечает гитарист, который 3 года занимался по 3 раза в неделю по 3 часа. Меняй ответы на свои или начни с чистого листа.</p>
     <button class="btn primary" type="button" id="start">Начать с чистого листа</button>
@@ -197,7 +228,7 @@ img{max-width:100%}
 
     <aside class="score" id="score" aria-live="polite">
       <div class="headline">
-        <p class="eyebrow" id="progress">Отвечено 0 из 15</p>
+        <p class="eyebrow" id="progress">Отвечено 0 из 24</p>
         <div class="numrow"><span class="big" id="elo">—</span><span class="pm" id="pm"></span></div>
         <p class="band" id="band"></p>
         <p class="bandtext" id="bandtext"></p>
@@ -240,9 +271,9 @@ img{max-width:100%}
   <section class="method" id="method">
     <h2>Как считается</h2>
     <ol>
-      <li>Каждый вариант ответа — примерное число часов занятий, за которое гитарист обычно до него доходит.</li>
+      <li>Каждое положение ползунка — примерное число часов занятий, за которое гитарист обычно до него доходит. Эти часы — оценка автора, а не измерение: данные есть только для шахматной кривой.</li>
       <li>Часы переводятся в рейтинг по кривой «часы → шахматный Elo» из таблицы ниже.</li>
-      <li>Итог — среднее по отвеченным вопросам с весами. Метроном и самая сложная вещь весят больше, сцена и теория меньше. Ответ «Не моё» в среднее не входит, так что классика не теряет очки за медиатор, а металлист за фингерстайл.</li>
+      <li>Итог — среднее по отвеченным вопросам с весами. Метроном и самая сложная вещь весят больше, сцена и теория меньше. Вопрос, оставленный на «дурацком», в среднее не входит, так что классик не теряет очки за медиатор, а металлист — за фингерстайл.</li>
       <li>Число после ± показывает, насколько ответы расходятся между собой. Чем ровнее навыки, тем уже разброс.</li>
     </ol>
     <p>Получается Elo-эквивалент: какой рейтинг был бы у шахматиста, вложившего столько же часов. Настоящий Elo считают по результатам партий, а здесь партий нет. Часы из блока «Сравнить с часами занятий» в рейтинг не входят. Они нужны только для сравнения: обогнал ли ты свои часы или отстал.</p>
@@ -328,115 +359,196 @@ function hoursFromElo(e) {
 const CATS = [
   { id: 'harmony', name: 'Гармония' },
   { id: 'rhythm', name: 'Ритм' },
-  { id: 'tech', name: 'Техника' },
+  { id: 'right', name: 'Правая рука' },
+  { id: 'left', name: 'Левая рука' },
   { id: 'ear', name: 'Гриф и слух' },
   { id: 'music', name: 'Музыка и сцена' },
 ];
 
-// Each option: [label, typical practice hours to reach it]
+const ru = (n, one, few, many) => {
+  const a = n % 10, b = n % 100;
+  return a === 1 && b !== 11 ? one : a >= 2 && a <= 4 && (b < 10 || b >= 20) ? few : many;
+};
+// Stops of a numeric slider: hours grow geometrically between the [value, hours] points; rounded to 2 digits.
+function numeric(values, pts, label) {
+  return values.map(v => {
+    let i = 0;
+    while (i < pts.length - 2 && v > pts[i + 1][0]) i++;
+    const [v0, h0] = pts[i], [v1, h1] = pts[i + 1];
+    const t = Math.min(1, Math.max(0, (v - v0) / (v1 - v0)));
+    const h = h0 * Math.pow(h1 / h0, t);
+    const r = Math.pow(10, Math.floor(Math.log10(h)) - 1);
+    return [label(v), Math.round(h / r) * r];
+  });
+}
+
+// Each stop: [label, typical practice hours to reach it]. The hours are the author's estimates, not measurements.
+// Every slider runs from a beginner to a professional, so a strong player is never pulled down by a short scale.
 const QUESTIONS = [
-  { id: 'chords', cat: 'harmony', w: 1, text: 'Какие аккорды берёшь уверенно, без подготовки?', o: [
+  { id: 'chords', cat: 'harmony', w: 1, text: 'Какие аккорды берёшь не глядя?', o: [
     ['Пока ни одного', 5],
-    ['3–5 открытых: Am, C, G, D, Em', 25],
+    ['Три-пять открытых: Am, C, G, D, Em', 25],
     ['Все открытые и F-баррэ, хоть и с трудом', 120],
-    ['Баррэ в любой позиции, от формы E и формы A', 400],
+    ['Баррэ в любой позиции', 400],
     ['Септаккорды, sus, add9, maj7 в нескольких позициях', 1500],
-    ['Расширенные и альтерированные (9, 11, 13, ♭9, ♯11), drop-2 и drop-3 в любой тональности', 9000],
-    ['Любой аккорд в любой позиции; веду голоса и реармонизирую на ходу', 28000]] },
-  { id: 'changes', cat: 'harmony', w: 0.7, text: 'Сколько раз за минуту чисто меняешь два открытых аккорда, например C и G?', hint: 'Считай только смены, после которых звучат все ноты.', o: [
-    ['Меньше 15', 8],
-    ['15–30', 30],
-    ['30–60', 120],
-    ['Больше 60, не глядя на гриф', 1100],
-    ['Так же быстро меняю баррэ и джазовые формы, без пауз в темпе песни', 6000]] },
+    ['Расширенные и альтерированные, drop-2 в любой тональности', 9000],
+    ['Любой аккорд в любом месте грифа, веду голоса', 28000]] },
+  { id: 'changes', cat: 'harmony', w: 0.6, tool: 'minute', text: 'Минута, два аккорда: C и G. Сколько чистых смен успеешь?', hint: 'Считай каждую смену, после которой звучат все ноты: C→G и G→C — это две. Цель из уроков JustinGuitar — около 60 в минуту.', o: [
+    ['Меньше 10', 3],
+    ['10–20', 12],
+    ['20–30', 30],
+    ['30–45', 70],
+    ['45–60', 150],
+    ['Больше 60, не глядя на гриф', 500],
+    ['Больше 60, и так же быстро с баррэ', 1500],
+    ['Так же с джазовыми аккордами в любой позиции', 6000],
+    ['Любые смены в темпе песни, не думая о пальцах', 15000]] },
+  { id: 'transpose', cat: 'harmony', w: 0.8, text: 'Певица просит: «Можно на тон ниже?» Ты…', o: [
+    ['…а как это?', 10],
+    ['Ищу каподастр. Потом вспоминаю, что он только повышает', 40],
+    ['Перепишу аккорды на бумажке минут за пять', 300],
+    ['Транспонирую в голове, но с запинками', 1500],
+    ['Сразу играю в новой тональности', 5000],
+    ['В любой тональности, хоть посреди песни', 15000]] },
+  { id: 'theory', cat: 'harmony', w: 0.6, text: 'Почему после G7 так тянет сыграть C?', o: [
+    ['Не знаю, просто тянет', 20],
+    ['Что-то про доминанту, но объяснить не смогу', 300],
+    ['Доминанта идёт в тонику: тритон си–фа сходится в до–ми', 1200],
+    ['А ещё G7 можно заменить на D♭7 или увести в Am', 5000],
+    ['Реармонизирую любую песню и объясню каждый аккорд', 18000]] },
+
   { id: 'metronome', cat: 'rhythm', w: 1.2, text: 'Как у тебя с метрономом?', o: [
-    ['Почти не играл с ним, сразу сбиваюсь', 10],
-    ['Простой бой на медленном темпе держу, но «уезжаю»', 80],
+    ['Сразу сбиваюсь', 10],
+    ['Простой бой держу, но «уезжаю»', 80],
     ['Ровные восьмые в любом темпе от 60 до 140', 400],
-    ['Шестнадцатые, триоли и синкопы; щелчок на 2 и 4 не мешает', 1800],
-    ['Щелчок раз в такт или реже, и я не плыву; полиритмы 3:2 и 4:3', 6000],
-    ['Попадаю в сетку без правок и управляю посадкой: впереди доли или позади', 25000]] },
+    ['Шестнадцатые, триоли, синкопы; щелчок только на 2 и 4', 1800],
+    ['Щелчок раз в такт, полиритмы 3:2 и 4:3', 6000],
+    ['Попадаю в сетку без правок, играю впереди или позади доли по заказу', 25000]] },
+  { id: 'gap', cat: 'rhythm', w: 0.8, tool: 'gap', text: 'Метроном щёлкает такт и замолкает. Сколько тактов тишины держишь темп?', hint: 'Проверь прямо здесь: метроном сыграет два такта, а дальше будет щёлкать такт и молчать. Играй восьмыми, не останавливаясь, и слушай, попадёшь ли в щелчок, когда он вернётся.', o: [
+    ['Ни одного: без щелчка плыву', 20],
+    ['Один такт', 150],
+    ['Два такта', 600],
+    ['Четыре такта', 2000],
+    ['Восемь тактов', 6000],
+    ['Шестнадцать и больше, возвращаюсь точно в щелчок', 18000]] },
   { id: 'strum', cat: 'rhythm', w: 0.8, text: 'Какие ритмические рисунки играешь?', o: [
-    ['Только удары вниз на каждую долю', 8],
-    ['2–3 базовых боя: «шестёрка», «восьмёрка»', 50],
+    ['Удары вниз на каждую долю', 8],
+    ['«Шестёрка», «восьмёрка»', 50],
     ['Глушение, акценты, офф-бит в регги и ска', 800],
-    ['Фанк шестнадцатыми с глухими нотами, шаффл, свинг', 3500],
-    ['Любой стиль от босса-новы до мануша, размеры 5/4 и 7/8', 14000]] },
-  { id: 'pick', cat: 'tech', w: 1, text: 'На каком темпе чисто играешь шестнадцатые переменным штрихом?', hint: 'Гамма или упражнение по метроному, без смазанных нот.', skip: 'Не моё: медиатором не играю', o: [
-    ['Шестнадцатыми пока не играю, или медленнее 60', 40],
-    ['60–90 bpm', 200],
-    ['90–110 bpm', 600],
-    ['110–130 bpm', 2000],
-    ['130–150 bpm', 4000],
-    ['150–170 bpm', 9000],
-    ['Быстрее 170 bpm', 20000]] },
-  { id: 'fingers', cat: 'tech', w: 1, text: 'Что умеешь пальцами правой руки?', skip: 'Не моё: играю только медиатором', o: [
-    ['Простой перебор («четвёрка», «шестёрка») на открытых аккордах', 50],
-    ['Травис-пикинг с переменным басом, арпеджио p-i-m-a в темпе', 800],
-    ['Бас и мелодия одновременно: фингерстайл-аранжировки, этюды Каркасси и Джулиани', 1500],
+    ['Фанк шестнадцатыми, шаффл, свинг', 3500],
+    ['Любой стиль, размеры 5/4 и 7/8', 14000]] },
+  { id: 'partner', cat: 'rhythm', w: 0.8, text: 'Играете вдвоём, и партнёр пропустил долю. Ты…', o: [
+    ['Сбиваюсь и останавливаюсь', 30],
+    ['Останавливаюсь, потом вступаю заново', 150],
+    ['Играю дальше и через такт-другой его ловлю', 800],
+    ['Подстраиваюсь сразу, никто не заметил', 3000],
+    ['Подстраиваюсь так, что ошибка звучит как задумка', 12000]] },
+
+  { id: 'pick', cat: 'right', w: 1, text: 'Шестнадцатые переменным штрихом по метроному, чисто. Какой темп?', hint: 'Четыре ноты на щелчок, гамма или упражнение, без смазанных нот.',
+    o: numeric([50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+      [[50, 30], [60, 80], [80, 250], [100, 700], [120, 2000], [140, 4000], [160, 9000], [180, 16000], [200, 25000]],
+      v => v === 50 ? 'Медленнее 60 bpm' : v === 200 ? '200 bpm и быстрее' : v + ' bpm') },
+  { id: 'fingers', cat: 'right', w: 1, text: 'Что умеют пальцы правой руки?', o: [
+    ['Простой перебор на открытых аккордах', 50],
+    ['Травис-пикинг, арпеджио p-i-m-a в темпе', 800],
+    ['Бас и мелодия вместе: фингерстайл, этюды Каркасси', 1500],
     ['Тремоло, расгеадо, этюды Вила-Лобоса', 6000],
-    ['Концертная программа: Бах, Альбенис или сложный фингерстайл в полном темпе', 25000]] },
-  { id: 'lead', cat: 'tech', w: 1, text: 'Как с сольной техникой: бенды, вибрато, легато?', skip: 'Не моё: соло не играю', o: [
-    ['Бенды не дотягиваю до ноты, вибрато нет', 40],
-    ['Бенды и слайды есть, но интонация гуляет', 200],
-    ['Точный бенд на тон, ровное вибрато, хаммеры и пуллы', 1200],
-    ['Беглое легато, тэппинг, бенд с удержанием, своё вибрато', 4500],
-    ['Свип, гибридный и экономный штрих в темпе; манеру узнают', 22000]] },
-  { id: 'tone', cat: 'tech', w: 1, text: 'Насколько чисто звучит твоя игра?', o: [
-    ['Струны дребезжат, ноты в аккордах глохнут', 10],
-    ['В основном чисто, но на баррэ и быстрых сменах грязь', 100],
-    ['Чисто: лишние струны заглушены, громкостью управляю', 1200],
-    ['Контролирую тембр, атаку и динамику; на перегрузе между нотами тишина', 5000],
-    ['Мой звук узнают с первых нот', 30000]] },
-  { id: 'fretboard', cat: 'ear', w: 1, text: 'Насколько хорошо знаешь гриф?', o: [
-    ['Играю по табам, ноты на грифе не знаю', 20],
-    ['Знаю ноты на 6-й и 5-й струнах', 120],
-    ['Пентатоника в пяти позициях, система CAGED', 1200],
-    ['Любую ноту и интервал нахожу сразу; лады вроде дорийского играю в любой позиции', 4500],
-    ['Арпеджио и голоса по всему грифу строю на ходу', 18000]] },
-  { id: 'theory', cat: 'ear', w: 0.7, text: 'Что знаешь из теории и нотной грамоты?', o: [
-    ['Только табы', 20],
-    ['Интервалы, тональности, как строятся аккорды', 500],
-    ['Читаю ноты медленно; понимаю функции T–S–D и II–V–I', 1200],
-    ['Читаю с листа простые партии, разбираюсь в джазовой гармонии', 6000],
-    ['Читаю с листа сложные партии, как на студийной сессии', 18000]] },
-  { id: 'ear', cat: 'ear', w: 1, text: 'Как подбираешь на слух?', o: [
-    ['Не подбираю, только табы и разборы', 20],
-    ['Мелодию или аккорды простой песни подбираю, но долго', 150],
-    ['Аккорды поп-рок песни снимаю за 10–20 минут', 1400],
-    ['Снимаю соло и сложные аккорды: септаккорды, обращения', 4500],
-    ['Слышу и сразу играю; транскрибирую джазовые соло', 20000]] },
-  { id: 'improv', cat: 'music', w: 1, text: 'Как импровизируешь?', skip: 'Не моё: играю только написанное (классика)', o: [
-    ['Не импровизирую, не знаю, с чего начать', 20],
-    ['Играю пентатонику поверх минуса, но звучит как гамма', 150],
-    ['Строю фразы, оставляю паузы, попадаю в настроение', 1300],
+    ['Бах, Альбенис или сложный фингерстайл в полном темпе', 25000]] },
+  { id: 'dynamics', cat: 'right', w: 0.8, text: 'Сыграй одну и ту же фразу тихо, громко, нежно и зло. Получится?', o: [
+    ['Громкость одна, какая есть', 20],
+    ['Тише и громче получается', 150],
+    ['Меняю атаку и место удара: у подставки, у грифа', 1200],
+    ['Одна нота звучит грустно или нагло — как попросят', 5000],
+    ['Мой звук узнают с первых нот', 25000]] },
+  { id: 'noise', cat: 'right', w: 0.8, text: 'Перегруз, громко, ты остановил ноту. Что слышно?', o: [
+    ['Гудят все струны', 20],
+    ['Гул, пока не прижму струны ладонью', 200],
+    ['Тишина, если стараюсь', 1200],
+    ['Тишина и в быстрых пассажах со скачками через струны', 5000],
+    ['Тишина в свипах и тэппинге на любом темпе', 15000]] },
+
+  { id: 'bend', cat: 'left', w: 0.8, text: 'Бенд на тон на третьей струне. Что скажет тюнер?', o: [
+    ['Не дотягиваю', 40],
+    ['То недотяну, то перетяну', 200],
+    ['Попадаю, если не тороплюсь', 800],
+    ['Попадаю всегда: полтона, тон, полтора', 2500],
+    ['Предбенды, бенды в аккордах, унисонные бенды в строй', 7000],
+    ['Бендом пою мелодию, как голосом', 18000]] },
+  { id: 'vibrato', cat: 'left', w: 0.8, text: 'Какое у тебя вибрато?', o: [
+    ['Его нет', 30],
+    ['Дрожит неровно', 200],
+    ['Ровное, но всегда одинаковое', 1200],
+    ['Управляю шириной и скоростью, попадаю в такт', 4000],
+    ['Моё вибрато узнают', 20000]] },
+  { id: 'legato', cat: 'left', w: 0.8, text: 'Хаммеры и пуллы: насколько ровно звучат?', o: [
+    ['Хаммер слышно, пулл почти нет', 40],
+    ['Ровно на одной струне, не быстро', 300],
+    ['Трели и фразы по три ноты на струну', 1500],
+    ['Беглое легато через весь гриф, тэппинг', 5000],
+    ['Легато на уровне Сатриани или Холдсворта', 22000]] },
+
+  { id: 'fretboard', cat: 'ear', w: 0.8, text: 'Какая нота на седьмом ладу третьей струны?', hint: 'Засеки, сколько думал. <details><summary>Ответ</summary>Ре (D).</details>', o: [
+    ['Понятия не имею', 20],
+    ['Посчитал по ладам от открытой струны', 150],
+    ['Знаю, но думал секунды две-три', 1200],
+    ['Сразу, и вижу все ре рядом', 4000],
+    ['Сразу; это ещё квинта от соль и терция от си-бемоль', 15000]] },
+  { id: 'ear', cat: 'ear', w: 1, text: 'По радио играет незнакомая песня. Когда ты сыграешь её аккорды?', o: [
+    ['Никогда: найду разбор', 20],
+    ['После часа подбора', 150],
+    ['Минут через пятнадцать', 1400],
+    ['К третьему припеву', 4500],
+    ['Сразу, вместе с радио', 20000]] },
+  { id: 'reading', cat: 'ear', w: 0.6, text: 'Перед тобой ноты, не табы. Ты…', o: [
+    ['…а это что вообще?', 20],
+    ['Разберу, по ноте в десять секунд', 300],
+    ['Медленно прочитаю мелодию', 1200],
+    ['Простые партии читаю с листа в темпе', 6000],
+    ['Студийную партию играю с первого раза', 18000]] },
+
+  { id: 'improv', cat: 'music', w: 1, text: '«Сыграй соло, тут блюз в ля». Ты…', o: [
+    ['Делаю вид, что подстраиваю гитару', 20],
+    ['Пентатоника вверх-вниз, звучит как гамма', 150],
+    ['Фразы с паузами, попадаю в настроение', 1300],
     ['Играю на смену аккордов: целевые ноты, арпеджио', 5000],
-    ['Свободно играю над сложной гармонией: джаз, фьюжн', 22000]] },
-  { id: 'repertoire', cat: 'music', w: 0.8, text: 'Сколько вещей сыграешь целиком прямо сейчас, без нот и подготовки?', o: [
-    ['0–2', 15],
-    ['3–10', 80],
-    ['10–30', 1200],
-    ['30–100', 3500],
-    ['Больше 100, хватит на трёхчасовой концерт', 12000]] },
+    ['Свободно, хоть над джазовой гармонией', 22000]] },
+  { id: 'repertoire', cat: 'music', w: 0.8, text: 'Сколько вещей сыграешь целиком прямо сейчас, без нот и подготовки?',
+    o: numeric([0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 200],
+      [[0, 8], [2, 20], [5, 60], [10, 250], [20, 1000], [30, 1600], [50, 2800], [100, 6000], [200, 15000]],
+      v => v === 0 ? 'Ни одной' : v === 200 ? '200 и больше' : `${v} ${ru(v, 'вещь', 'вещи', 'вещей')}`) },
   { id: 'hardest', cat: 'music', w: 1.2, text: 'Самая сложная вещь, которую играешь целиком в оригинальном темпе?', o: [
-    ['Песня на 3–4 открытых аккорда, вроде Knockin’ on Heaven’s Door', 30],
-    ['Песни с баррэ и риффами: Smells Like Teen Spirit, вступление Nothing Else Matters', 200],
-    ['С соло средней сложности: Wish You Were Here, Another Brick in the Wall (Part 2)', 700],
-    ['Hotel California с обоими соло, Stairway to Heaven целиком, «Испанский романс»', 1800],
-    ['Второе соло Comfortably Numb, Sultans of Swing, Little Wing', 4000],
+    ['Три-четыре открытых аккорда: Knockin’ on Heaven’s Door', 30],
+    ['Баррэ и риффы: Smells Like Teen Spirit, вступление Nothing Else Matters', 200],
+    ['Соло средней сложности: Wish You Were Here', 700],
+    ['Hotel California с соло, Stairway to Heaven, «Испанский романс»', 1800],
+    ['Второе соло Comfortably Numb, Sultans of Swing', 4000],
     ['Eruption, «Астурия», Cliffs of Dover', 9000],
-    ['For the Love of God Стива Вая, «Воспоминания об Альгамбре» на концертном уровне', 28000]] },
-  { id: 'stage', cat: 'music', w: 0.6, text: 'Играешь на людях?', o: [
-    ['Только для себя', 30],
-    ['Друзьям, у костра; от волнения сбиваюсь', 200],
-    ['Открытые микрофоны, репетиции в группе', 1200],
-    ['Регулярные концерты; если ошибаюсь, не останавливаюсь', 5000],
-    ['Играю за деньги: концерты, студия', 15000]] },
+    ['For the Love of God, «Воспоминания об Альгамбре» на концерте', 28000]] },
+  { id: 'party', cat: 'music', w: 0.7, text: 'Тебе дали гитару на вечеринке. Что дальше?', o: [
+    ['Отдаю обратно', 10],
+    ['«Кузнечик» и пара аккордов', 30],
+    ['Пара песен, пока помню слова', 200],
+    ['Час по заявкам, все подпевают', 1500],
+    ['Любую заказанную песню подбираю на ходу', 6000],
+    ['Через полчаса все молча слушают', 20000]] },
+  { id: 'record', cat: 'music', w: 0.7, text: 'Включил запись. Сколько дублей на чистый куплет с припевом?', o: [
+    ['Больше двадцати, и всё равно не то', 40],
+    ['10–20', 200],
+    ['3–5', 1200],
+    ['Обычно первый или второй', 5000],
+    ['Первый, и ещё пара вариантов на выбор', 15000]] },
+  { id: 'stage', cat: 'music', w: 0.6, text: 'Играешь на людях?', hint: 'Играешь только для себя — пропусти: это не про уровень.', o: [
+    ['Друзьям; от волнения сбиваюсь', 200],
+    ['Открытые микрофоны, репетиции с группой', 1200],
+    ['Регулярные концерты; ошибок никто не замечает', 5000],
+    ['Мне за это платят: концерты, студия', 15000],
+    ['Туры и сессии, моё имя на афише', 30000]] },
 ];
 
-// The 3×3×3 guitarist used as the example and as the calibration persona.
-const EXAMPLE = { chords: 4, changes: 3, metronome: 3, strum: 2, pick: 3, fingers: 1, lead: 2, tone: 2,
-  fretboard: 2, theory: 1, ear: 2, improv: 2, repertoire: 2, hardest: 3, stage: 2 };
+// The 3×3×3 guitarist used as the example and as the calibration persona. Missing ids stay unanswered.
+const EXAMPLE = { chords: 4, changes: 6, transpose: 3, theory: 2, metronome: 3, gap: 2, strum: 2, partner: 2,
+  pick: 6, fingers: 2, dynamics: 2, noise: 2, bend: 2, vibrato: 2, legato: 2, fretboard: 2, ear: 2,
+  improv: 2, repertoire: 9, hardest: 3, party: 3, record: 2, stage: 1 };
 
 const BANDS = [
   { min: 0, name: 'Новичок', guitar: 'Первые аккорды; песни медленно и с остановками.' },
@@ -470,11 +582,13 @@ function score(answers) {
   for (const k in cats) catElo[k] = cats[k].se / cats[k].sw;
   return { n, elo, sd, spread: Math.min(250, 60 + 0.4 * sd), catElo };
 }
+// Gap-click metronome: `lead` bars of clicks to lock onto the tempo, then one bar of clicks and `silent` bars of silence, repeated.
+const gapBarClicks = (bar, silent, lead = 1) => bar < lead || (bar - lead) % (silent + 1) === 0;
 const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
 /*END MODEL*/
 
 const $ = s => document.querySelector(s);
-const STORE = 'guitar-elo-v2';
+const STORE = 'guitar-elo-v3';
 const round10 = x => Math.round(x / 10) * 10;
 const fmtElo = x => String(round10(x));
 const fmtHours = h => {
@@ -503,8 +617,18 @@ function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } ca
 
 const saved = load();
 if (saved) state = { ...state, ...saved, practice: { ...CAL, ...(saved.practice || {}) } };
-else { state.answers = { ...EXAMPLE }; state.example = true; }
 MODEL.anchorElo = clampAnchor(state.anchorElo);
+
+const UNSET = 'Дурацкий вопрос, не хочу отвечать';
+const GAP_SILENT = [1, 2, 4, 8, 16], GAP_BPM = [60, 70, 80, 90, 100, 110, 120];
+function toolHtml(kind) {
+  if (kind === 'minute') return '<div class="tool" data-tool="minute"><button type="button" class="btn tgo">▶ Засечь минуту</button>'
+    + '<span class="tclock"></span><span class="tout" aria-live="polite">Сначала три секунды, чтобы взять гитару, потом минута.</span></div>';
+  return '<div class="tool" data-tool="gap"><span>Тишина, тактов:</span><span class="seg" role="group" aria-label="Тактов тишины">'
+    + GAP_SILENT.map(n => `<button type="button" class="segb" data-n="${n}" aria-pressed="${n === 2}">${n}</button>`).join('')
+    + '</span><label>Темп<select class="tbpm">' + GAP_BPM.map(b => `<option${b === 80 ? ' selected' : ''}>${b}</option>`).join('')
+    + '</select></label><button type="button" class="btn tgo">▶ Метроном</button><span class="tout" aria-live="polite"></span></div>';
+}
 
 function renderQuiz() {
   const form = $('#quiz');
@@ -513,18 +637,29 @@ function renderQuiz() {
     html += `<section class="group"><h2>${c.name}</h2>`;
     for (const q of QUESTIONS.filter(q => q.cat === c.id)) {
       num++;
-      html += `<fieldset class="q" id="q-${q.id}"><legend><span class="qn">${String(num).padStart(2, '0')}</span><span class="qt">${q.text}</span><span class="qelo" id="e-${q.id}"></span></legend>`;
-      if (q.hint) html += `<p class="hint">${q.hint}</p>`;
-      html += '<div class="opts">';
-      q.o.forEach((o, i) => {
-        html += `<label class="opt" for="${q.id}-${i}"><input type="radio" name="${q.id}" id="${q.id}-${i}" value="${i}"><span>${o[0]}</span></label>`;
-      });
-      if (q.skip) html += `<label class="opt skip" for="${q.id}-skip"><input type="radio" name="${q.id}" id="${q.id}-skip" value="skip"><span>${q.skip}</span></label>`;
-      html += '</div></fieldset>';
+      const n = q.o.length;
+      let ticks = '';
+      for (let i = 0; i < n; i++) ticks += `<i style="left:calc(11px + (100% - 22px) * ${i / (n - 1)})"></i>`;
+      html += `<fieldset class="q unset" id="q-${q.id}"><legend><span class="qn">${String(num).padStart(2, '0')}</span><span class="qt" id="t-${q.id}">${q.text}</span><span class="qelo" id="e-${q.id}"></span></legend>`;
+      if (q.hint) html += `<div class="hint">${q.hint}</div>`;
+      if (q.tool) html += toolHtml(q.tool);
+      html += `<output class="val" id="v-${q.id}" for="r-${q.id}">${UNSET}</output>`;
+      html += `<div class="rail">${ticks}<input type="range" id="r-${q.id}" name="${q.id}" min="0" max="${n - 1}" step="1" value="0" aria-labelledby="t-${q.id}" aria-valuetext="${UNSET}"></div>`;
+      html += `<div class="qfoot"><button type="button" class="clear" data-q="${q.id}">✕ Дурацкий вопрос</button></div></fieldset>`;
     }
     html += '</section>';
   }
   form.innerHTML = html;
+}
+
+function syncQ(q) {
+  const a = state.answers[q.id], r = $('#r-' + q.id);
+  const set = a != null && q.o[a] != null;
+  r.value = set ? a : 0;
+  r.style.setProperty('--f', set ? a / (q.o.length - 1) : 0);
+  r.setAttribute('aria-valuetext', set ? q.o[a][0] : UNSET);
+  $('#v-' + q.id).textContent = set ? q.o[a][0] : UNSET;
+  $('#q-' + q.id).classList.toggle('unset', !set);
 }
 
 function renderBoard() {
@@ -558,15 +693,13 @@ function renderAnchors() {
 }
 
 function syncForm() {
-  for (const q of QUESTIONS) {
-    const a = state.answers[q.id];
-    document.querySelectorAll(`input[name="${q.id}"]`).forEach(r => { r.checked = a != null && r.value === String(a); });
-  }
+  for (const q of QUESTIONS) syncQ(q);
   $('#p-years').value = state.practice.years;
   $('#p-week').value = state.practice.perWeek;
   $('#p-hours').value = state.practice.hours;
   $('#cal').value = MODEL.anchorElo;
   $('#example').hidden = !state.example;
+  $('#blank').hidden = Object.keys(state.answers).length > 0;
 }
 
 let last = null;
@@ -574,8 +707,7 @@ function update() {
   const r = score(state.answers);
   for (const q of QUESTIONS) {
     const a = state.answers[q.id], chip = $('#e-' + q.id);
-    chip.classList.toggle('off', a === 'skip');
-    chip.textContent = a == null ? '' : a === 'skip' ? 'не в счёт' : '≈ ' + fmtElo(eloFromHours(q.o[a][1]));
+    chip.textContent = a == null || !q.o[a] ? '' : '≈ ' + fmtElo(eloFromHours(q.o[a][1]));
   }
   const answered = QUESTIONS.filter(q => state.answers[q.id] != null).length;
   $('#progress').textContent = `Отвечено ${answered} из ${QUESTIONS.length}`;
@@ -600,7 +732,7 @@ function update() {
     $('#elo').textContent = '—';
     $('#pm').textContent = '';
     $('#band').textContent = '';
-    $('#bandtext').textContent = `Ответь ещё на ${left} ${plural(left, 'вопрос', 'вопроса', 'вопросов')}, и появится рейтинг. «Не моё» не считается.`;
+    $('#bandtext').textContent = `Ответь ещё на ${left} ${plural(left, 'вопрос', 'вопроса', 'вопросов')}, и появится рейтинг. «Дурацкие вопросы» не считаются.`;
     $('#equiv').textContent = '';
     $('#pinSkill').hidden = true;
     $('#barElo').textContent = '—';
@@ -661,12 +793,141 @@ renderAnchors();
 syncForm();
 update();
 
-$('#quiz').addEventListener('change', ev => {
-  const t = ev.target;
-  if (t.type !== 'radio') return;
-  state.answers[t.name] = t.value === 'skip' ? 'skip' : Number(t.value);
-  if (state.example) { state.example = false; $('#example').hidden = true; }
+const qById = id => QUESTIONS.find(q => q.id === id);
+function setAnswer(id, v) {
+  if (v == null) delete state.answers[id]; else state.answers[id] = v;
+  state.example = false;
+  $('#example').hidden = true;
+  $('#blank').hidden = Object.keys(state.answers).length > 0;
+  syncQ(qById(id));
   persist();
+}
+// A slider counts once it is moved, tapped or stepped with the keyboard. A touch that turns into a page scroll
+// moves the thumb on touchstart, then the browser cancels the pointer: that answer is rolled back.
+let drag = null;
+$('#quiz').addEventListener('input', ev => { if (ev.target.type === 'range') setAnswer(ev.target.name, Number(ev.target.value)); });
+$('#quiz').addEventListener('pointerdown', ev => {
+  if (ev.target.type === 'range') drag = { id: ev.target.name, prev: state.answers[ev.target.name] };
+});
+$('#quiz').addEventListener('pointercancel', () => { if (drag) setAnswer(drag.id, drag.prev); drag = null; });
+$('#quiz').addEventListener('pointerup', ev => {
+  const t = ev.target;
+  if (t.type === 'range' && state.answers[t.name] == null) setAnswer(t.name, Number(t.value));
+  drag = null;
+});
+$('#quiz').addEventListener('click', ev => {
+  const t = ev.target;
+  const c = t.closest && t.closest('.clear');
+  if (c) { setAnswer(c.dataset.q, null); $('#r-' + c.dataset.q).focus(); return; }
+  const go = t.closest && t.closest('.tgo');
+  if (go) { toggleTool(go.closest('.tool')); return; }
+  const sb = t.closest && t.closest('.segb');
+  if (sb) {
+    for (const b of sb.parentNode.children) b.setAttribute('aria-pressed', String(b === sb));
+    restartTool(sb.closest('.tool'));
+  }
+});
+$('#quiz').addEventListener('change', ev => { if (ev.target.classList.contains('tbpm')) restartTool(ev.target.closest('.tool')); });
+
+// Self-tests under two questions: a one-minute timer and a gap-click metronome. They only help to check yourself;
+// the answer is still what the slider says. Clicks are scheduled on the audio clock, a little ahead, so they do not drift.
+let actx = null, running = null;
+function audio() {
+  try {
+    if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    return actx;
+  } catch (e) { return null; }
+}
+function beep(ctx, when, freq, len = 0.04, vol = 0.6) {
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, when);
+  g.gain.exponentialRampToValueAtTime(0.001, when + len);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(when); o.stop(when + len + 0.02);
+  return { g, t: when };
+}
+function silence(nodes) { for (const n of nodes) try { n.g.disconnect(); } catch (e) {} }
+function keepAwake() {
+  let lock = null, off = false;
+  try { navigator.wakeLock.request('screen').then(l => { if (off) l.release(); else lock = l; }, () => {}); } catch (e) {}
+  return () => { off = true; if (lock) lock.release().catch(() => {}); };
+}
+function startMinute(el, secs = 60, countIn = 3) {
+  const ctx = audio(), go = el.querySelector('.tgo'), clock = el.querySelector('.tclock'), out = el.querySelector('.tout');
+  const nodes = [], t0 = performance.now(), release = keepAwake();
+  if (ctx) {
+    const a0 = ctx.currentTime + 0.05;
+    for (let i = 0; i < countIn; i++) nodes.push(beep(ctx, a0 + i, 880));
+    nodes.push(beep(ctx, a0 + countIn, 1760, 0.2));
+    nodes.push(beep(ctx, a0 + countIn + secs, 1760, 0.5), beep(ctx, a0 + countIn + secs + 0.6, 1320, 0.8));
+  }
+  el.classList.add('on'); go.textContent = '■ Стоп';
+  out.textContent = 'Бери гитару.';
+  let phase = 0;
+  const tick = () => {
+    const t = (performance.now() - t0) / 1000;
+    if (t < countIn) { clock.textContent = String(Math.ceil(countIn - t)); return; }
+    if (t < countIn + secs) {
+      if (!phase) { phase = 1; out.textContent = 'Меняй C ↔ G и считай смены.'; }
+      const r = Math.ceil(countIn + secs - t);
+      clock.textContent = Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0');
+      return;
+    }
+    finish('Время! Сколько смен? Ставь ползунок.', true);
+  };
+  const iv = setInterval(tick, 200);
+  tick();
+  function finish(msg, done) {
+    clearInterval(iv); release();
+    if (!done) silence(nodes);
+    el.classList.remove('on'); go.textContent = '▶ Засечь минуту';
+    clock.textContent = ''; out.textContent = msg;
+    if (running && running.el === el) running = null;
+  }
+  return { el, stop: () => finish('Остановлено.', false) };
+}
+function startGap(el) {
+  const go = el.querySelector('.tgo'), out = el.querySelector('.tout');
+  const ctx = audio();
+  if (!ctx) { out.textContent = 'Браузер не дал включить звук.'; return null; }
+  const silent = Number(el.querySelector('.segb[aria-pressed="true"]').dataset.n);
+  const beat = 60 / Number(el.querySelector('.tbpm').value), BEATS = 4, release = keepAwake();
+  let nodes = [], next = ctx.currentTime + 0.1, i = 0;
+  const schedule = () => {
+    while (next < ctx.currentTime + 0.2) {
+      if (gapBarClicks(Math.floor(i / BEATS), silent)) nodes.push(beep(ctx, next, i % BEATS ? 1000 : 1600));
+      next += beat; i++;
+    }
+    nodes = nodes.filter(n => n.t > ctx.currentTime - 0.5);
+  };
+  const iv = setInterval(schedule, 25);
+  schedule();
+  // A blocked AudioContext stays suspended instead of throwing; a silent metronome would pass for a silent bar.
+  setTimeout(() => {
+    if (running && running.el === el && ctx.state !== 'running') { stopTool(); out.textContent = 'Браузер не дал включить звук.'; }
+  }, 400);
+  el.classList.add('on'); go.textContent = '■ Стоп';
+  // Nothing on screen moves while the metronome is silent: a counter or a flash would be a visual click.
+  out.textContent = `Такт щелчков, ${silent} ${ru(silent, 'такт', 'такта', 'тактов')} тишины, и снова. Не останавливайся.`;
+  return { el, stop() {
+    clearInterval(iv); release(); silence(nodes);
+    el.classList.remove('on'); go.textContent = '▶ Метроном'; out.textContent = '';
+    if (running && running.el === el) running = null;
+  } };
+}
+function stopTool() { if (running) running.stop(); running = null; }
+function toggleTool(el) {
+  if (running && running.el === el) { stopTool(); return; }
+  stopTool();
+  running = el.dataset.tool === 'minute' ? startMinute(el) : startGap(el);
+}
+function restartTool(el) { if (running && running.el === el) { stopTool(); toggleTool(el); } }
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopTool(); });
+$('#quiz').addEventListener('keyup', ev => {
+  const t = ev.target;
+  if (t.type === 'range' && state.answers[t.name] == null && /^(Arrow|Home$|End$|Page)/.test(ev.key)) setAnswer(t.name, Number(t.value));
 });
 [['#p-years', 'years'], ['#p-week', 'perWeek'], ['#p-hours', 'hours']].forEach(([sel, key]) => {
   $(sel).addEventListener('input', ev => {
@@ -683,6 +944,7 @@ $('#cal').addEventListener('change', ev => {
   persist();
 });
 function startFresh() {
+  stopTool();
   state.answers = {};
   state.example = false;
   syncForm();
@@ -694,13 +956,15 @@ function startFresh() {
 }
 $('#start').addEventListener('click', startFresh);
 $('#reset').addEventListener('click', startFresh);
-$('#loadExample').addEventListener('click', () => {
+function showExample() {
   state.answers = { ...EXAMPLE };
   state.practice = { ...CAL };
   state.example = true;
   syncForm();
   persist();
-});
+}
+$('#loadExample').addEventListener('click', showExample);
+$('#showExample').addEventListener('click', showExample);
 $('#copy').addEventListener('click', () => {
   const text = resultText();
   const box = $('#copybox'), status = $('#status');

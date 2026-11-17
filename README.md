@@ -1,13 +1,15 @@
 # Guitar Elo
 
-A 15-question self-assessment for guitarists, in Russian, at <https://guitar-elo.lipu.dev/>. Each answer stands for the practice hours a guitarist typically needs to reach that skill; the hours are turned into a chess-style Elo rating on a single curve. The result is an Elo *equivalent*: the rating of a chess player who put in the same number of hours. Real Elo comes from games, and there are no games here.
+A 24-question self-assessment for guitarists, in Russian, answered with sliders, at <https://guitar-elo.lipu.dev/>. Each answer stands for the practice hours a guitarist typically needs to reach that skill; the hours are turned into a chess-style Elo rating on a single curve. The result is an Elo *equivalent*: the rating of a chess player who put in the same number of hours. Real Elo comes from games, and there are no games here.
 
 ## How the score works
 
-1. Every answer option carries a typical number of practice hours (`QUESTIONS` in `site/index.html`).
+1. Every slider stop carries a typical number of practice hours (`QUESTIONS` in `site/index.html`). These hours are the author's estimates, not measurements: only the hours → Elo curve below is anchored on data. Every slider runs up to professional level (at least 12 000 h), so a strong player is not pulled down by a short scale.
 2. Hours map to Elo by piecewise-linear interpolation in log(hours) through the anchors in `curveAnchors()`.
-3. The rating is the weighted mean over answered questions. "Not my style" answers are left out, so a classical player is not penalised for not using a pick.
+3. The rating is the weighted mean over answered questions. Each slider starts at "silly question, I'd rather not answer"; a question left there is not counted, so a classical player is not penalised for not using a pick. The rating appears after six answers.
 4. Practice time the visitor enters is not part of the score; it is only shown for comparison.
+
+Two questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count, and a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence. Clicks are scheduled on the Web Audio clock, and nothing on screen moves during the silent bars. The tests do not set the answer; the visitor still moves the slider.
 
 ## Where the curve comes from
 
