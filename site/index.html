@@ -904,6 +904,10 @@ function startGap(el) {
   };
   const iv = setInterval(schedule, 25);
   schedule();
+  // A blocked AudioContext stays suspended instead of throwing; a silent metronome would pass for a silent bar.
+  setTimeout(() => {
+    if (running && running.el === el && ctx.state !== 'running') { stopTool(); out.textContent = 'Браузер не дал включить звук.'; }
+  }, 400);
   el.classList.add('on'); go.textContent = '■ Стоп';
   // Nothing on screen moves while the metronome is silent: a counter or a flash would be a visual click.
   out.textContent = `Такт щелчков, ${silent} ${ru(silent, 'такт', 'такта', 'тактов')} тишины, и снова. Не останавливайся.`;
