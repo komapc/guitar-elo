@@ -445,10 +445,11 @@ const QUESTIONS = [
     ['Любая ошибка, своя или чужая, звучит как задумка', 12000]] },
 
   { id: 'pick', cat: 'right', w: 1, text: 'Шестнадцатые переменным штрихом по метроному, чисто. Какой темп?', hint: 'Четыре ноты на щелчок, гамма или упражнение, без смазанных нот.',
-    o: numeric([50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
+    o: [['А что это?', 10], ...numeric([50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200],
       [[50, 30], [60, 80], [80, 250], [100, 700], [120, 2000], [140, 4000], [160, 9000], [180, 16000], [200, 25000]],
-      v => v === 50 ? 'Медленнее 60 bpm' : v === 200 ? '200 bpm и быстрее' : v + ' bpm') },
+      v => v === 50 ? 'Медленнее 60 bpm' : v === 200 ? '200 bpm и быстрее' : v + ' bpm')] },
   { id: 'fingers', cat: 'right', w: 1, text: 'Что умеют пальцы правой руки?', o: [
+    ['Пока ничего: играю только боем', 10],
     ['Простой перебор на открытых аккордах', 50],
     ['Травис-пикинг, арпеджио p-i-m-a в темпе', 800],
     ['Бас и мелодия вместе: фингерстайл, этюды Каркасси', 1500],
@@ -460,7 +461,8 @@ const QUESTIONS = [
     ['Меняю атаку и место удара: у подставки, у грифа', 1200],
     ['Одна нота звучит грустно или нагло — как попросят', 5000],
     ['Мой звук узнают с первых нот', 25000]] },
-  { id: 'noise', cat: 'right', w: 0.8, text: 'Перегруз, громко, ты остановил ноту. Что слышно?', o: [
+  { id: 'noise', cat: 'right', w: 0.8, text: 'Перегруз, громко, глушишь ноту. Что слышно?', o: [
+    ['А что это?', 10],
     ['Гудят все струны', 20],
     ['Гул, пока не прижму струны ладонью', 200],
     ['Тишина, если стараюсь', 1200],
@@ -468,6 +470,7 @@ const QUESTIONS = [
     ['Тишина в свипах и тэппинге на любом темпе', 15000]] },
 
   { id: 'bend', cat: 'left', w: 0.8, text: 'Бенд на тон на третьей струне. Что скажет тюнер?', o: [
+    ['А что это?', 10],
     ['Не дотягиваю', 40],
     ['То недотяну, то перетяну', 200],
     ['Попадаю, если не тороплюсь', 800],
@@ -475,12 +478,14 @@ const QUESTIONS = [
     ['Предбенды, бенды в аккордах, унисонные бенды в строй', 7000],
     ['Бендом пою мелодию, как голосом', 18000]] },
   { id: 'vibrato', cat: 'left', w: 0.8, text: 'Какое у тебя вибрато?', o: [
-    ['Его нет', 30],
+    ['А что это?', 10],
+    ['Знаю, что это, но пока не выходит', 30],
     ['Дрожит неровно', 200],
     ['Ровное, но всегда одинаковое', 1200],
     ['Управляю шириной и скоростью, попадаю в такт', 4000],
     ['Моё вибрато узнают', 20000]] },
   { id: 'legato', cat: 'left', w: 0.8, text: 'Хаммеры и пуллы: насколько ровно звучат?', o: [
+    ['А что это?', 10],
     ['Хаммер слышно, пулл почти нет', 40],
     ['Ровно на одной струне, не быстро', 300],
     ['Трели и фразы по три ноты на струну', 1500],
@@ -494,7 +499,8 @@ const QUESTIONS = [
     ['Сразу, и вижу все ре рядом', 4000],
     ['Сразу; это ещё квинта от соль и терция от си-бемоль', 15000]] },
   { id: 'ear', cat: 'ear', w: 1, text: 'По радио играет незнакомая песня. Когда ты сыграешь её аккорды?', o: [
-    ['Никогда: найду разбор', 20],
+    ['Не сыграю', 8],
+    ['Подобрать не смогу, сыграю по разбору', 20],
     ['После часа подбора', 150],
     ['Минут через пятнадцать', 1400],
     ['К третьему припеву', 4500],
@@ -517,6 +523,7 @@ const QUESTIONS = [
       [[0, 8], [2, 20], [5, 60], [10, 250], [20, 1000], [30, 1600], [50, 2800], [100, 6000], [200, 15000]],
       v => v === 0 ? 'Ни одной' : v === 200 ? '200 и больше' : `${v} ${ru(v, 'вещь', 'вещи', 'вещей')}`) },
   { id: 'hardest', cat: 'music', w: 1.2, text: 'Самая сложная вещь, которую играешь целиком в оригинальном темпе?', o: [
+    ['Пока ни одной целиком', 8],
     ['Три-четыре открытых аккорда: Knockin’ on Heaven’s Door', 30],
     ['Баррэ и риффы: Smells Like Teen Spirit, вступление Nothing Else Matters', 200],
     ['Соло средней сложности: Wish You Were Here', 700],
@@ -547,8 +554,8 @@ const QUESTIONS = [
 
 // The 3×3×3 guitarist used as the example and as the calibration persona. Missing ids stay unanswered.
 const EXAMPLE = { chords: 4, changes: 6, transpose: 3, theory: 2, metronome: 3, gap: 2, strum: 2, partner: 2,
-  pick: 6, fingers: 2, dynamics: 2, noise: 2, bend: 2, vibrato: 2, legato: 2, fretboard: 2, ear: 2,
-  improv: 2, repertoire: 9, hardest: 3, party: 3, record: 2, stage: 1 };
+  pick: 7, fingers: 3, dynamics: 2, noise: 3, bend: 3, vibrato: 3, legato: 3, fretboard: 2, ear: 3,
+  improv: 2, repertoire: 9, hardest: 4, party: 3, record: 2, stage: 1 };
 
 const BANDS = [
   { min: 0, name: 'Новичок', guitar: 'Первые аккорды; песни медленно и с остановками.' },
@@ -605,11 +612,18 @@ const SCALE_MIN = 400, SCALE_MAX = 2800;
 const pct = e => ((Math.min(SCALE_MAX, Math.max(SCALE_MIN, e)) - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * 100;
 const clampAnchor = v => Math.min(2100, Math.max(800, Number.isFinite(+v) && +v ? +v : 1250));
 
-let state = { answers: {}, practice: { ...CAL }, anchorElo: 1250, example: false };
+// Questions that got a new stop at the bottom in a given revision; saved answers from before it move up by one.
+const REV = 2, SHIFTED = { 2: ['pick', 'fingers', 'noise', 'bend', 'vibrato', 'legato', 'ear', 'hardest'] };
+let state = { answers: {}, practice: { ...CAL }, anchorElo: 1250, example: false, rev: REV };
 function load() {
   try {
     const raw = localStorage.getItem(STORE);
-    if (raw) { const s = JSON.parse(raw); if (s && typeof s.answers === 'object') return s; }
+    const s = raw && JSON.parse(raw);
+    if (s && typeof s.answers === 'object') {
+      for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const id of SHIFTED[r] || []) if (s.answers[id] != null) s.answers[id]++;
+      s.rev = REV;
+      return s;
+    }
   } catch (e) {}
   return null;
 }
