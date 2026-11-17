@@ -33,10 +33,23 @@ check('complete beginner stays near the floor', () => {
 check('top answers everywhere reach master range', () => {
   assert.ok(m.score(pick(q => q.o.length - 1)).elo > 2300);
 });
-check('"not my style" answers are left out of the score', () => {
-  const base = { ...m.EXAMPLE };
-  const skipped = { ...m.EXAMPLE, pick: 'skip', fingers: 'skip' };
-  assert.equal(m.score(skipped).n, m.score(base).n - 2);
+check('unanswered questions are left out of the score', () => {
+  const some = { chords: 3, metronome: 2, hardest: 1 };
+  assert.equal(m.score(some).n, 3);
+  assert.equal(m.score({}).n, 0);
+});
+check('every slider reaches professional hours, so strong players are not pulled down', () => {
+  for (const q of m.QUESTIONS) assert.ok(q.o[q.o.length - 1][1] >= 12000, q.id);
+});
+check('the example persona leaves at least one question unanswered', () => {
+  assert.ok(m.QUESTIONS.some(q => m.EXAMPLE[q.id] == null));
+  for (const id in m.EXAMPLE) assert.ok(m.QUESTIONS.find(q => q.id === id)?.o[m.EXAMPLE[id]], id);
+});
+check('question count in the page text matches the quiz', () => {
+  const n = m.QUESTIONS.length;
+  for (const re of [/name="description" content="(\d+) /, /<p class="lede">(\d+) /, /Отвечено 0 из (\d+)/]) {
+    assert.equal(Number(html.match(re)?.[1]), n, String(re));
+  }
 });
 
 if (failed) { console.log(`${failed} failed`); process.exit(1); }
