@@ -185,6 +185,11 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 tr:last-child td{border-bottom:none}
 th{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 td.n{font-family:var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+table.refs{min-width:0}
+table.refs td:first-child{width:100%}
+table.refs td.n,table.refs th:not(:first-child){text-align:right}
+.refnote{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.vys{margin:0;padding-left:1.2em;font-size:14px;color:var(--muted)}
 tr.calrow td{background:var(--accent-soft)}
 .bands{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .bands div{padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-size:13.5px;min-width:0}
@@ -311,7 +316,20 @@ img{max-width:100%}
     <h2>Шкала</h2>
     <div class="bands" id="bands"></div>
 
+    <h2>Для сравнения</h2>
+    <p>Те же часы, переведённые по той же кривой. Это ориентиры, а не измерения. Часы музыкальной школы взяты из норм программы, а дома на деле занимаются кто больше, кто меньше.</p>
+    <div class="tablewrap">
+      <table class="refs">
+        <thead><tr><th>Кто</th><th>Часов</th><th>Elo</th></tr></thead>
+        <tbody id="refs"></tbody>
+      </table>
+    </div>
+    <p><b>Все ли музыканты — гроссмейстеры?</b> Нет. Даже лучшие студенты-скрипачи к 20 годам набирают около 10 000 часов, а это примерно 2150, уровень кандидата в мастера. До гроссмейстерских 2500 по этой кривой нужно около 25 000 часов, то есть десятилетия ежедневной работы. Туда доходят профессионалы, которые занимаются всю жизнь, а выпускник консерватории обычно ещё нет. Шахматных гроссмейстеров в мире меньше двух тысяч, так что и гитарист-«гроссмейстер» должен быть редкостью.</p>
+    <p><b>Высоцкий.</b> Он играл на семиструнке, первые аккорды ему показал школьный друг Игорь Кохановский, и виртуозом его не считали. Зато он дал больше тысячи концертов, написал сотни песен, а его гитару узнают с первых тактов. Если ответить за него там, где семиструнка не мешает, выйдет <b id="vysElo"></b>: техника на уровне начинающего клубного гитариста, сцена и репертуар на максимуме. Широкий разброс тут и есть главный вывод: рейтинг — это среднее, а у Высоцкого среднее мало что говорит.</p>
+    <details><summary>Ответы за Высоцкого (прикидка автора)</summary><ul class="vys" id="vysList"></ul></details>
+
     <p>Самооценка часто ошибается: начинающие обычно себя завышают, сильные музыканты занижают. Выше 2400 опросник уровни уже не различает, там нужен живой слушатель.</p>
+    <p class="sources">Ориентиры: программа «Специальность. Гитара шестиструнная», 5 лет, <a href="https://dmsh4perm.ru/public/%20%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0%20%D1%88%D0%B5%D1%81%D1%82%D0%B8%D1%81%D1%82%D1%80%D1%83%D0%BD%D0%BD%D0%B0%D1%8F%205%20%D0%BB%D0%B5%D1%82%20%D0%A4%D0%93%D0%A2.pdf" target="_blank" rel="noopener">ДМШ № 4 Перми</a> (современная, советский учебный план найти не удалось). K. A. Ericsson, R. Krampe, C. Tesch-Römer, <a href="https://doi.org/10.1037/0033-295X.100.3.363" target="_blank" rel="noopener">The role of deliberate practice in the acquisition of expert performance</a>, Psychological Review, 1993. B. Macnamara, M. Maitra, <a href="https://doi.org/10.1098/rsos.190327" target="_blank" rel="noopener">повторное исследование</a>, Royal Society Open Science, 2019. О Высоцком: <a href="https://kino.rambler.ru/movies/54465653-on-nauchil-vysotskogo-igrat-na-gitare-kto-na-samom-dele-vospital-barda-i-sochinil-babe-leto/" target="_blank" rel="noopener">Рамблер</a>, <a href="https://music-museum.ru/about/news/11-faktov-iz-zhizni-vladimira-vyisoczkogo.-k-85-letiyu-so-dnya-rozhdeniya.html" target="_blank" rel="noopener">Музей музыки</a>.</p>
     <p class="sources">Источники кривой: F. Gobet, G. Campitelli, <a href="https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf" target="_blank" rel="noopener">The role of domain-specific practice, handedness, and starting age in chess</a>, Developmental Psychology, 2007, таблицы 1–2 (<a href="https://en.chessbase.com/post/handedne-practice-and-talent-in-che" target="_blank" rel="noopener">пересказ на ChessBase</a>). N. Charness et al., <a href="https://doi.org/10.1002/acp.1106" target="_blank" rel="noopener">The role of deliberate practice in chess expertise</a>, Applied Cognitive Psychology, 2005.</p>
   </section>
 
@@ -615,6 +633,22 @@ function fretboardStop(correct, total, medianSec) {
   if (correct < 0.7 * total) return 0;
   return medianSec <= 2.5 ? 3 : medianSec <= 5 ? 2 : 1;
 }
+// Reference points for the scale, converted on the same curve. Music school: the hour norms of a current 5-year
+// six-string guitar programme (lessons + home practice, 33 weeks a year). Violinists: Ericsson et al. 1993,
+// accumulated practice alone; the age-20 figure is from the 2019 replication.
+const REFS = [
+  { who: 'Музыкальная школа по гитаре, 2 класса', h: 330, note: 'по нормам программы: 2 урока и 3 часа дома в неделю, 33 недели в году' },
+  { who: '3 класса', h: 495 },
+  { who: '4 класса', h: 710, note: 'с 4-го класса 2,5 урока и 4 часа дома в неделю' },
+  { who: '5 классов, выпуск', h: 924, note: 'на выпускном: Сор, Каркасси, Броуэр «День в ноябре»' },
+  { who: 'Скрипачи, будущие учителя музыки, к 18 годам', h: 3420, note: 'Эрикссон и др., 1993' },
+  { who: 'Хорошие скрипачи музыкальной академии, к 18 годам', h: 5301 },
+  { who: 'Лучшие, будущие солисты, к 18 годам', h: 7410 },
+  { who: 'Лучшие и хорошие скрипачи к 20 годам', h: 10000, more: true, note: 'повторное исследование 2019 года' },
+  { who: 'Гроссмейстер', h: 25000, note: 'например, 20 лет по 3,5 часа каждый день' },
+];
+// Vysotsky answered for him, only where a seven-string guitar fits the question. The author's guess, not a measurement.
+const VYSOTSKY = { chords: 3, strum: 2, fingers: 1, dynamics: 3, repertoire: 14, hardest: 2, party: 5, record: 3, stage: 4 };
 const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
 /*END MODEL*/
 
@@ -734,6 +768,19 @@ function renderBoard() {
 function renderAnchors() {
   $('#anchors').innerHTML = curveAnchors().map(a =>
     `<tr${a.cal ? ' class="calrow"' : ''}><td class="n">${a.h.toLocaleString('ru-RU')}</td><td class="n">${a.e}</td><td>${a.src}</td></tr>`).join('');
+  renderRefs();
+}
+// Runs before qById exists, so it looks questions up directly. Follows the calibration like the anchor table.
+function renderRefs() {
+  const v = score(VYSOTSKY), vys = `≈ ${fmtElo(v.elo)} ±${round10(v.spread)}`;
+  $('#refs').innerHTML = REFS.map(r => `<tr><td>${r.who}${r.note ? `<span class="refnote">${r.note}</span>` : ''}</td>`
+    + `<td class="n">${r.more ? '> ' : ''}${r.h.toLocaleString('ru-RU')}</td><td class="n">${fmtElo(eloFromHours(r.h))}</td></tr>`).join('')
+    + `<tr><td>Высоцкий, по навыкам<span class="refnote">прикидка автора, ответы ниже</span></td><td class="n">—</td><td class="n">≈ ${fmtElo(v.elo)}<span class="refnote">±${round10(v.spread)}</span></td></tr>`;
+  $('#vysElo').textContent = vys;
+  $('#vysList').innerHTML = Object.entries(VYSOTSKY).map(([id, a]) => {
+    const q = QUESTIONS.find(x => x.id === id);
+    return `<li>${q.text} — «${q.o[a][0]}»</li>`;
+  }).join('') + '<li>Остальное — «дурацкий вопрос»: метроном, медиатор, бенды и ноты на шестиструнке не про него.</li>';
 }
 
 function syncForm() {

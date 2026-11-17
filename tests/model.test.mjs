@@ -7,7 +7,7 @@ const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</
 new Function(script); // the whole page script must parse
 
 const model = script.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop };')();
+const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY };')();
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
 let failed = 0;
 const check = (name, fn) => {
@@ -60,6 +60,14 @@ check('fretboard quiz: result maps to a stop, never the untested top one', () =>
   assert.equal(m.fretboardStop(8, 10, 9), 1);
   assert.equal(m.fretboardStop(6, 10, 1), 0);
   assert.equal(m.fretboardStop(0, 10, NaN), 0);
+});
+check('reference points: hours rise down the table; Vysotsky answers are valid', () => {
+  for (let i = 1; i < m.REFS.length; i++) assert.ok(m.REFS[i].h > m.REFS[i - 1].h, m.REFS[i].who);
+  for (const [id, a] of Object.entries(m.VYSOTSKY)) {
+    const q = m.QUESTIONS.find(x => x.id === id);
+    assert.ok(q && q.o[a], `${id}=${a}`);
+  }
+  assert.equal(m.QUESTIONS.find(q => q.id === 'repertoire').o[m.VYSOTSKY.repertoire][0], '200 и больше');
 });
 check('unanswered questions are left out of the score', () => {
   const some = { chords: 3, metronome: 2, hardest: 1 };
