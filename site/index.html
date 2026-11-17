@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Гитарный Elo — рейтинг гитариста по шахматной шкале</title>
+<meta name="description" content="15 вопросов о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
+<link rel="canonical" href="https://guitar-elo.lipu.dev/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#F3F4F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111413" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="lipu.dev">
+<meta property="og:url" content="https://guitar-elo.lipu.dev/">
+<meta property="og:title" content="Гитарный Elo">
+<meta property="og:description" content="15 вопросов о навыках гитариста. Ответы переводятся в часы занятий, а часы — в шахматный рейтинг Elo по данным исследований шахматистов.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: questionnaire column + sticky scorecard whose rating sits on a fretboard strip; on phones the scorecard leads and a slim bottom bar keeps the number in view. */
+:root{
+  --bg:#F3F4F1; --surface:#FFFFFF; --ink:#191C1A; --muted:#5C645F; --line:#D9DDD8;
+  --accent:#9A6510; --accent-soft:#F5E9D2; --on-accent:#FFFFFF;
+  --board:#3D2B22; --fret:#C7CAC4; --string:#D9C9A3; --inlay:#EFE8D8; --pin-hours:#9FD3B4;
+  --good:#2E7448; --warn:#A5461E;
+  --f-display:'Unbounded','Inter',system-ui,sans-serif;
+  --f-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111413; --surface:#1A1E1C; --ink:#E8EBE7; --muted:#9BA39E; --line:#2D3330;
+    --accent:#E2B050; --accent-soft:#3A2F19; --on-accent:#1A1408;
+    --board:#2B1E18; --fret:#8F938D; --string:#B8A57C; --inlay:#D2CAB8; --pin-hours:#7CC79C;
+    --good:#6DC28C; --warn:#E89068; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111413; --surface:#1A1E1C; --ink:#E8EBE7; --muted:#9BA39E; --line:#2D3330;
+  --accent:#E2B050; --accent-soft:#3A2F19; --on-accent:#1A1408;
+  --board:#2B1E18; --fret:#8F938D; --string:#B8A57C; --inlay:#D2CAB8; --pin-hours:#7CC79C;
+  --good:#6DC28C; --warn:#E89068; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:36px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{display:grid;gap:10px;max-width:68ch;margin-bottom:28px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,4.4vw,40px);line-height:1.1;letter-spacing:-0.01em;margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);font-size:16px}
+.example{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:0 0 24px;padding:12px 16px;border:1px solid var(--accent);border-radius:10px;background:var(--accent-soft)}
+.example p{margin:0;flex:1 1 320px;min-width:0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 384px;gap:32px;align-items:start}
+.quiz{display:grid;gap:32px;min-width:0}
+.group{display:grid;gap:12px;min-width:0}
+.group h2{font-family:var(--f-display);font-weight:500;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+fieldset.q{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:16px 18px 18px;margin:0;min-width:0}
+fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;gap:10px;align-items:baseline}
+.qn{font-family:var(--f-mono);font-size:12px;color:var(--muted);flex:none}
+.qt{font-weight:600;font-size:16px;flex:1 1 auto;min-width:0;text-wrap:balance}
+.qelo{font-family:var(--f-mono);font-size:12px;color:var(--accent);white-space:nowrap;flex:none}
+.qelo.off{color:var(--muted)}
+.hint{clear:both;margin:-6px 0 10px;color:var(--muted);font-size:13.5px}
+.opts{clear:both;display:grid;gap:6px}
+.opt{display:grid;grid-template-columns:16px minmax(0,1fr);gap:10px;align-items:start;padding:8px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:border-color .12s,background-color .12s}
+.opt:hover{border-color:var(--muted)}
+.opt input{appearance:none;-webkit-appearance:none;margin:3px 0 0;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--muted);background:var(--surface);cursor:pointer}
+.opt input:checked{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--surface)}
+.opt input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt.skip{border-style:dashed;color:var(--muted)}
+.opt.skip:has(input:checked){color:var(--ink)}
+
+.score{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:20px;min-width:0}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
+.headline{display:grid;gap:6px}
+.numrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big{font-family:var(--f-display);font-weight:700;font-size:64px;line-height:1;letter-spacing:-0.03em;font-variant-numeric:tabular-nums}
+.pm{font-family:var(--f-mono);font-size:16px;color:var(--muted)}
+.band{font-family:var(--f-display);font-weight:500;font-size:17px;color:var(--accent);margin:0}
+.bandtext{margin:0;color:var(--muted)}
+.equiv{margin:0;font-size:13.5px;color:var(--muted)}
+.equiv b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+
+.boardwrap{display:grid;gap:6px}
+.board{position:relative;height:50px;border-radius:3px;background:var(--board);overflow:hidden}
+.board .str{position:absolute;left:0;right:0;background:var(--string);opacity:.85}
+.board .fret{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--fret)}
+.board .inlay{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--inlay);opacity:.9}
+.board .pin{position:absolute;top:0;bottom:0;width:0;transition:left .25s ease}
+.board .pin::before{content:"";position:absolute;top:0;bottom:0;left:-2px;width:4px;border-radius:2px}
+.board .pin::after{content:"";position:absolute;top:50%;left:-8px;width:16px;height:16px;margin-top:-8px;border-radius:50%}
+.pin.skill::before{background:var(--accent)}
+.pin.skill::after{background:var(--accent);box-shadow:0 0 0 2px var(--board)}
+.pin.hours::before{background:repeating-linear-gradient(to bottom,var(--pin-hours) 0 5px,transparent 5px 9px)}
+.pin.hours::after{background:transparent;border:2.5px solid var(--pin-hours)}
+.ticks{position:relative;height:16px;font-family:var(--f-mono);font-size:10.5px;color:var(--muted)}
+.ticks span{position:absolute;top:0;transform:translateX(-50%)}
+.ticks span:first-child{transform:none}
+.ticks span:last-child{transform:translateX(-100%)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.legend .k-skill{background:var(--accent)}
+.legend .k-hours{border:2px solid var(--pin-hours)}
+
+.block{display:grid;gap:10px;padding-top:16px;border-top:1px solid var(--line)}
+.block h3{margin:0;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cats{display:grid;gap:8px}
+.cat{display:grid;grid-template-columns:8.6em minmax(0,1fr) 3.2em;gap:10px;align-items:center;font-size:14px}
+.cat .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.cat .bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width .25s ease}
+.cat .v{font-family:var(--f-mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums}
+.cat.weak .name{color:var(--warn);font-weight:600}
+.cat.weak .bar i{background:var(--warn)}
+.weaknote{margin:0;font-size:13.5px;color:var(--muted)}
+.weaknote b{color:var(--warn)}
+
+.practice{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:14px}
+.practice input,.cal input{width:4.4em;padding:6px 8px;font:500 14px var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px}
+.practice input:focus-visible,.cal input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.compare{margin:0;font-size:14px}
+.compare b{font-family:var(--f-mono);font-weight:500}
+.verdict{margin:0;font-size:14px;color:var(--muted)}
+.verdict.up{color:var(--good)}
+.verdict.down{color:var(--warn)}
+
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{font:500 14px var(--f-body);padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.status{font-size:13px;color:var(--good)}
+.copybox{width:100%;min-height:96px;font:13px var(--f-mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px}
+
+.method{margin-top:56px;padding-top:28px;border-top:1px solid var(--line);display:grid;gap:16px;max-width:78ch}
+.method h2{font-family:var(--f-display);font-weight:500;font-size:22px;margin:0}
+.method p,.method ol{margin:0}
+.method ol{padding-left:1.3em;display:grid;gap:6px}
+.calnote{color:var(--muted);font-size:13.5px}
+.cal{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+td.n{font-family:var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+tr.calrow td{background:var(--accent-soft)}
+.bands{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
+.bands div{padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-size:13.5px;min-width:0}
+.bands b{display:block;font-family:var(--f-mono);font-weight:500;font-size:12px;color:var(--accent)}
+.sources{font-size:13.5px;color:var(--muted)}
+.sources a{color:var(--accent)}
+
+.bar-mobile{display:none}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .score{position:static;max-height:none;order:-1}
+  .bar-mobile.show{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;
+    padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+    background:var(--surface);border-top:1px solid var(--line);font-size:14px}
+  .bar-mobile b{font-family:var(--f-display);font-size:18px}
+  .wrap{padding-bottom:96px}
+}
+@media (max-width:420px){
+  .big{font-size:54px}
+  .cat{grid-template-columns:7.4em minmax(0,1fr) 3em}
+}
+@media (prefers-reduced-motion: reduce){
+  .board .pin,.cat .bar i,.opt{transition:none}
+}
+/* page base (the artifact viewer supplied these) */
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--muted)}
+.foot a{color:var(--muted)}
+.foot a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Гитарный Elo</h1>
+    <p class="lede">15 вопросов о том, что ты умеешь на гитаре. Каждый ответ переводится в часы занятий, а часы — в шахматный рейтинг по одной общей кривой. Гитарист с рейтингом 1500 вложил в гитару примерно столько же часов, сколько шахматист с рейтингом 1500 — в шахматы.</p>
+  </header>
+
+  <div class="example" id="example" hidden>
+    <p><b>Это пример.</b> Так отвечает гитарист, который 3 года занимался по 3 раза в неделю по 3 часа. Меняй ответы на свои или начни с чистого листа.</p>
+    <button class="btn primary" type="button" id="start">Начать с чистого листа</button>
+  </div>
+
+  <div class="layout">
+    <form class="quiz" id="quiz" autocomplete="off"></form>
+
+    <aside class="score" id="score" aria-live="polite">
+      <div class="headline">
+        <p class="eyebrow" id="progress">Отвечено 0 из 15</p>
+        <div class="numrow"><span class="big" id="elo">—</span><span class="pm" id="pm"></span></div>
+        <p class="band" id="band"></p>
+        <p class="bandtext" id="bandtext"></p>
+        <p class="equiv" id="equiv"></p>
+      </div>
+
+      <div class="boardwrap">
+        <div class="board" id="board" aria-hidden="true"></div>
+        <div class="ticks" id="ticks" aria-hidden="true"></div>
+        <div class="legend"><span><i class="k-skill"></i>по навыкам</span><span><i class="k-hours"></i>по часам занятий</span></div>
+      </div>
+
+      <div class="block">
+        <h3>По разделам</h3>
+        <div class="cats" id="cats"></div>
+        <p class="weaknote" id="weaknote" hidden></p>
+      </div>
+
+      <div class="block">
+        <h3>Сравнить с часами занятий</h3>
+        <div class="practice">
+          <input type="number" id="p-years" min="0" max="80" step="0.5" inputmode="decimal" aria-label="Лет занятий"><label for="p-years">лет ×</label>
+          <input type="number" id="p-week" min="0" max="14" step="0.5" inputmode="decimal" aria-label="Занятий в неделю"><label for="p-week">раз в неделю ×</label>
+          <input type="number" id="p-hours" min="0" max="16" step="0.5" inputmode="decimal" aria-label="Часов за занятие"><label for="p-hours">ч</label>
+        </div>
+        <p class="compare" id="compare"></p>
+        <p class="verdict" id="verdict"></p>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="button" id="copy">Скопировать результат</button>
+        <button class="btn" type="button" id="reset">Пройти заново</button>
+        <button class="btn" type="button" id="loadExample">Пример</button>
+        <span class="status" id="status" role="status"></span>
+      </div>
+      <textarea class="copybox" id="copybox" readonly hidden aria-label="Текст результата"></textarea>
+    </aside>
+  </div>
+
+  <section class="method" id="method">
+    <h2>Как считается</h2>
+    <ol>
+      <li>Каждый вариант ответа — примерное число часов занятий, за которое гитарист обычно до него доходит.</li>
+      <li>Часы переводятся в рейтинг по кривой «часы → шахматный Elo» из таблицы ниже.</li>
+      <li>Итог — среднее по отвеченным вопросам с весами. Метроном и самая сложная вещь весят больше, сцена и теория меньше. Ответ «Не моё» в среднее не входит, так что классика не теряет очки за медиатор, а металлист за фингерстайл.</li>
+      <li>Число после ± показывает, насколько ответы расходятся между собой. Чем ровнее навыки, тем уже разброс.</li>
+    </ol>
+    <p>Получается Elo-эквивалент: какой рейтинг был бы у шахматиста, вложившего столько же часов. Настоящий Elo считают по результатам партий, а здесь партий нет. Часы из блока «Сравнить с часами занятий» в рейтинг не входят. Они нужны только для сравнения: обогнал ли ты свои часы или отстал.</p>
+    <p>Кривая отвечает на вопрос «сколько часов обычно у шахматиста такого рейтинга», потому что и опросник устроен так же: навык → сколько часов обычно нужно, чтобы до него дойти. Обратный вопрос, «какой средний рейтинг у шахматиста с таким числом часов», по той же статье даёт за 1 404 ч около 1650–1800. Но эта цифра завышена: игроков слабее 1490 в выборку не брали, и слабые игроки с большим числом часов в неё просто не попали. Рейтинг в статье — национальный аргентинский Elo (с рейтингом ФИДЕ r = 0,89), а не рейтинг chess.com или Lichess.</p>
+    <p>В исследовании Charness et al. (2005) рейтинг лучше всего предсказывали часы серьёзной самостоятельной работы, а не число сыгранных партий. Для гитары отсюда разумная подсказка: час с метрономом над слабым местом, скорее всего, стоит больше часа любимых песен.</p>
+
+    <div class="cal">
+      <label for="cal">Калибровка: 3 года × 3 раза в неделю × 3 часа = 1 404 ч ≈</label>
+      <input type="number" id="cal" min="800" max="2100" step="50" inputmode="numeric">
+      <span>Elo</span>
+      <span class="calnote">По данным: 1100–1400. По умолчанию 1250.</span>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Часов занятий</th><th>Elo</th><th>Откуда точка</th></tr></thead>
+        <tbody id="anchors"></tbody>
+      </table>
+    </div>
+    <p>Между точками кривая идёт прямо в логарифме часов: каждое удвоение часов даёт примерно одинаковую прибавку.</p>
+
+    <h2>Шкала</h2>
+    <div class="bands" id="bands"></div>
+
+    <p>Самооценка часто ошибается: начинающие обычно себя завышают, сильные музыканты занижают. Выше 2400 опросник уровни уже не различает, там нужен живой слушатель.</p>
+    <p class="sources">Источники кривой: F. Gobet, G. Campitelli, <a href="https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf" target="_blank" rel="noopener">The role of domain-specific practice, handedness, and starting age in chess</a>, Developmental Psychology, 2007, таблицы 1–2 (<a href="https://en.chessbase.com/post/handedne-practice-and-talent-in-che" target="_blank" rel="noopener">пересказ на ChessBase</a>). N. Charness et al., <a href="https://doi.org/10.1002/acp.1106" target="_blank" rel="noopener">The role of deliberate practice in chess expertise</a>, Applied Cognitive Psychology, 2005.</p>
+  </section>
+
+  <footer class="foot">
+    <a href="https://lipu.dev/">lipu.dev</a>
+    <a href="https://github.com/komapc/guitar-elo" rel="noopener">Исходный код</a>
+    <span>Код под лицензией MIT</span>
+  </footer>
+</div>
+
+<div class="bar-mobile" id="barMobile">
+  <span><b id="barElo">—</b> <span id="barBand"></span></span>
+  <button class="btn" type="button" id="toScore">К результату</button>
+</div>
+
+<script>
+/*MODEL*/
+const CAL = { years: 3, perWeek: 3, hours: 3 };
+const CAL_HOURS = CAL.years * 52 * CAL.perWeek * CAL.hours; // 1404
+const MODEL = { anchorElo: 1250 };
+const ELO_MAX = 2850;
+const MIN_COUNTED = 6;
+
+function curveAnchors() {
+  return [
+    { h: 0, e: 400, src: 'Старт: знает, как ходят фигуры. Допущение.' },
+    { h: 100, e: 750, src: 'Первые месяцы без системы. Допущение.' },
+    { h: CAL_HOURS, e: MODEL.anchorElo, src: 'Калибровка: 3 года × 3 раза в неделю × 3 часа. Столько часов типично для игрока ≈1250 (1100–1400) по данным Гобе и Кампителли (2007). Игроков слабее 1490 в их выборке не было, так что это продолжение линии вниз.', cal: true },
+    { h: 11053, e: 2200, src: 'Измерено: в среднем столько часов было у игрока в момент, когда он впервые набрал 2200 (34 игрока, разброс 3 016–23 608 ч). Гобе и Кампителли (2007).' },
+    { h: 25000, e: 2500, src: 'Гроссмейстер. Допущение: часы гроссмейстеров в статье не опубликованы.' },
+    { h: 50000, e: 2750, src: 'Мировая элита. Допущение; выше 2850 шкала не идёт.' },
+  ];
+}
+const lx = h => Math.log10(Math.max(0, h) + 10);
+
+function eloFromHours(h) {
+  const A = curveAnchors(), x = lx(h);
+  for (let i = 0; i < A.length - 1; i++) {
+    const x0 = lx(A[i].h), x1 = lx(A[i + 1].h);
+    if (x <= x1 || i === A.length - 2) {
+      const e = A[i].e + (x - x0) * (A[i + 1].e - A[i].e) / (x1 - x0);
+      return Math.min(ELO_MAX, Math.max(A[0].e, e));
+    }
+  }
+}
+function hoursFromElo(e) {
+  const A = curveAnchors();
+  e = Math.min(ELO_MAX, Math.max(A[0].e, e));
+  for (let i = 0; i < A.length - 1; i++) {
+    if (e <= A[i + 1].e || i === A.length - 2) {
+      const x0 = lx(A[i].h), x1 = lx(A[i + 1].h);
+      const x = x0 + (e - A[i].e) * (x1 - x0) / (A[i + 1].e - A[i].e);
+      return Math.max(0, Math.pow(10, x) - 10);
+    }
+  }
+}
+
+const CATS = [
+  { id: 'harmony', name: 'Гармония' },
+  { id: 'rhythm', name: 'Ритм' },
+  { id: 'tech', name: 'Техника' },
+  { id: 'ear', name: 'Гриф и слух' },
+  { id: 'music', name: 'Музыка и сцена' },
+];
+
+// Each option: [label, typical practice hours to reach it]
+const QUESTIONS = [
+  { id: 'chords', cat: 'harmony', w: 1, text: 'Какие аккорды берёшь уверенно, без подготовки?', o: [
+    ['Пока ни одного', 5],
+    ['3–5 открытых: Am, C, G, D, Em', 25],
+    ['Все открытые и F-баррэ, хоть и с трудом', 120],
+    ['Баррэ в любой позиции, от формы E и формы A', 400],
+    ['Септаккорды, sus, add9, maj7 в нескольких позициях', 1500],
+    ['Расширенные и альтерированные (9, 11, 13, ♭9, ♯11), drop-2 и drop-3 в любой тональности', 9000],
+    ['Любой аккорд в любой позиции; веду голоса и реармонизирую на ходу', 28000]] },
+  { id: 'changes', cat: 'harmony', w: 0.7, text: 'Сколько раз за минуту чисто меняешь два открытых аккорда, например C и G?', hint: 'Считай только смены, после которых звучат все ноты.', o: [
+    ['Меньше 15', 8],
+    ['15–30', 30],
+    ['30–60', 120],
+    ['Больше 60, не глядя на гриф', 1100],
+    ['Так же быстро меняю баррэ и джазовые формы, без пауз в темпе песни', 6000]] },
+  { id: 'metronome', cat: 'rhythm', w: 1.2, text: 'Как у тебя с метрономом?', o: [
+    ['Почти не играл с ним, сразу сбиваюсь', 10],
+    ['Простой бой на медленном темпе держу, но «уезжаю»', 80],
+    ['Ровные восьмые в любом темпе от 60 до 140', 400],
+    ['Шестнадцатые, триоли и синкопы; щелчок на 2 и 4 не мешает', 1800],
+    ['Щелчок раз в такт или реже, и я не плыву; полиритмы 3:2 и 4:3', 6000],
+    ['Попадаю в сетку без правок и управляю посадкой: впереди доли или позади', 25000]] },
+  { id: 'strum', cat: 'rhythm', w: 0.8, text: 'Какие ритмические рисунки играешь?', o: [
+    ['Только удары вниз на каждую долю', 8],
+    ['2–3 базовых боя: «шестёрка», «восьмёрка»', 50],
+    ['Глушение, акценты, офф-бит в регги и ска', 800],
+    ['Фанк шестнадцатыми с глухими нотами, шаффл, свинг', 3500],
+    ['Любой стиль от босса-новы до мануша, размеры 5/4 и 7/8', 14000]] },
+  { id: 'pick', cat: 'tech', w: 1, text: 'На каком темпе чисто играешь шестнадцатые переменным штрихом?', hint: 'Гамма или упражнение по метроному, без смазанных нот.', skip: 'Не моё: медиатором не играю', o: [
+    ['Шестнадцатыми пока не играю, или медленнее 60', 40],
+    ['60–90 bpm', 200],
+    ['90–110 bpm', 600],
+    ['110–130 bpm', 2000],
+    ['130–150 bpm', 4000],
+    ['150–170 bpm', 9000],
+    ['Быстрее 170 bpm', 20000]] },
+  { id: 'fingers', cat: 'tech', w: 1, text: 'Что умеешь пальцами правой руки?', skip: 'Не моё: играю только медиатором', o: [
+    ['Простой перебор («четвёрка», «шестёрка») на открытых аккордах', 50],
+    ['Травис-пикинг с переменным басом, арпеджио p-i-m-a в темпе', 800],
+    ['Бас и мелодия одновременно: фингерстайл-аранжировки, этюды Каркасси и Джулиани', 1500],
+    ['Тремоло, расгеадо, этюды Вила-Лобоса', 6000],
+    ['Концертная программа: Бах, Альбенис или сложный фингерстайл в полном темпе', 25000]] },
+  { id: 'lead', cat: 'tech', w: 1, text: 'Как с сольной техникой: бенды, вибрато, легато?', skip: 'Не моё: соло не играю', o: [
+    ['Бенды не дотягиваю до ноты, вибрато нет', 40],
+    ['Бенды и слайды есть, но интонация гуляет', 200],
+    ['Точный бенд на тон, ровное вибрато, хаммеры и пуллы', 1200],
+    ['Беглое легато, тэппинг, бенд с удержанием, своё вибрато', 4500],
+    ['Свип, гибридный и экономный штрих в темпе; манеру узнают', 22000]] },
+  { id: 'tone', cat: 'tech', w: 1, text: 'Насколько чисто звучит твоя игра?', o: [
+    ['Струны дребезжат, ноты в аккордах глохнут', 10],
+    ['В основном чисто, но на баррэ и быстрых сменах грязь', 100],
+    ['Чисто: лишние струны заглушены, громкостью управляю', 1200],
+    ['Контролирую тембр, атаку и динамику; на перегрузе между нотами тишина', 5000],
+    ['Мой звук узнают с первых нот', 30000]] },
+  { id: 'fretboard', cat: 'ear', w: 1, text: 'Насколько хорошо знаешь гриф?', o: [
+    ['Играю по табам, ноты на грифе не знаю', 20],
+    ['Знаю ноты на 6-й и 5-й струнах', 120],
+    ['Пентатоника в пяти позициях, система CAGED', 1200],
+    ['Любую ноту и интервал нахожу сразу; лады вроде дорийского играю в любой позиции', 4500],
+    ['Арпеджио и голоса по всему грифу строю на ходу', 18000]] },
+  { id: 'theory', cat: 'ear', w: 0.7, text: 'Что знаешь из теории и нотной грамоты?', o: [
+    ['Только табы', 20],
+    ['Интервалы, тональности, как строятся аккорды', 500],
+    ['Читаю ноты медленно; понимаю функции T–S–D и II–V–I', 1200],
+    ['Читаю с листа простые партии, разбираюсь в джазовой гармонии', 6000],
+    ['Читаю с листа сложные партии, как на студийной сессии', 18000]] },
+  { id: 'ear', cat: 'ear', w: 1, text: 'Как подбираешь на слух?', o: [
+    ['Не подбираю, только табы и разборы', 20],
+    ['Мелодию или аккорды простой песни подбираю, но долго', 150],
+    ['Аккорды поп-рок песни снимаю за 10–20 минут', 1400],
+    ['Снимаю соло и сложные аккорды: септаккорды, обращения', 4500],
+    ['Слышу и сразу играю; транскрибирую джазовые соло', 20000]] },
+  { id: 'improv', cat: 'music', w: 1, text: 'Как импровизируешь?', skip: 'Не моё: играю только написанное (классика)', o: [
+    ['Не импровизирую, не знаю, с чего начать', 20],
+    ['Играю пентатонику поверх минуса, но звучит как гамма', 150],
+    ['Строю фразы, оставляю паузы, попадаю в настроение', 1300],
+    ['Играю на смену аккордов: целевые ноты, арпеджио', 5000],
+    ['Свободно играю над сложной гармонией: джаз, фьюжн', 22000]] },
+  { id: 'repertoire', cat: 'music', w: 0.8, text: 'Сколько вещей сыграешь целиком прямо сейчас, без нот и подготовки?', o: [
+    ['0–2', 15],
+    ['3–10', 80],
+    ['10–30', 1200],
+    ['30–100', 3500],
+    ['Больше 100, хватит на трёхчасовой концерт', 12000]] },
+  { id: 'hardest', cat: 'music', w: 1.2, text: 'Самая сложная вещь, которую играешь целиком в оригинальном темпе?', o: [
+    ['Песня на 3–4 открытых аккорда, вроде Knockin’ on Heaven’s Door', 30],
+    ['Песни с баррэ и риффами: Smells Like Teen Spirit, вступление Nothing Else Matters', 200],
+    ['С соло средней сложности: Wish You Were Here, Another Brick in the Wall (Part 2)', 700],
+    ['Hotel California с обоими соло, Stairway to Heaven целиком, «Испанский романс»', 1800],
+    ['Второе соло Comfortably Numb, Sultans of Swing, Little Wing', 4000],
+    ['Eruption, «Астурия», Cliffs of Dover', 9000],
+    ['For the Love of God Стива Вая, «Воспоминания об Альгамбре» на концертном уровне', 28000]] },
+  { id: 'stage', cat: 'music', w: 0.6, text: 'Играешь на людях?', o: [
+    ['Только для себя', 30],
+    ['Друзьям, у костра; от волнения сбиваюсь', 200],
+    ['Открытые микрофоны, репетиции в группе', 1200],
+    ['Регулярные концерты; если ошибаюсь, не останавливаюсь', 5000],
+    ['Играю за деньги: концерты, студия', 15000]] },
+];
+
+// The 3×3×3 guitarist used as the example and as the calibration persona.
+const EXAMPLE = { chords: 4, changes: 3, metronome: 3, strum: 2, pick: 3, fingers: 1, lead: 2, tone: 2,
+  fretboard: 2, theory: 1, ear: 2, improv: 2, repertoire: 2, hardest: 3, stage: 2 };
+
+const BANDS = [
+  { min: 0, name: 'Новичок', guitar: 'Первые аккорды; песни медленно и с остановками.' },
+  { min: 800, name: 'Любитель', guitar: 'Песни у костра; баррэ даётся с трудом, ритм пока плавает.' },
+  { min: 1200, name: 'Клубный игрок', guitar: 'Песни целиком, баррэ, простые соло; можно играть в любительской группе.' },
+  { min: 1600, name: 'Сильный любитель', guitar: 'Чистый звук, импровизация, подбор на слух, выступления на открытых микрофонах.' },
+  { min: 2000, name: 'Кандидат в мастера', guitar: 'Полупрофессионал: кавер-группа, которой платят, свои ученики.' },
+  { min: 2200, name: 'Мастер', guitar: 'Профессиональный музыкант: сессии, туры, преподавание.' },
+  { min: 2400, name: 'Международный мастер', guitar: 'Топовый сессионный гитарист или концертирующий солист.' },
+  { min: 2500, name: 'Гроссмейстер', guitar: 'Виртуоз со своим узнаваемым стилем.' },
+  { min: 2700, name: 'Супергроссмейстер', guitar: 'Легенды инструмента.' },
+];
+const bandOf = e => BANDS.reduce((b, x) => (e >= x.min ? x : b), BANDS[0]);
+
+function score(answers) {
+  let sw = 0, se = 0, n = 0;
+  const items = [], cats = {};
+  for (const q of QUESTIONS) {
+    const a = answers[q.id];
+    if (a == null || a === 'skip' || !q.o[a]) continue;
+    const e = eloFromHours(q.o[a][1]);
+    items.push({ e, w: q.w });
+    sw += q.w; se += q.w * e; n++;
+    const c = cats[q.cat] || (cats[q.cat] = { sw: 0, se: 0 });
+    c.sw += q.w; c.se += q.w * e;
+  }
+  if (!n) return { n: 0, catElo: {} };
+  const elo = se / sw;
+  const sd = Math.sqrt(items.reduce((s, it) => s + it.w * (it.e - elo) ** 2, 0) / sw);
+  const catElo = {};
+  for (const k in cats) catElo[k] = cats[k].se / cats[k].sw;
+  return { n, elo, sd, spread: Math.min(250, 60 + 0.4 * sd), catElo };
+}
+const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
+/*END MODEL*/
+
+const $ = s => document.querySelector(s);
+const STORE = 'guitar-elo-v2';
+const round10 = x => Math.round(x / 10) * 10;
+const fmtElo = x => String(round10(x));
+const fmtHours = h => {
+  const r = h < 100 ? Math.round(h / 5) * 5 : h < 1000 ? Math.round(h / 10) * 10 : Math.round(h / 100) * 100;
+  return r.toLocaleString('ru-RU');
+};
+const plural = (n, one, few, many) => {
+  const m10 = n % 10, m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+  return many;
+};
+const SCALE_MIN = 400, SCALE_MAX = 2800;
+const pct = e => ((Math.min(SCALE_MAX, Math.max(SCALE_MIN, e)) - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * 100;
+const clampAnchor = v => Math.min(2100, Math.max(800, Number.isFinite(+v) && +v ? +v : 1250));
+
+let state = { answers: {}, practice: { ...CAL }, anchorElo: 1250, example: false };
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE);
+    if (raw) { const s = JSON.parse(raw); if (s && typeof s.answers === 'object') return s; }
+  } catch (e) {}
+  return null;
+}
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
+
+const saved = load();
+if (saved) state = { ...state, ...saved, practice: { ...CAL, ...(saved.practice || {}) } };
+else { state.answers = { ...EXAMPLE }; state.example = true; }
+MODEL.anchorElo = clampAnchor(state.anchorElo);
+
+function renderQuiz() {
+  const form = $('#quiz');
+  let num = 0, html = '';
+  for (const c of CATS) {
+    html += `<section class="group"><h2>${c.name}</h2>`;
+    for (const q of QUESTIONS.filter(q => q.cat === c.id)) {
+      num++;
+      html += `<fieldset class="q" id="q-${q.id}"><legend><span class="qn">${String(num).padStart(2, '0')}</span><span class="qt">${q.text}</span><span class="qelo" id="e-${q.id}"></span></legend>`;
+      if (q.hint) html += `<p class="hint">${q.hint}</p>`;
+      html += '<div class="opts">';
+      q.o.forEach((o, i) => {
+        html += `<label class="opt" for="${q.id}-${i}"><input type="radio" name="${q.id}" id="${q.id}-${i}" value="${i}"><span>${o[0]}</span></label>`;
+      });
+      if (q.skip) html += `<label class="opt skip" for="${q.id}-skip"><input type="radio" name="${q.id}" id="${q.id}-skip" value="skip"><span>${q.skip}</span></label>`;
+      html += '</div></fieldset>';
+    }
+    html += '</section>';
+  }
+  form.innerHTML = html;
+}
+
+function renderBoard() {
+  const board = $('#board');
+  let html = '';
+  const widths = [1, 1.2, 1.5, 1.8, 2.2, 2.6];
+  widths.forEach((w, i) => { html += `<div class="str" style="top:${8 + i * 16.8}%;height:${w}px"></div>`; });
+  const edges = BANDS.map(b => Math.max(SCALE_MIN, b.min)).concat(SCALE_MAX);
+  BANDS.forEach((b, i) => {
+    if (b.min > SCALE_MIN) html += `<div class="fret" style="left:${pct(b.min)}%"></div>`;
+    if (i % 2 === 0 && i > 0) {
+      const mid = (Math.max(SCALE_MIN, b.min) + Math.min(SCALE_MAX, edges[i + 1])) / 2;
+      html += `<div class="inlay" style="left:${pct(mid)}%"></div>`;
+    }
+  });
+  html += '<div class="pin hours" id="pinHours"></div><div class="pin skill" id="pinSkill"></div>';
+  board.innerHTML = html;
+  let t = '';
+  for (let e = SCALE_MIN; e <= SCALE_MAX; e += 400) t += `<span style="left:${pct(e)}%">${e}</span>`;
+  $('#ticks').innerHTML = t;
+  $('#bands').innerHTML = BANDS.map((b, i) => {
+    const hi = BANDS[i + 1] ? BANDS[i + 1].min - 1 : null;
+    const range = b.min === 0 ? `до ${BANDS[1].min - 1}` : hi ? `${b.min}–${hi}` : `${b.min}+`;
+    return `<div><b>${range}</b>${b.name}. ${b.guitar}</div>`;
+  }).join('');
+}
+
+function renderAnchors() {
+  $('#anchors').innerHTML = curveAnchors().map(a =>
+    `<tr${a.cal ? ' class="calrow"' : ''}><td class="n">${a.h.toLocaleString('ru-RU')}</td><td class="n">${a.e}</td><td>${a.src}</td></tr>`).join('');
+}
+
+function syncForm() {
+  for (const q of QUESTIONS) {
+    const a = state.answers[q.id];
+    document.querySelectorAll(`input[name="${q.id}"]`).forEach(r => { r.checked = a != null && r.value === String(a); });
+  }
+  $('#p-years').value = state.practice.years;
+  $('#p-week').value = state.practice.perWeek;
+  $('#p-hours').value = state.practice.hours;
+  $('#cal').value = MODEL.anchorElo;
+  $('#example').hidden = !state.example;
+}
+
+let last = null;
+function update() {
+  const r = score(state.answers);
+  for (const q of QUESTIONS) {
+    const a = state.answers[q.id], chip = $('#e-' + q.id);
+    chip.classList.toggle('off', a === 'skip');
+    chip.textContent = a == null ? '' : a === 'skip' ? 'не в счёт' : '≈ ' + fmtElo(eloFromHours(q.o[a][1]));
+  }
+  const answered = QUESTIONS.filter(q => state.answers[q.id] != null).length;
+  $('#progress').textContent = `Отвечено ${answered} из ${QUESTIONS.length}`;
+
+  const ready = r.n >= MIN_COUNTED;
+  const hrs = practiceHours(state.practice);
+  const expected = hrs > 0 ? eloFromHours(hrs) : null;
+
+  if (ready) {
+    const b = bandOf(round10(r.elo));
+    $('#elo').textContent = fmtElo(r.elo);
+    $('#pm').textContent = '±' + round10(r.spread);
+    $('#band').textContent = b.name;
+    $('#bandtext').textContent = b.guitar;
+    $('#equiv').innerHTML = `Столько набирают примерно за <b>${fmtHours(hoursFromElo(r.elo))} ч</b> занятий.`;
+    $('#pinSkill').style.left = pct(r.elo) + '%';
+    $('#pinSkill').hidden = false;
+    $('#barElo').textContent = fmtElo(r.elo);
+    $('#barBand').textContent = b.name;
+  } else {
+    const left = MIN_COUNTED - r.n;
+    $('#elo').textContent = '—';
+    $('#pm').textContent = '';
+    $('#band').textContent = '';
+    $('#bandtext').textContent = `Ответь ещё на ${left} ${plural(left, 'вопрос', 'вопроса', 'вопросов')}, и появится рейтинг. «Не моё» не считается.`;
+    $('#equiv').textContent = '';
+    $('#pinSkill').hidden = true;
+    $('#barElo').textContent = '—';
+    $('#barBand').textContent = '';
+  }
+
+  // categories
+  const vals = CATS.map(c => r.catElo[c.id]).filter(v => v != null);
+  const minVal = vals.length ? Math.min(...vals) : null;
+  const weakCat = ready && vals.length > 1 && r.elo - minVal > 60 ? CATS.find(c => r.catElo[c.id] === minVal) : null;
+  $('#cats').innerHTML = CATS.map(c => {
+    const v = r.catElo[c.id];
+    const weak = weakCat && weakCat.id === c.id;
+    return `<div class="cat${weak ? ' weak' : ''}"><span class="name">${c.name}</span><span class="bar"><i style="width:${v == null ? 0 : pct(v)}%"></i></span><span class="v">${v == null ? '—' : fmtElo(v)}</span></div>`;
+  }).join('');
+  const wn = $('#weaknote');
+  if (weakCat) {
+    wn.hidden = false;
+    wn.innerHTML = `Слабое место: <b>${weakCat.name.toLowerCase()}</b>. Подтянешь его, и общий рейтинг вырастет быстрее всего.`;
+  } else wn.hidden = true;
+
+  // practice comparison
+  const pinH = $('#pinHours');
+  if (expected != null) {
+    pinH.hidden = false;
+    pinH.style.left = pct(expected) + '%';
+    $('#compare').innerHTML = `${fmtHours(hrs)} ч занятий. Шахматисту за столько же часов полагается <b>≈ ${fmtElo(expected)}</b>.`;
+  } else {
+    pinH.hidden = true;
+    $('#compare').textContent = 'Укажи, сколько занимаешься, чтобы сравнить навыки с вложенным временем.';
+  }
+  const v = $('#verdict');
+  v.className = 'verdict';
+  if (ready && expected != null) {
+    const d = round10(r.elo - expected);
+    if (Math.abs(d) <= Math.max(100, round10(r.spread))) v.textContent = 'Играешь на уровне своих часов, в пределах разброса.';
+    else if (d > 0) { v.classList.add('up'); v.textContent = `На ${d} выше своих часов. Либо занимаешься очень эффективно, либо ответы вышли щедрыми.`; }
+    else { v.classList.add('down'); v.textContent = `На ${-d} ниже своих часов. Так бывает, когда много играешь знакомое и мало работаешь над слабым местом.`; }
+  } else v.textContent = '';
+
+  last = { r, ready, hrs, expected, weakCat };
+}
+
+function resultText() {
+  const { r, ready, hrs, expected } = last;
+  if (!ready) return 'Гитарный Elo: ещё не посчитан.';
+  const lines = [`Гитарный Elo: ${fmtElo(r.elo)} ±${round10(r.spread)} (${bandOf(round10(r.elo)).name})`];
+  lines.push(CATS.filter(c => r.catElo[c.id] != null).map(c => `${c.name} ${fmtElo(r.catElo[c.id])}`).join(' · '));
+  if (expected != null) lines.push(`По часам занятий (${fmtHours(hrs)} ч): ${fmtElo(expected)}`);
+  return lines.join('\n');
+}
+
+function persist() { save(); update(); }
+
+renderQuiz();
+renderBoard();
+renderAnchors();
+syncForm();
+update();
+
+$('#quiz').addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.type !== 'radio') return;
+  state.answers[t.name] = t.value === 'skip' ? 'skip' : Number(t.value);
+  if (state.example) { state.example = false; $('#example').hidden = true; }
+  persist();
+});
+[['#p-years', 'years'], ['#p-week', 'perWeek'], ['#p-hours', 'hours']].forEach(([sel, key]) => {
+  $(sel).addEventListener('input', ev => {
+    const v = parseFloat(String(ev.target.value).replace(',', '.'));
+    state.practice[key] = Number.isFinite(v) ? v : 0;
+    persist();
+  });
+});
+$('#cal').addEventListener('change', ev => {
+  MODEL.anchorElo = clampAnchor(ev.target.value);
+  state.anchorElo = MODEL.anchorElo;
+  ev.target.value = MODEL.anchorElo;
+  renderAnchors();
+  persist();
+});
+function startFresh() {
+  state.answers = {};
+  state.example = false;
+  syncForm();
+  persist();
+  const first = document.querySelector('#quiz input');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('#quiz').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  if (first) first.focus({ preventScroll: true });
+}
+$('#start').addEventListener('click', startFresh);
+$('#reset').addEventListener('click', startFresh);
+$('#loadExample').addEventListener('click', () => {
+  state.answers = { ...EXAMPLE };
+  state.practice = { ...CAL };
+  state.example = true;
+  syncForm();
+  persist();
+});
+$('#copy').addEventListener('click', () => {
+  const text = resultText();
+  const box = $('#copybox'), status = $('#status');
+  const fallback = () => { box.hidden = false; box.value = text; box.focus(); box.select(); status.textContent = 'Выдели и скопируй текст ниже'; };
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      box.hidden = true; status.textContent = 'Скопировано';
+      setTimeout(() => { status.textContent = ''; }, 2500);
+    }, fallback);
+  } catch (e) { fallback(); }
+});
+$('#toScore').addEventListener('click', () => {
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('#score').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+});
+try {
+  const bar = $('#barMobile');
+  new IntersectionObserver(entries => {
+    for (const en of entries) bar.classList.toggle('show', !en.isIntersecting);
+  }).observe($('#score'));
+} catch (e) {}
+</script>
+</body>
+</html>
