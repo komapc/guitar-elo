@@ -86,7 +86,7 @@ fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;g
 .segb[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
 .segb:focus-visible,.tbpm:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .tbpm{font:500 13px var(--f-mono);margin-left:4px;padding:6px 4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
-.tout{flex-basis:100%}
+.tout{flex-basis:100%;scroll-margin:16px 0 88px}
 .tout:empty{display:none}
 .qz{flex-basis:100%;display:grid;gap:10px}
 .qz[hidden]{display:none}

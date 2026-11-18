@@ -699,6 +699,12 @@ function startGap(el) {
 }
 const fmtSec = x => x.toFixed(1).replace('.', T.dec);
 // Quizzes end with a suggested stop and a set button ("Set it"); the answer changes only if it is pressed.
+// A finished test hides its buttons, and its result appears above the spot the player was looking at. On a phone that
+// line can be off screen, so bring it into view.
+function reveal(out) {
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  out.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+}
 function suggest(id, stop) {
   return `${T.ui.suggest(qById(id).o[stop][0])} <button type="button" class="tset" data-q="${id}" data-v="${stop}">${T.ui.set}</button>`;
 }
@@ -732,6 +738,7 @@ function startFretQuiz(el, rounds = 10) {
     const good = res.filter(r => r.ok).map(r => r.sec).sort((a, b) => a - b);
     const med = good.length ? (good[(good.length - 1) >> 1] + good[good.length >> 1]) / 2 : NaN;
     out.innerHTML = T.ui.fretResult(good.length, rounds, fmtSec(med)) + suggest('fretboard', fretboardStop(good.length, rounds, med));
+    reveal(out);
   }
   el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = '';
   next();
@@ -790,7 +797,7 @@ function startChordQuiz(el) {
     const pass = right >= EAR_PASS, stop = level + (pass ? 1 : 0);
     let html = T.ui.earResult(name, right, EAR_ROUNDS, pass, EAR_PASS) + suggest('chordear', stop);
     if (pass && level + 1 < EAR_LEVELS.length) html += ` <button type="button" class="btn tnext" data-level="${level + 1}">${T.ui.next(EAR_LEVELS[level + 1].name)}</button>`;
-    out.innerHTML = html;
+    out.innerHTML = html; reveal(out);
   }
   pad.innerHTML = types.map((t, i) => `<button type="button" class="nb" data-n="${i}">${CHORDS[t][0]}</button>`).join('');
   head.textContent = name;
@@ -856,12 +863,12 @@ function startRhythm(el) {
     if (running === self) running = null;
     if (!complete) { out.textContent = T.ui.rhythmStopped(secs); return; }
     const st = rhythmStats(taps, toPerf()(start), beat * 1000, n);
-    if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; return; }
+    if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; reveal(out); return; }
     const r = rhythmResult(level, st);
     let html = T.ui.rhythmResult(name, (st.spread * 100).toFixed(1).replace('.', T.dec), st.misses, st.extra, r.pass, Math.round(RHYTHM.pass * 100), RHYTHM.misses)
       + suggest('metronome', r.stop);
     if (r.pass && level + 1 < RHYTHM_LEVELS.length) html += ` <button type="button" class="btn tnext" data-level="${level + 1}">${T.ui.next(RHYTHM_LEVELS[level + 1].name)}</button>`;
-    out.innerHTML = html;
+    out.innerHTML = html; reveal(out);
   }
   pad.addEventListener('pointerdown', onPad);
   document.addEventListener('keydown', onKey, true);
