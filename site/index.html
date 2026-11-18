@@ -98,6 +98,19 @@ fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;g
 .tbpm{font:500 13px var(--f-mono);margin-left:4px;padding:6px 4px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .tout{flex-basis:100%}
 .tout:empty{display:none}
+.qz{flex-basis:100%;display:grid;gap:10px}
+.qz[hidden]{display:none}
+.qzq{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.qzpos{font:600 18px var(--f-body);color:var(--ink)}
+.qzn{font:13px var(--f-mono)}
+.notes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+@media (max-width:560px){.notes{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.nb{font:500 14px var(--f-body);min-height:46px;padding:4px 2px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;touch-action:manipulation}
+.nb small{font-size:11.5px;color:var(--muted)}
+.nb:active{background:var(--accent-soft)}
+.nb:focus-visible,.tset:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.tset{margin-left:6px;font:500 13px var(--f-body);padding:5px 10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);cursor:pointer}
+.tset:disabled{cursor:default;opacity:.8}
 
 .score{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:20px;min-width:0}
 .eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0}
@@ -172,6 +185,11 @@ th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);verti
 tr:last-child td{border-bottom:none}
 th{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 td.n{font-family:var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+table.refs{min-width:0}
+table.refs td:first-child{width:100%}
+table.refs td.n,table.refs th:not(:first-child){text-align:right}
+.refnote{display:block;margin-top:2px;font-size:12.5px;color:var(--muted)}
+.vys{margin:0;padding-left:1.2em;font-size:14px;color:var(--muted)}
 tr.calrow td{background:var(--accent-soft)}
 .bands{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
 .bands div{padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-size:13.5px;min-width:0}
@@ -298,7 +316,20 @@ img{max-width:100%}
     <h2>Шкала</h2>
     <div class="bands" id="bands"></div>
 
+    <h2>Для сравнения</h2>
+    <p>Те же часы, переведённые по той же кривой. Это ориентиры, а не измерения. Часы музыкальной школы взяты из норм программы, а дома на деле занимаются кто больше, кто меньше.</p>
+    <div class="tablewrap">
+      <table class="refs">
+        <thead><tr><th>Кто</th><th>Часов</th><th>Elo</th></tr></thead>
+        <tbody id="refs"></tbody>
+      </table>
+    </div>
+    <p><b>Все ли музыканты — гроссмейстеры?</b> Нет. Даже лучшие студенты-скрипачи к 20 годам набирают около 10 000 часов, а это примерно 2150, уровень кандидата в мастера. До гроссмейстерских 2500 по этой кривой нужно около 25 000 часов, то есть десятилетия ежедневной работы. Туда доходят профессионалы, которые занимаются всю жизнь, а выпускник консерватории обычно ещё нет. Шахматных гроссмейстеров в мире меньше двух тысяч, так что и гитарист-«гроссмейстер» должен быть редкостью.</p>
+    <p><b>Высоцкий.</b> Он играл на семиструнке, первые аккорды ему показал школьный друг Игорь Кохановский, и виртуозом его не считали. Зато он дал больше тысячи концертов, написал сотни песен, а его гитару узнают с первых тактов. Если ответить за него там, где семиструнка не мешает, выйдет <b id="vysElo"></b>: техника на уровне начинающего клубного гитариста, сцена и репертуар на максимуме. Широкий разброс тут и есть главный вывод: рейтинг — это среднее, а у Высоцкого среднее мало что говорит.</p>
+    <details><summary>Ответы за Высоцкого (прикидка автора)</summary><ul class="vys" id="vysList"></ul></details>
+
     <p>Самооценка часто ошибается: начинающие обычно себя завышают, сильные музыканты занижают. Выше 2400 опросник уровни уже не различает, там нужен живой слушатель.</p>
+    <p class="sources">Ориентиры: программа «Специальность. Гитара шестиструнная», 5 лет, <a href="https://dmsh4perm.ru/public/%20%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0%20%D1%88%D0%B5%D1%81%D1%82%D0%B8%D1%81%D1%82%D1%80%D1%83%D0%BD%D0%BD%D0%B0%D1%8F%205%20%D0%BB%D0%B5%D1%82%20%D0%A4%D0%93%D0%A2.pdf" target="_blank" rel="noopener">ДМШ № 4 Перми</a> (современная, советский учебный план найти не удалось). K. A. Ericsson, R. Krampe, C. Tesch-Römer, <a href="https://doi.org/10.1037/0033-295X.100.3.363" target="_blank" rel="noopener">The role of deliberate practice in the acquisition of expert performance</a>, Psychological Review, 1993. B. Macnamara, M. Maitra, <a href="https://doi.org/10.1098/rsos.190327" target="_blank" rel="noopener">повторное исследование</a>, Royal Society Open Science, 2019. О Высоцком: <a href="https://kino.rambler.ru/movies/54465653-on-nauchil-vysotskogo-igrat-na-gitare-kto-na-samom-dele-vospital-barda-i-sochinil-babe-leto/" target="_blank" rel="noopener">Рамблер</a>, <a href="https://music-museum.ru/about/news/11-faktov-iz-zhizni-vladimira-vyisoczkogo.-k-85-letiyu-so-dnya-rozhdeniya.html" target="_blank" rel="noopener">Музей музыки</a>.</p>
     <p class="sources">Источники кривой: F. Gobet, G. Campitelli, <a href="https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf" target="_blank" rel="noopener">The role of domain-specific practice, handedness, and starting age in chess</a>, Developmental Psychology, 2007, таблицы 1–2 (<a href="https://en.chessbase.com/post/handedne-practice-and-talent-in-che" target="_blank" rel="noopener">пересказ на ChessBase</a>). N. Charness et al., <a href="https://doi.org/10.1002/acp.1106" target="_blank" rel="noopener">The role of deliberate practice in chess expertise</a>, Applied Cognitive Psychology, 2005.</p>
   </section>
 
@@ -492,7 +523,7 @@ const QUESTIONS = [
     ['Беглое легато через весь гриф, тэппинг', 5000],
     ['Легато на уровне Сатриани или Холдсворта', 22000]] },
 
-  { id: 'fretboard', cat: 'ear', w: 0.8, text: 'Какая нота на седьмом ладу третьей струны?', hint: 'Засеки, сколько думал. <details><summary>Ответ</summary>Ре (D).</details>', o: [
+  { id: 'fretboard', cat: 'ear', w: 0.8, tool: 'fretboard', text: 'Какая нота на седьмом ладу третьей струны?', hint: 'Засеки время. <details><summary>Ответ</summary>Ре (D).</details> Ниже можно проверить себя на десяти случайных нотах.', o: [
     ['Понятия не имею', 20],
     ['Посчитал по ладам от открытой струны', 150],
     ['Знаю, но думал секунды две-три', 1200],
@@ -591,6 +622,33 @@ function score(answers) {
 }
 // Gap-click metronome: `lead` bars of clicks to lock onto the tempo, then one bar of clicks and `silent` bars of silence, repeated.
 const gapBarClicks = (bar, silent, lead = 1) => bar < lead || (bar - lead) % (silent + 1) === 0;
+// Fretboard quiz. Standard tuning, string 1 is the high E; notes are semitones above C, named the Russian way
+// (до…си: the letter B can mean B-flat in Russian usage).
+const OPEN_STRINGS = [null, 4, 11, 7, 2, 9, 4];
+const NOTE_RU = [['до'], ['до♯', 'ре♭'], ['ре'], ['ре♯', 'ми♭'], ['ми'], ['фа'], ['фа♯', 'соль♭'], ['соль'], ['соль♯', 'ля♭'], ['ля'], ['ля♯', 'си♭'], ['си']];
+const noteAt = (string, fret) => (OPEN_STRINGS[string] + fret) % 12;
+// Quiz result → stop of the fretboard question. The time includes finding one of twelve buttons, so the limits are
+// lenient. The top stop is about intervals, which the quiz does not test, so it is never suggested.
+function fretboardStop(correct, total, medianSec) {
+  if (correct < 0.7 * total) return 0;
+  return medianSec <= 2.5 ? 3 : medianSec <= 5 ? 2 : 1;
+}
+// Reference points for the scale, converted on the same curve. Music school: the hour norms of a current 5-year
+// six-string guitar programme (lessons + home practice, 33 weeks a year). Violinists: Ericsson et al. 1993,
+// accumulated practice alone; the age-20 figure is from the 2019 replication.
+const REFS = [
+  { who: 'Музыкальная школа по гитаре, 2 класса', h: 330, note: 'по нормам программы: 2 урока и 3 часа дома в неделю, 33 недели в году' },
+  { who: '3 класса', h: 495 },
+  { who: '4 класса', h: 710, note: 'с 4-го класса 2,5 урока и 4 часа дома в неделю' },
+  { who: '5 классов, выпуск', h: 924, note: 'на выпускном: Сор, Каркасси, Броуэр «День в ноябре»' },
+  { who: 'Скрипачи, будущие учителя музыки, к 18 годам', h: 3420, note: 'Эрикссон и др., 1993' },
+  { who: 'Хорошие скрипачи музыкальной академии, к 18 годам', h: 5301 },
+  { who: 'Лучшие, будущие солисты, к 18 годам', h: 7410 },
+  { who: 'Лучшие и хорошие скрипачи к 20 годам', h: 10000, more: true, note: 'повторное исследование 2019 года' },
+  { who: 'Гроссмейстер', h: 25000, note: 'например, 20 лет по 3,5 часа каждый день' },
+];
+// Vysotsky answered for him, only where a seven-string guitar fits the question. The author's guess, not a measurement.
+const VYSOTSKY = { chords: 3, strum: 2, fingers: 1, dynamics: 3, repertoire: 14, hardest: 2, party: 5, record: 3, stage: 4 };
 const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
 /*END MODEL*/
 
@@ -638,6 +696,12 @@ const GAP_SILENT = [1, 2, 4, 8, 16], GAP_BPM = [60, 70, 80, 90, 100, 110, 120];
 function toolHtml(kind) {
   if (kind === 'minute') return '<div class="tool" data-tool="minute"><button type="button" class="btn tgo">▶ Засечь минуту</button>'
     + '<span class="tclock"></span><span class="tout" aria-live="polite">Сначала три секунды, чтобы взять гитару, потом минута.</span></div>';
+  if (kind === 'fretboard') return '<div class="tool" data-tool="fretboard"><button type="button" class="btn tgo">▶ Проверить на 10 нотах</button>'
+    + '<span class="tout" aria-live="polite">Страница покажет струну и лад, ты выбираешь ноту. Время засекается.</span>'
+    + '<div class="qz" hidden><div class="qzq"><span class="qzpos"></span><span class="qzn"></span></div><div class="notes">'
+    + NOTE_RU.map((n, i) => `<button type="button" class="nb" data-n="${i}">${n[0]}${n[1] ? '<small>' + n[1] + '</small>' : ''}</button>`).join('')
+    + '</div></div></div>';
+  if (kind !== 'gap') return '';
   return '<div class="tool" data-tool="gap"><span>Тишина, тактов:</span><span class="seg" role="group" aria-label="Тактов тишины">'
     + GAP_SILENT.map(n => `<button type="button" class="segb" data-n="${n}" aria-pressed="${n === 2}">${n}</button>`).join('')
     + '</span><label>Темп<select class="tbpm">' + GAP_BPM.map(b => `<option${b === 80 ? ' selected' : ''}>${b}</option>`).join('')
@@ -704,6 +768,19 @@ function renderBoard() {
 function renderAnchors() {
   $('#anchors').innerHTML = curveAnchors().map(a =>
     `<tr${a.cal ? ' class="calrow"' : ''}><td class="n">${a.h.toLocaleString('ru-RU')}</td><td class="n">${a.e}</td><td>${a.src}</td></tr>`).join('');
+  renderRefs();
+}
+// Runs before qById exists, so it looks questions up directly. Follows the calibration like the anchor table.
+function renderRefs() {
+  const v = score(VYSOTSKY), vys = `≈ ${fmtElo(v.elo)} ±${round10(v.spread)}`;
+  $('#refs').innerHTML = REFS.map(r => `<tr><td>${r.who}${r.note ? `<span class="refnote">${r.note}</span>` : ''}</td>`
+    + `<td class="n">${r.more ? '> ' : ''}${r.h.toLocaleString('ru-RU')}</td><td class="n">${fmtElo(eloFromHours(r.h))}</td></tr>`).join('')
+    + `<tr><td>Высоцкий, по навыкам<span class="refnote">прикидка автора, ответы ниже</span></td><td class="n">—</td><td class="n">≈ ${fmtElo(v.elo)}<span class="refnote">±${round10(v.spread)}</span></td></tr>`;
+  $('#vysElo').textContent = vys;
+  $('#vysList').innerHTML = Object.entries(VYSOTSKY).map(([id, a]) => {
+    const q = QUESTIONS.find(x => x.id === id);
+    return `<li>${q.text} — «${q.o[a][0]}»</li>`;
+  }).join('') + '<li>Остальное — «дурацкий вопрос»: метроном, медиатор, бенды и ноты на шестиструнке не про него.</li>';
 }
 
 function syncForm() {
@@ -835,6 +912,10 @@ $('#quiz').addEventListener('click', ev => {
   if (c) { setAnswer(c.dataset.q, null); $('#r-' + c.dataset.q).focus(); return; }
   const go = t.closest && t.closest('.tgo');
   if (go) { toggleTool(go.closest('.tool')); return; }
+  const nb = t.closest && t.closest('.nb');
+  if (nb) { if (running && running.answer && running.el === nb.closest('.tool')) running.answer(Number(nb.dataset.n)); return; }
+  const set = t.closest && t.closest('.tset');
+  if (set) { setAnswer(set.dataset.q, Number(set.dataset.v)); set.disabled = true; set.textContent = 'Поставлено ✓'; return; }
   const sb = t.closest && t.closest('.segb');
   if (sb) {
     for (const b of sb.parentNode.children) b.setAttribute('aria-pressed', String(b === sb));
@@ -931,11 +1012,54 @@ function startGap(el) {
     if (running && running.el === el) running = null;
   } };
 }
+const fmtSec = x => x.toFixed(1).replace('.', ',');
+// Quizzes end with a suggested stop and a «Поставить» button; the answer changes only if it is pressed.
+function suggest(id, stop) {
+  return `Похоже на «${qById(id).o[stop][0]}». <button type="button" class="tset" data-q="${id}" data-v="${stop}">Поставить</button>`;
+}
+function startFretQuiz(el, rounds = 10) {
+  const go = el.querySelector('.tgo'), out = el.querySelector('.tout'), box = el.querySelector('.qz');
+  const pos = el.querySelector('.qzpos'), num = el.querySelector('.qzn');
+  const res = [];
+  let cur = null, shown = 0;
+  const next = () => {
+    let s, f;
+    do { s = 1 + Math.floor(Math.random() * 6); f = 1 + Math.floor(Math.random() * 12); } while (cur && cur.s === s && cur.f === f);
+    cur = { s, f };
+    pos.textContent = `${s}-я струна, ${f}-й лад`;
+    num.textContent = `${res.length + 1} из ${rounds}`;
+    shown = performance.now();
+  };
+  const self = {
+    el,
+    answer(n) {
+      const right = noteAt(cur.s, cur.f);
+      res.push({ ok: n === right, sec: (performance.now() - shown) / 1000 });
+      out.textContent = n === right ? '✓ Верно.' : `✗ Это ${NOTE_RU[right].join(' / ')}.`;
+      if (res.length < rounds) next(); else finish(true);
+    },
+    stop() { finish(false); },
+  };
+  function finish(done) {
+    el.classList.remove('on'); box.hidden = true; go.textContent = '▶ Проверить на 10 нотах';
+    if (running === self) running = null;
+    if (!done) { out.textContent = ''; return; }
+    const good = res.filter(r => r.ok).map(r => r.sec).sort((a, b) => a - b);
+    const med = good.length ? (good[(good.length - 1) >> 1] + good[good.length >> 1]) / 2 : NaN;
+    out.innerHTML = `${good.length} из ${rounds} верно` + (good.length ? `, на верный ответ в среднем ${fmtSec(med)} с. ` : '. ')
+      + suggest('fretboard', fretboardStop(good.length, rounds, med));
+  }
+  el.classList.add('on'); box.hidden = false; go.textContent = '■ Стоп'; out.textContent = '';
+  next();
+  return self;
+}
+const TOOLS = { minute: startMinute, gap: startGap, fretboard: startFretQuiz };
 function stopTool() { if (running) running.stop(); running = null; }
 function toggleTool(el) {
   if (running && running.el === el) { stopTool(); return; }
   stopTool();
-  running = el.dataset.tool === 'minute' ? startMinute(el) : startGap(el);
+  const start = TOOLS[el.dataset.tool];
+  running = start ? start(el) : null;
 }
 function restartTool(el) { if (running && running.el === el) { stopTool(); toggleTool(el); } }
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopTool(); });

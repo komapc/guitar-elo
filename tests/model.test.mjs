@@ -7,7 +7,7 @@ const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</
 new Function(script); // the whole page script must parse
 
 const model = script.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks };')();
+const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY };')();
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
 let failed = 0;
 const check = (name, fn) => {
@@ -45,7 +45,29 @@ check('gap metronome: two bars of clicks, then the click returns after exactly N
 });
 check('self-tests sit under the questions they check', () => {
   const tools = m.QUESTIONS.filter(q => q.tool).map(q => q.id + ':' + q.tool);
-  assert.deepEqual(tools, ['changes:minute', 'gap:gap']);
+  assert.deepEqual(tools, ['changes:minute', 'gap:gap', 'fretboard:fretboard']);
+});
+check('fretboard quiz: notes match the question (3rd string, 7th fret = ре) and standard tuning', () => {
+  assert.equal(m.NOTE_RU[m.noteAt(3, 7)][0], 'ре');
+  assert.deepEqual([6, 5, 4, 3, 2, 1].map(s => m.NOTE_RU[m.noteAt(s, 0)][0]), ['ми', 'ля', 'ре', 'соль', 'си', 'ми']);
+  assert.equal(m.noteAt(6, 12), m.noteAt(6, 0));
+  assert.equal(m.noteAt(5, 5), m.noteAt(4, 0)); // the fifth-fret rule
+  assert.equal(m.noteAt(3, 4), m.noteAt(2, 0)); // except G -> B, at the fourth fret
+});
+check('fretboard quiz: result maps to a stop, never the untested top one', () => {
+  assert.equal(m.fretboardStop(10, 10, 1.4), 3);
+  assert.equal(m.fretboardStop(9, 10, 3.5), 2);
+  assert.equal(m.fretboardStop(8, 10, 9), 1);
+  assert.equal(m.fretboardStop(6, 10, 1), 0);
+  assert.equal(m.fretboardStop(0, 10, NaN), 0);
+});
+check('reference points: hours rise down the table; Vysotsky answers are valid', () => {
+  for (let i = 1; i < m.REFS.length; i++) assert.ok(m.REFS[i].h > m.REFS[i - 1].h, m.REFS[i].who);
+  for (const [id, a] of Object.entries(m.VYSOTSKY)) {
+    const q = m.QUESTIONS.find(x => x.id === id);
+    assert.ok(q && q.o[a], `${id}=${a}`);
+  }
+  assert.equal(m.QUESTIONS.find(q => q.id === 'repertoire').o[m.VYSOTSKY.repertoire][0], '200 и больше');
 });
 check('unanswered questions are left out of the score', () => {
   const some = { chords: 3, metronome: 2, hardest: 1 };

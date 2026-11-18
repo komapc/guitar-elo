@@ -9,7 +9,9 @@ A 24-question self-assessment for guitarists, in Russian, answered with sliders,
 3. The rating is the weighted mean over answered questions. Each slider starts at "silly question, I'd rather not answer"; a question left there is not counted, so a classical player is not penalised for not using a pick. The rating appears after six answers.
 4. Practice time the visitor enters is not part of the score; it is only shown for comparison.
 
-Two questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count, and a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence. Clicks are scheduled on the Web Audio clock, and nothing on screen moves during the silent bars. The tests do not set the answer; the visitor still moves the slider.
+Three questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count; a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence, with clicks scheduled on the Web Audio clock and nothing on screen moving during the silent bars; and a ten-note fretboard quiz that measures accuracy and answer time. The timer and the metronome never set an answer. The quiz suggests a slider stop and sets it only when the visitor presses «Поставить».
+
+The page also lists reference points converted on the same curve: hours of a five-year music-school guitar programme by grade (from the programme's hour norms), violin students from Ericsson et al. (1993) and the 2019 replication, and a grandmaster at 2500. It adds a guessed answer sheet for Vladimir Vysotsky to show how a mixed profile averages out.
 
 ## Where the curve comes from
 
