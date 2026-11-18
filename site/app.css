@@ -198,6 +198,13 @@ fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;g
 .ctip b{color:var(--ink);font-size:14px}
 .ctip[hidden]{display:none}
 .method ul{margin:0;padding-left:1.3em;display:grid;gap:6px}
+/* the reading pages (How it is scored, Scale and comparisons) and the links to them */
+.method.page{margin-top:0;padding-top:0;border-top:0}
+.crumb{margin:0;font-size:14px}
+.crumb a,.scorelink a{color:var(--muted);text-underline-offset:3px}
+.crumb a:hover,.scorelink a:hover{color:var(--accent)}
+.method .more a{color:var(--accent);font-weight:500}
+.scorelink{margin:0;font-size:13.5px}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
 th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}

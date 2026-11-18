@@ -40,14 +40,18 @@ jobs:
       # Pages caches every file for 10 minutes; a commit stamp keeps a fresh page from pairing with an old app.js.
       - name: Stamp asset URLs with the commit
         run: |
-          sed -i "s/?v=dev\"/?v=${GITHUB_SHA::8}\"/g" site/index.html site/ru/index.html
-          test "$(cat site/index.html site/ru/index.html | grep -o "?v=${GITHUB_SHA::8}\"" | wc -l)" -eq 6
+          pages=$(find site -name index.html)
+          sed -i "s/?v=dev\"/?v=${GITHUB_SHA::8}\"/g" $pages
+          if grep -n "?v=dev" $pages; then exit 1; fi
+          for f in $pages; do test "$(grep -o "?v=${GITHUB_SHA::8}\"" "$f" | wc -l)" -eq 4 || { echo "$f: not 4 stamps"; exit 1; }; done
       # lastmod = the day the site itself last changed, so README or test edits do not move it.
       - name: Stamp sitemap lastmod
         run: |
           d=$(git log -1 --format=%cs -- site)
           sed -i "s|<lastmod>[^<]*</lastmod>|<lastmod>$d</lastmod>|g" site/sitemap.xml
-          test "$(grep -c "<lastmod>$d</lastmod>" site/sitemap.xml)" -eq 2
+          n=$(grep -c "<loc>" site/sitemap.xml)
+          test "$(grep -c "<lastmod>$d</lastmod>" site/sitemap.xml)" -eq "$n"
+          test "$n" -eq "$(find site -name index.html | wc -l)" || { echo "sitemap has $n pages"; exit 1; }
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

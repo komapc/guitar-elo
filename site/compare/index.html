@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>try { if (localStorage.getItem('guitar-elo-lang') === 'ru') location.replace('/ru' + location.pathname + location.search + location.hash); } catch (e) {}</script>
+<title>Guitar Elo scale: rating bands, music school hours and Vysotsky</title>
+<meta name="description" content="The Guitar Elo scale from beginner to master, with reference points on the same curve: music school, conservatory and professional hours, and Vysotsky.">
+<link rel="canonical" href="https://guitar-elo.lipu.dev/compare/">
+<link rel="alternate" hreflang="en" href="https://guitar-elo.lipu.dev/compare/">
+<link rel="alternate" hreflang="ru" href="https://guitar-elo.lipu.dev/ru/compare/">
+<link rel="alternate" hreflang="x-default" href="https://guitar-elo.lipu.dev/compare/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#F3F4F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111413" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="ru_RU">
+<meta property="og:site_name" content="lipu.dev">
+<meta property="og:url" content="https://guitar-elo.lipu.dev/compare/">
+<meta property="og:title" content="Guitar Elo scale: rating bands, music school hours and Vysotsky">
+<meta property="og:description" content="The Guitar Elo scale from beginner to master, with reference points on the same curve: music school, conservatory and professional hours, and Vysotsky.">
+<meta property="og:image" content="https://guitar-elo.lipu.dev/og-en.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Guitar Elo: how good are you at guitar? A fretboard with rating bands from Beginner to Master.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;700&display=swap">
+<link rel="stylesheet" href="../app.css?v=dev">
+</head>
+<body>
+<div class="wrap">
+  <p class="langhint" id="langhint" lang="ru" hidden>Эта страница есть на русском. <a href="../ru/compare/" data-lang="ru">Открыть</a><button type="button" aria-label="Закрыть">✕</button></p>
+  <header class="top">
+    <nav class="langs" aria-label="Language"><b>English</b><a href="../ru/compare/" hreflang="ru" lang="ru" data-lang="ru">Русский</a></nav>
+    <p class="crumb"><a href="../">← Back to the test</a></p>
+    <h1>Scale and comparisons</h1>
+  </header>
+
+  <section class="method page" id="compare">
+    <h2>Scale</h2>
+    <div class="bands" id="bands"></div>
+
+    <h2>For comparison</h2>
+    <p>The same hours, converted on the same curve. These are reference points, not measurements. The music-school hours come from the programme norms of a Russian children’s music school; in practice some children practise more at home and some less.</p>
+    <div class="tablewrap">
+      <table class="refs">
+        <thead><tr><th>Who</th><th>Hours</th><th>Elo</th></tr></thead>
+        <tbody id="refs"></tbody>
+      </table>
+    </div>
+    <p><b>Are all musicians grandmasters?</b> No. Even the best music students have about 10,000 hours by the age of 20, which is about 2150, expert level. The grandmaster level of 2500 takes about 25,000 hours on this curve, which means decades of daily work. Professionals who practise all their lives get there; a conservatory graduate usually has not yet. There are fewer than two thousand chess grandmasters in the world, so a guitar “grandmaster” should be rare too.</p>
+    <p><b>Vysotsky.</b> Vladimir Vysotsky, the Soviet singer-songwriter and actor, played a Russian seven-string guitar. A school friend, Igor Kokhanovsky, showed him his first chords, and nobody thought of him as a virtuoso. Yet he gave more than a thousand concerts, wrote hundreds of songs, and his guitar is recognisable from the first bars. Answering for him wherever the seven-string does not get in the way gives <b id="vysElo"></b>: technique at the level of a beginning club player, stage and repertoire at the top. The wide spread is the whole point: the rating is an average, and for Vysotsky the average says little.</p>
+    <details><summary>Answers for Vysotsky (the author’s guess)</summary><ul class="vys" id="vysList"></ul></details>
+
+    <p>Self-assessment is often off: beginners tend to rate themselves too high, strong musicians too low. Above 2400 the questionnaire can no longer tell levels apart; that takes a live listener.</p>
+    <p class="sources">Reference points: the five-year programme “Specialisation: six-string guitar” of <a href="https://dmsh4perm.ru/public/%20%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0%20%D1%88%D0%B5%D1%81%D1%82%D0%B8%D1%81%D1%82%D1%80%D1%83%D0%BD%D0%BD%D0%B0%D1%8F%205%20%D0%BB%D0%B5%D1%82%20%D0%A4%D0%93%D0%A2.pdf" target="_blank" rel="noopener">Children’s Music School No. 4, Perm</a> (in Russian; a current one, as no Soviet curriculum could be found). K. A. Ericsson, R. Krampe, C. Tesch-Römer, <a href="https://doi.org/10.1037/0033-295X.100.3.363" target="_blank" rel="noopener">The role of deliberate practice in the acquisition of expert performance</a>, Psychological Review, 1993. B. Macnamara, M. Maitra, <a href="https://doi.org/10.1098/rsos.190327" target="_blank" rel="noopener">The role of deliberate practice in expert performance: revisiting Ericsson, Krampe &amp; Tesch-Römer (1993)</a>, Royal Society Open Science, 2019. On Vysotsky (in Russian): <a href="https://kino.rambler.ru/movies/54465653-on-nauchil-vysotskogo-igrat-na-gitare-kto-na-samom-dele-vospital-barda-i-sochinil-babe-leto/" target="_blank" rel="noopener">Rambler</a>, <a href="https://music-museum.ru/about/news/11-faktov-iz-zhizni-vladimira-vyisoczkogo.-k-85-letiyu-so-dnya-rozhdeniya.html" target="_blank" rel="noopener">Museum of Music</a>.</p>
+  </section>
+
+  <footer class="foot">
+    <a href="../">Test</a>
+    <a href="../method/">How it is scored</a>
+    <a href="../compare/">Scale and comparisons</a>
+    <a href="https://lipu.dev/">lipu.dev</a>
+    <a href="https://github.com/komapc/guitar-elo" rel="noopener">Source code</a>
+    <span>Code under the MIT licence</span>
+  </footer>
+</div>
+
+<script src="../i18n/en.js?v=dev"></script>
+<script src="../common.js?v=dev"></script>
+<script src="../about.js?v=dev"></script>
+</body>
+</html>

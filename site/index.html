@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>try { if (localStorage.getItem('guitar-elo-lang') === 'ru') location.replace('ru/' + location.search + location.hash); } catch (e) {}</script>
+<script>try { if (localStorage.getItem('guitar-elo-lang') === 'ru') location.replace('/ru' + location.pathname + location.search + location.hash); } catch (e) {}</script>
 <title>Guitar Elo: a guitar skill test on the chess rating scale</title>
 <meta name="description" content="25 questions about your guitar skills, with built-in rhythm, fretboard and ear tests. Answers become practice hours, and hours become a chess Elo rating.">
 <meta name="msvalidate.01" content="CAFA7BE0D5D83695993D635831499022">
@@ -38,7 +38,7 @@
   <header class="top">
     <nav class="langs" aria-label="Language"><b>English</b><a href="ru/" hreflang="ru" lang="ru" data-lang="ru">Русский</a></nav>
     <h1>Guitar Elo</h1>
-    <p class="lede">25 questions about what you can do on the guitar. Answer with sliders, and skip the silly questions. Each answer becomes practice hours, and the hours become a chess rating on one shared curve. A guitarist rated 1500 has put about as many hours into the guitar as a chess player rated 1500 has put into chess.</p>
+    <p class="lede">Measure your guitar Elo: 25 questions about what you can do on the guitar.</p>
   </header>
 
   <div class="example" id="blank" hidden>
@@ -92,85 +92,23 @@
         <span class="status" id="status" role="status"></span>
       </div>
       <textarea class="copybox" id="copybox" readonly hidden aria-label="Result text"></textarea>
+      <p class="scorelink"><a href="method/">How it is scored</a></p>
     </aside>
   </div>
 
-  <section class="method" id="method">
-    <h2>How it is scored</h2>
-    <ol>
-      <li>Each slider position stands for a rough number of practice hours a guitarist usually needs to get there. These hours are the author’s estimates, not measurements: only the chess curve has data behind it.</li>
-      <li>Hours become a rating on the “hours → chess Elo” curve in the table below.</li>
-      <li>The result is a weighted mean of the answered questions. The metronome and the hardest piece weigh more, the stage and theory less. A question left on “silly” is not counted, so a classical player loses nothing over the pick, and a metal player nothing over fingerstyle. An answer set by a test on the page (fretboard, chords by ear, rhythm) counts 1.5 times as much while the slider stays where the test put it. Both the 1.5 and the rhythm test’s pass mark are the author’s judgement: a level passes if the taps stray from the beat by no more than 5% of a beat (SD). The intervals between such taps vary by about 7%, between about 5% for percussionists and about 12% for other trained musicians on a harder task (<a href="https://www.frontiersin.org/articles/10.3389/fnhum.2014.01003" target="_blank" rel="noopener">Cameron &amp; Grahn, 2014</a>).</li>
-      <li>The number after ± shows how much your answers disagree with each other. The more even your skills, the narrower the spread.</li>
-    </ol>
-    <p>The result is an Elo equivalent: the rating a chess player would have after putting in the same hours. Real Elo comes from games, and there are no games here. The hours under “Compare with practice hours” do not count towards the rating. They are there only for comparison: are you ahead of your hours or behind them?</p>
-    <p>The curve answers the question “how many hours does a chess player of this rating usually have”, because the questionnaire works the same way: skill → hours usually needed to reach it. The opposite question, “what is the average rating of a chess player with this many hours”, gives about 1650–1800 for 1,404 h in the same paper. But that figure is too high: players below 1490 were not sampled, so weak players with many hours never made it into the data. The ratings in the paper are Argentine national Elo (r = 0.89 with FIDE), not chess.com or Lichess ratings.</p>
-    <p>In the study by Charness et al. (2005), rating was best predicted by hours of serious study alone, not by the number of games played. A reasonable hint for guitar: an hour with a metronome on a weak spot is probably worth more than an hour of favourite songs.</p>
-
-    <div class="cal">
-      <label for="cal">Calibration: 3 years × 3 times a week × 3 hours = 1,404 h ≈</label>
-      <input type="number" id="cal" min="800" max="2100" step="50" inputmode="numeric">
-      <span>Elo</span>
-      <span class="calnote">The data allow 1100–1400. Default 1250.</span>
-    </div>
-
-    <div class="tablewrap">
-      <table>
-        <thead><tr><th>Practice hours</th><th>Elo</th><th>Where the point comes from</th></tr></thead>
-        <tbody id="anchors"></tbody>
-      </table>
-    </div>
-    <p>Between the points the curve is a straight line in log hours: every doubling of hours adds roughly the same amount.</p>
-
-    <h2>Hours and rating: what the data say</h2>
-    <p>All hours on the chart are total hours: practice alone, with others, and tournament games. The data are 104 Argentine chess players from the paper by Gobet and Campitelli (2007). The hours axis is logarithmic. Hover over or tap a point for details.</p>
-    <figure class="chart">
-      <figcaption class="clegend">
-        <span><i class="key" style="--k:var(--c-curve)"></i>Site curve: hours usually needed to reach a rating</span>
-        <span><i class="key dot" style="--k:var(--c-data)"></i>Chess players: hours of those now at this rating; the road to 2200</span>
-        <span><i class="key band" style="--k:var(--c-exp)"></i>Average rating at these hours, ±1 SD</span>
-        <span><i class="key ring" style="--k:var(--c-curve)"></i>Assumption, not a measurement</span>
-      </figcaption>
-      <div class="cplot" id="cplot"><div class="ctip" id="ctip" hidden></div></div>
-      <details><summary>Chart data</summary>
-        <div class="tablewrap"><table>
-          <thead><tr><th>What</th><th>Hours</th><th>Rating</th></tr></thead>
-          <tbody id="chartRows"></tbody>
-        </table></div>
-      </details>
-    </figure>
-    <p>The chart shows three different things, and they are easy to mix up.</p>
-    <ul>
-      <li><b>The site curve</b> shows how many hours it usually takes to reach a rating. It is measured at one point: players reached 2200 after 11,053 hours on average, the fastest after 3,016 and the slowest after 23,608. The other points are assumptions and the line extended downwards.</li>
-      <li><b>The blue dots</b> show how many hours the players now at that rating have. They sit to the right of the curve: the hours were counted at the time of the survey, and after reaching their level people keep practising while their rating grows only slowly. FIDE masters have 19,600 hours on average, while reaching 2200 takes 11,000 on average.</li>
-      <li><b>The pink line</b> answers the opposite question: what is the average rating of a player with this many hours. It is much flatter: 1,404 hours give about 1750–1800 on average, 11,053 hours about 2040. The band around it is ±1 standard deviation, about ±180.</li>
+  <section class="method" id="how">
+    <h2>How it works</h2>
+    <p>Answer with sliders, and skip the silly questions. Each answer becomes practice hours, and the hours become a chess rating on one shared curve. A guitarist rated 1500 has put about as many hours into the guitar as a chess player rated 1500 has put into chess.</p>
+    <ul class="more">
+      <li><a href="method/">How it is scored</a>: the curve, its calibration, and what chess players’ hours say about the rating.</li>
+      <li><a href="compare/">Scale and comparisons</a>: the rating bands, music school, conservatory and professional hours, and Vysotsky.</li>
     </ul>
-    <p><b>Why the lines differ so much.</b> Hours explain the smaller part of the differences. In this sample the correlation of rating with log hours is r = 0.57, so hours account for about a third of the spread. The meta-analysis by Macnamara et al. (2014) gives 26% for games and 21% for music, and about a third after correcting for unreliable self-reports (Hambrick et al., 2014). The rest is the age you started at, coaching, how exactly you practised, and much that nobody measured. When the link is weak, the average rating at given hours is pulled towards the overall average, while the average hours at a given rating spread far apart. On top of that, players below 1490 were not sampled, which lifts the left end of the pink line. Both lines are right; they answer different questions.</p>
-    <p><b>What this means for the quiz.</b> The questionnaire works like the site curve: skill → hours usually needed to reach it. So the result is not a forecast of what you “ought to” have for your hours. Having more or fewer skills than others with the same hours is normal. Chess players with equal hours differ by about ±200, and the hours needed to reach the same level differ eightfold. Some players had not reached 2200 even after 25,000 hours. Music is no different: children took about 3,300 hours on average to reach Grade 8 of the British music exams, but at every grade some had practised less than a fifth of the average and others more than four times as much (Sloboda and colleagues).</p>
-    <p><b>The top of the curve.</b> The points “25,000 hours → 2500” and “50,000 hours → 2750” have no data behind them. Eight grandmasters who reached the world top ten had about 14,000 hours on average at their peak (Howard, as reported by Hambrick et al., 2014). At the very top, hours do not seem to be the only thing that matters.</p>
-    <p class="sources">For the chart: Gobet &amp; Campitelli 2007, Tables 1–2 and p. 21 (link below); the average-rating line is derived from their r = 0.57, means and SDs. D. Hambrick et al., <a href="https://doi.org/10.1016/j.intell.2013.04.001" target="_blank" rel="noopener">Deliberate practice: Is that all it takes to become an expert?</a>, Intelligence, 2014. B. Macnamara, D. Hambrick, F. Oswald, <a href="https://doi.org/10.1177/0956797614535810" target="_blank" rel="noopener">Deliberate practice and performance in music, games, sports, education, and professions: a meta-analysis</a>, Psychological Science, 2014. M. Howe, J. Davidson, J. Sloboda, <a href="https://doi.org/10.1017/S0140525X9800123X" target="_blank" rel="noopener">Innate talents: Reality or myth?</a>, Behavioral and Brain Sciences, 1998.</p>
-
-    <h2>Scale</h2>
-    <div class="bands" id="bands"></div>
-
-    <h2>For comparison</h2>
-    <p>The same hours, converted on the same curve. These are reference points, not measurements. The music-school hours come from the programme norms of a Russian children’s music school; in practice some children practise more at home and some less.</p>
-    <div class="tablewrap">
-      <table class="refs">
-        <thead><tr><th>Who</th><th>Hours</th><th>Elo</th></tr></thead>
-        <tbody id="refs"></tbody>
-      </table>
-    </div>
-    <p><b>Are all musicians grandmasters?</b> No. Even the best music students have about 10,000 hours by the age of 20, which is about 2150, expert level. The grandmaster level of 2500 takes about 25,000 hours on this curve, which means decades of daily work. Professionals who practise all their lives get there; a conservatory graduate usually has not yet. There are fewer than two thousand chess grandmasters in the world, so a guitar “grandmaster” should be rare too.</p>
-    <p><b>Vysotsky.</b> Vladimir Vysotsky, the Soviet singer-songwriter and actor, played a Russian seven-string guitar. A school friend, Igor Kokhanovsky, showed him his first chords, and nobody thought of him as a virtuoso. Yet he gave more than a thousand concerts, wrote hundreds of songs, and his guitar is recognisable from the first bars. Answering for him wherever the seven-string does not get in the way gives <b id="vysElo"></b>: technique at the level of a beginning club player, stage and repertoire at the top. The wide spread is the whole point: the rating is an average, and for Vysotsky the average says little.</p>
-    <details><summary>Answers for Vysotsky (the author’s guess)</summary><ul class="vys" id="vysList"></ul></details>
-
-    <p>Self-assessment is often off: beginners tend to rate themselves too high, strong musicians too low. Above 2400 the questionnaire can no longer tell levels apart; that takes a live listener.</p>
-    <p class="sources">Reference points: the five-year programme “Specialisation: six-string guitar” of <a href="https://dmsh4perm.ru/public/%20%D0%B3%D0%B8%D1%82%D0%B0%D1%80%D0%B0%20%D1%88%D0%B5%D1%81%D1%82%D0%B8%D1%81%D1%82%D1%80%D1%83%D0%BD%D0%BD%D0%B0%D1%8F%205%20%D0%BB%D0%B5%D1%82%20%D0%A4%D0%93%D0%A2.pdf" target="_blank" rel="noopener">Children’s Music School No. 4, Perm</a> (in Russian; a current one, as no Soviet curriculum could be found). K. A. Ericsson, R. Krampe, C. Tesch-Römer, <a href="https://doi.org/10.1037/0033-295X.100.3.363" target="_blank" rel="noopener">The role of deliberate practice in the acquisition of expert performance</a>, Psychological Review, 1993. B. Macnamara, M. Maitra, <a href="https://doi.org/10.1098/rsos.190327" target="_blank" rel="noopener">The role of deliberate practice in expert performance: revisiting Ericsson, Krampe &amp; Tesch-Römer (1993)</a>, Royal Society Open Science, 2019. On Vysotsky (in Russian): <a href="https://kino.rambler.ru/movies/54465653-on-nauchil-vysotskogo-igrat-na-gitare-kto-na-samom-dele-vospital-barda-i-sochinil-babe-leto/" target="_blank" rel="noopener">Rambler</a>, <a href="https://music-museum.ru/about/news/11-faktov-iz-zhizni-vladimira-vyisoczkogo.-k-85-letiyu-so-dnya-rozhdeniya.html" target="_blank" rel="noopener">Museum of Music</a>.</p>
-    <p class="sources">Sources of the curve: F. Gobet, G. Campitelli, <a href="https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf" target="_blank" rel="noopener">The role of domain-specific practice, handedness, and starting age in chess</a>, Developmental Psychology, 2007, Tables 1–2 (<a href="https://en.chessbase.com/post/handedne-practice-and-talent-in-che" target="_blank" rel="noopener">ChessBase summary</a>). N. Charness et al., <a href="https://doi.org/10.1002/acp.1106" target="_blank" rel="noopener">The role of deliberate practice in chess expertise</a>, Applied Cognitive Psychology, 2005.</p>
   </section>
 
   <footer class="foot">
+    <a href="">Test</a>
+    <a href="method/">How it is scored</a>
+    <a href="compare/">Scale and comparisons</a>
     <a href="https://lipu.dev/">lipu.dev</a>
     <a href="https://github.com/komapc/guitar-elo" rel="noopener">Source code</a>
     <span>Code under the MIT licence</span>
@@ -183,6 +121,7 @@
 </div>
 
 <script src="i18n/en.js?v=dev"></script>
+<script src="common.js?v=dev"></script>
 <script src="app.js?v=dev"></script>
 </body>
 </html>

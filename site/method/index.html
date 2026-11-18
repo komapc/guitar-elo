@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>try { if (localStorage.getItem('guitar-elo-lang') === 'ru') location.replace('/ru' + location.pathname + location.search + location.hash); } catch (e) {}</script>
+<title>How Guitar Elo is scored: practice hours on the chess Elo curve</title>
+<meta name="description" content="How guitar skills become practice hours and hours become a chess Elo: the curve, its calibration on Gobet & Campitelli’s data, and what chess players’ hours say about the rating.">
+<link rel="canonical" href="https://guitar-elo.lipu.dev/method/">
+<link rel="alternate" hreflang="en" href="https://guitar-elo.lipu.dev/method/">
+<link rel="alternate" hreflang="ru" href="https://guitar-elo.lipu.dev/ru/method/">
+<link rel="alternate" hreflang="x-default" href="https://guitar-elo.lipu.dev/method/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#F3F4F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111413" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="ru_RU">
+<meta property="og:site_name" content="lipu.dev">
+<meta property="og:url" content="https://guitar-elo.lipu.dev/method/">
+<meta property="og:title" content="How Guitar Elo is scored: practice hours on the chess Elo curve">
+<meta property="og:description" content="How guitar skills become practice hours and hours become a chess Elo: the curve, its calibration on Gobet & Campitelli’s data, and what chess players’ hours say about the rating.">
+<meta property="og:image" content="https://guitar-elo.lipu.dev/og-en.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Guitar Elo: how good are you at guitar? A fretboard with rating bands from Beginner to Master.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@500;700&display=swap">
+<link rel="stylesheet" href="../app.css?v=dev">
+</head>
+<body>
+<div class="wrap">
+  <p class="langhint" id="langhint" lang="ru" hidden>Эта страница есть на русском. <a href="../ru/method/" data-lang="ru">Открыть</a><button type="button" aria-label="Закрыть">✕</button></p>
+  <header class="top">
+    <nav class="langs" aria-label="Language"><b>English</b><a href="../ru/method/" hreflang="ru" lang="ru" data-lang="ru">Русский</a></nav>
+    <p class="crumb"><a href="../">← Back to the test</a></p>
+    <h1>How it is scored</h1>
+  </header>
+
+  <section class="method page" id="method">
+    <ol>
+      <li>Each slider position stands for a rough number of practice hours a guitarist usually needs to get there. These hours are the author’s estimates, not measurements: only the chess curve has data behind it.</li>
+      <li>Hours become a rating on the “hours → chess Elo” curve in the table below.</li>
+      <li>The result is a weighted mean of the answered questions. The metronome and the hardest piece weigh more, the stage and theory less. A question left on “silly” is not counted, so a classical player loses nothing over the pick, and a metal player nothing over fingerstyle. An answer set by a test on the page (fretboard, chords by ear, rhythm) counts 1.5 times as much while the slider stays where the test put it. Both the 1.5 and the rhythm test’s pass mark are the author’s judgement: a level passes if the taps stray from the beat by no more than 5% of a beat (SD). The intervals between such taps vary by about 7%, between about 5% for percussionists and about 12% for other trained musicians on a harder task (<a href="https://www.frontiersin.org/articles/10.3389/fnhum.2014.01003" target="_blank" rel="noopener">Cameron &amp; Grahn, 2014</a>).</li>
+      <li>The number after ± shows how much your answers disagree with each other. The more even your skills, the narrower the spread.</li>
+    </ol>
+    <p>The result is an Elo equivalent: the rating a chess player would have after putting in the same hours. Real Elo comes from games, and there are no games here. The hours under “Compare with practice hours” do not count towards the rating. They are there only for comparison: are you ahead of your hours or behind them?</p>
+    <p>The curve answers the question “how many hours does a chess player of this rating usually have”, because the questionnaire works the same way: skill → hours usually needed to reach it. The opposite question, “what is the average rating of a chess player with this many hours”, gives about 1650–1800 for 1,404 h in the same paper. But that figure is too high: players below 1490 were not sampled, so weak players with many hours never made it into the data. The ratings in the paper are Argentine national Elo (r = 0.89 with FIDE), not chess.com or Lichess ratings.</p>
+    <p>In the study by Charness et al. (2005), rating was best predicted by hours of serious study alone, not by the number of games played. A reasonable hint for guitar: an hour with a metronome on a weak spot is probably worth more than an hour of favourite songs.</p>
+
+    <div class="cal">
+      <label for="cal">Calibration: 3 years × 3 times a week × 3 hours = 1,404 h ≈</label>
+      <input type="number" id="cal" min="800" max="2100" step="50" inputmode="numeric">
+      <span>Elo</span>
+      <span class="calnote">The data allow 1100–1400. Default 1250.</span>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Practice hours</th><th>Elo</th><th>Where the point comes from</th></tr></thead>
+        <tbody id="anchors"></tbody>
+      </table>
+    </div>
+    <p>Between the points the curve is a straight line in log hours: every doubling of hours adds roughly the same amount.</p>
+
+    <h2>Hours and rating: what the data say</h2>
+    <p>All hours on the chart are total hours: practice alone, with others, and tournament games. The data are 104 Argentine chess players from the paper by Gobet and Campitelli (2007). The hours axis is logarithmic. Hover over or tap a point for details.</p>
+    <figure class="chart">
+      <figcaption class="clegend">
+        <span><i class="key" style="--k:var(--c-curve)"></i>Site curve: hours usually needed to reach a rating</span>
+        <span><i class="key dot" style="--k:var(--c-data)"></i>Chess players: hours of those now at this rating; the road to 2200</span>
+        <span><i class="key band" style="--k:var(--c-exp)"></i>Average rating at these hours, ±1 SD</span>
+        <span><i class="key ring" style="--k:var(--c-curve)"></i>Assumption, not a measurement</span>
+      </figcaption>
+      <div class="cplot" id="cplot"><div class="ctip" id="ctip" hidden></div></div>
+      <details><summary>Chart data</summary>
+        <div class="tablewrap"><table>
+          <thead><tr><th>What</th><th>Hours</th><th>Rating</th></tr></thead>
+          <tbody id="chartRows"></tbody>
+        </table></div>
+      </details>
+    </figure>
+    <p>The chart shows three different things, and they are easy to mix up.</p>
+    <ul>
+      <li><b>The site curve</b> shows how many hours it usually takes to reach a rating. It is measured at one point: players reached 2200 after 11,053 hours on average, the fastest after 3,016 and the slowest after 23,608. The other points are assumptions and the line extended downwards.</li>
+      <li><b>The blue dots</b> show how many hours the players now at that rating have. They sit to the right of the curve: the hours were counted at the time of the survey, and after reaching their level people keep practising while their rating grows only slowly. FIDE masters have 19,600 hours on average, while reaching 2200 takes 11,000 on average.</li>
+      <li><b>The pink line</b> answers the opposite question: what is the average rating of a player with this many hours. It is much flatter: 1,404 hours give about 1750–1800 on average, 11,053 hours about 2040. The band around it is ±1 standard deviation, about ±180.</li>
+    </ul>
+    <p><b>Why the lines differ so much.</b> Hours explain the smaller part of the differences. In this sample the correlation of rating with log hours is r = 0.57, so hours account for about a third of the spread. The meta-analysis by Macnamara et al. (2014) gives 26% for games and 21% for music, and about a third after correcting for unreliable self-reports (Hambrick et al., 2014). The rest is the age you started at, coaching, how exactly you practised, and much that nobody measured. When the link is weak, the average rating at given hours is pulled towards the overall average, while the average hours at a given rating spread far apart. On top of that, players below 1490 were not sampled, which lifts the left end of the pink line. Both lines are right; they answer different questions.</p>
+    <p><b>What this means for the quiz.</b> The questionnaire works like the site curve: skill → hours usually needed to reach it. So the result is not a forecast of what you “ought to” have for your hours. Having more or fewer skills than others with the same hours is normal. Chess players with equal hours differ by about ±200, and the hours needed to reach the same level differ eightfold. Some players had not reached 2200 even after 25,000 hours. Music is no different: children took about 3,300 hours on average to reach Grade 8 of the British music exams, but at every grade some had practised less than a fifth of the average and others more than four times as much (Sloboda and colleagues).</p>
+    <p><b>The top of the curve.</b> The points “25,000 hours → 2500” and “50,000 hours → 2750” have no data behind them. Eight grandmasters who reached the world top ten had about 14,000 hours on average at their peak (Howard, as reported by Hambrick et al., 2014). At the very top, hours do not seem to be the only thing that matters.</p>
+    <p class="sources">For the chart: Gobet &amp; Campitelli 2007, Tables 1–2 and p. 21 (link below); the average-rating line is derived from their r = 0.57, means and SDs. D. Hambrick et al., <a href="https://doi.org/10.1016/j.intell.2013.04.001" target="_blank" rel="noopener">Deliberate practice: Is that all it takes to become an expert?</a>, Intelligence, 2014. B. Macnamara, D. Hambrick, F. Oswald, <a href="https://doi.org/10.1177/0956797614535810" target="_blank" rel="noopener">Deliberate practice and performance in music, games, sports, education, and professions: a meta-analysis</a>, Psychological Science, 2014. M. Howe, J. Davidson, J. Sloboda, <a href="https://doi.org/10.1017/S0140525X9800123X" target="_blank" rel="noopener">Innate talents: Reality or myth?</a>, Behavioral and Brain Sciences, 1998.</p>
+    <p class="sources">Sources of the curve: F. Gobet, G. Campitelli, <a href="https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf" target="_blank" rel="noopener">The role of domain-specific practice, handedness, and starting age in chess</a>, Developmental Psychology, 2007, Tables 1–2 (<a href="https://en.chessbase.com/post/handedne-practice-and-talent-in-che" target="_blank" rel="noopener">ChessBase summary</a>). N. Charness et al., <a href="https://doi.org/10.1002/acp.1106" target="_blank" rel="noopener">The role of deliberate practice in chess expertise</a>, Applied Cognitive Psychology, 2005.</p>
+  </section>
+
+  <footer class="foot">
+    <a href="../">Test</a>
+    <a href="../method/">How it is scored</a>
+    <a href="../compare/">Scale and comparisons</a>
+    <a href="https://lipu.dev/">lipu.dev</a>
+    <a href="https://github.com/komapc/guitar-elo" rel="noopener">Source code</a>
+    <span>Code under the MIT licence</span>
+  </footer>
+</div>
+
+<script src="../i18n/en.js?v=dev"></script>
+<script src="../common.js?v=dev"></script>
+<script src="../about.js?v=dev"></script>
+</body>
+</html>
