@@ -26,7 +26,7 @@ const T = {
   notes: [['C'], ['C♯', 'D♭'], ['D'], ['D♯', 'E♭'], ['E'], ['F'], ['F♯', 'G♭'], ['G'], ['G♯', 'A♭'], ['A'], ['A♯', 'B♭'], ['B']],
   chords: { maj: 'major', min: 'minor' },
   earLevels: ['Major or minor', 'Plus seventh chords', 'Plus dim, aug, sus'],
-  rhythmLevels: ['Click on every beat', 'Click on 2 and 4 only', 'Click once a bar'],
+  rhythmLevels: ['Metronome on every beat', 'Metronome on 2 and 4 only', 'Metronome once a bar'],
   refs: [
     { who: 'Music school guitar course, 2 years', note: 'by the programme norms: 2 lessons and 3 hours of home practice a week, 33 weeks a year' },
     { who: '3 years' },
@@ -75,7 +75,7 @@ const T = {
       'And G7 can be swapped for D♭7 or steered to Am',
       'I can reharmonise any song and explain every chord',
     ] },
-    metronome: { text: 'How are you with a metronome?', hint: 'Test yourself right here: the metronome clicks and you tap every beat on the button or the space bar. Three levels: a click on every beat, on 2 and 4 only, once a bar. The test does not check subdivisions, polyrhythms or playing ahead of or behind the beat.', o: [
+    metronome: { text: 'How are you with a metronome?', hint: 'Test yourself right here: the metronome clicks and you tap the button (or the space bar) on every beat. Three levels: a click on every beat, on 2 and 4 only, once a bar. The test does not check subdivisions, polyrhythms or playing ahead of or behind the beat.', o: [
       'I lose it straight away',
       'I keep a simple strum going, but I drift',
       'Even eighth notes at any tempo from 60 to 140',
@@ -250,16 +250,19 @@ const T = {
     earGo: '▶ Test my ear',
     earIdle: 'The page plays a chord, you pick which one it is.',
     rhythmGo: '▶ Test my rhythm',
-    rhythmIdle: 'Two bars of clicks on every beat first, then eight bars with fewer clicks. The page measures how evenly you tap.',
-    rhythmRun: s => `Tap every beat: a two-bar count-in, then eight bars. The result appears when the clicks stop, in about ${s} s.`,
+    rhythmIdle: 'Press “Test my rhythm”: a metronome starts clicking and a big button appears below. Tap it with every click, like tapping your foot. Sound must be on. The page measures how evenly you tap.',
+    rhythmRun: (s, level) => (level
+      ? 'Tap the button below on every beat. The first 8 clicks come on every beat as a warm-up; then there are fewer clicks, and you keep tapping every beat at the same pace.'
+      : 'Tap the button below with every click. The first 8 clicks are a warm-up, then the measuring starts.')
+      + ` The result appears when the clicks stop, in about ${s} s.`,
     rhythmStopped: s => `Stopped before the end, so there is no result. A full run takes about ${s} s.`,
-    tap: 'Tap here',
+    tap: 'Tap with the clicks',
     taps: n => `${n} tap${n === 1 ? '' : 's'}`,
     rhythmResult: (name, spread, missed, extra, pass, need, miss) => `${name}: spread ${spread}% of a beat`
       + (missed ? `, ${missed} ${plEn(missed, 'beat', 'beats')} missed` : '')
       + (extra ? `, ${extra} extra ${plEn(extra, 'tap', 'taps')}` : '')
       + (pass ? '. Level passed. ' : `. To pass: ${need}% or less, and no more than ${miss} missed beats. `),
-    rhythmFew: 'Hardly any taps came in. Tap every beat on the “Tap here” button or the space bar.',
+    rhythmFew: 'Hardly any taps came in. Tap the “Tap with the clicks” button (or the space bar) on every beat.',
     measured: w => `Checked by a test: this answer counts ${w} times as much`,
     replay: '↻ Play again',
     earResult: (name, right, n, pass, need) => `${name}: ${right} of ${n}` + (pass ? ', level passed. ' : `, and ${need} are needed. `),
