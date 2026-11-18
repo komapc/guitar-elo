@@ -165,7 +165,12 @@ check('rhythm test: level results map to stops; the top stop is never suggested'
   assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 9, extra: 0 }).stop, 0);
   assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 3, extra: 0 }).pass, false);
   assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 0, extra: 3 }).pass, false);
-  assert.ok(m.RHYTHM.pass > 0.052 && m.RHYTHM.pass < 0.115, 'between percussionists and other musicians');
+  // Cameron & Grahn 2014 report the CV of inter-tap intervals; with independent tap errors that is √2 × our spread.
+  const cv = m.RHYTHM.pass * Math.SQRT2;
+  assert.ok(cv > 0.052 && cv < 0.115, `inter-tap CV ${cv} between percussionists and other musicians`);
+  const at = sd => { const g = gauss(rng(5)); return m.rhythmStats(grid(32, 0, 500, t => t + sd * 500 * g()), 0, 500, 32); };
+  assert.equal(m.rhythmResult(0, at(m.RHYTHM.pass * 0.7)).pass, true, 'a bit below the mark passes');
+  assert.equal(m.rhythmResult(0, at(m.RHYTHM.pass * 1.4)).pass, false, 'a bit above the mark fails');
   assert.deepEqual(m.RHYTHM_LEVELS.map(l => l.clicks.length), [4, 2, 1]);
 });
 check('measured answers: count more only while the slider stays on the measured stop', () => {

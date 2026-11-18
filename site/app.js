@@ -155,11 +155,13 @@ const EAR_ROUNDS = 10, EAR_PASS = 8;
 // the clicks out: every beat, beats 2 and 4 only, beat 1 only. Each level is `lead` bars of clicks on every beat, then
 // `bars` measured bars. Passing level k suggests stop k + 2. Subdivisions, polyrhythms and playing ahead of or behind
 // the beat on purpose (the top stop) are not tested, so stop 5 is never suggested.
-// The limits are assumptions. `pass` (SD of the taps around the beat, as a share of a beat) sits between the inter-tap
-// variability of percussionists (CV 0.052) and of other trained musicians (0.115–0.127) in Cameron & Grahn 2014, a
-// related but not identical measure; `lost` and `misses` are judgement calls.
+// The limits are assumptions. `pass` is the SD of the taps around the beat, as a share of a beat. With independent tap
+// errors the variability of the intervals between taps is √2 times that, so 0.05 ≈ an inter-tap CV of 0.07: between
+// percussionists (0.052) and other trained musicians (0.115) in Cameron & Grahn 2014, whose task (finding the beat of a
+// rhythm) was harder than tapping along with a click. Tapping along with a click on every beat separates people
+// weakly (Repp 2010: amateurs ≈ non-musicians), so the first level says the least. `lost` and `misses` are judgement calls.
 const RHYTHM_LEVELS = [[0, 1, 2, 3], [1, 3], [0]].map((clicks, i) => ({ name: T.rhythmLevels[i], clicks }));
-const RHYTHM = { lead: 2, bars: 8, beats: 4, pass: 0.08, lost: 0.15, misses: 2 };
+const RHYTHM = { lead: 2, bars: 8, beats: 4, pass: 0.05, lost: 0.15, misses: 2 };
 // Taps against a grid of n beats from `start`, `beat` apart (any one time unit). Only the spread counts: a constant
 // offset (audio output latency, Bluetooth, touch delay, a habit of tapping early) is removed through the taps' mean
 // phase. Each beat keeps its closest tap; further taps on the same beat are `extra`.
@@ -850,7 +852,7 @@ function startRhythm(el) {
     const st = rhythmStats(taps, toPerf()(start), beat * 1000, n);
     if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; return; }
     const r = rhythmResult(level, st);
-    let html = T.ui.rhythmResult(name, Math.round(st.spread * 100), st.misses, st.extra, r.pass, Math.round(RHYTHM.pass * 100), RHYTHM.misses)
+    let html = T.ui.rhythmResult(name, (st.spread * 100).toFixed(1).replace('.', T.dec), st.misses, st.extra, r.pass, Math.round(RHYTHM.pass * 100), RHYTHM.misses)
       + suggest('metronome', r.stop);
     if (r.pass && level + 1 < RHYTHM_LEVELS.length) html += ` <button type="button" class="btn tnext" data-level="${level + 1}">${T.ui.next(RHYTHM_LEVELS[level + 1].name)}</button>`;
     out.innerHTML = html;
