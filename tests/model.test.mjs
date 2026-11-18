@@ -7,7 +7,7 @@ const read = f => readFileSync(new URL('../site/' + f, import.meta.url), 'utf8')
 const app = read('app.js');
 new Function(app); // the whole page script must parse
 const model = app.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const EXPORTS = 'score, eloFromHours, hoursFromElo, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors';
+const EXPORTS = 'score, eloFromHours, hoursFromElo, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, rhythmStats, rhythmResult';
 const LANGS = {
   en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more', script: /<script src="i18n\/en\.js[^"]*"><\/script>\s*<script src="app\.js/ },
   ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше', script: /<script src="\.\.\/i18n\/ru\.js[^"]*"><\/script>\s*<script src="\.\.\/app\.js/ },
@@ -21,7 +21,7 @@ const check = (name, fn) => {
 const shape = T => JSON.stringify({
   q: Object.keys(T.q).map(id => [id, T.q[id].o.length, typeof T.q[id].num, 'hint' in T.q[id]]),
   ui: Object.keys(T.ui).sort().map(k => [k, typeof T.ui[k]]),
-  n: ['anchors', 'bands', 'notes', 'refs', 'groups', 'earLevels'].map(k => T[k].length),
+  n: ['anchors', 'bands', 'notes', 'refs', 'groups', 'earLevels', 'rhythmLevels'].map(k => T[k].length),
   cats: Object.keys(T.cats), chords: Object.keys(T.chords),
 });
 check('both languages have the same keys, options and table lengths', () => {
@@ -82,7 +82,7 @@ check('gap metronome: two bars of clicks, then the click returns after exactly N
 });
 check('self-tests sit under the questions they check', () => {
   const tools = m.QUESTIONS.filter(q => q.tool).map(q => q.id + ':' + q.tool);
-  assert.deepEqual(tools, ['changes:minute', 'gap:gap', 'fretboard:fretboard', 'chordear:chordear']);
+  assert.deepEqual(tools, ['changes:minute', 'metronome:rhythm', 'gap:gap', 'fretboard:fretboard', 'chordear:chordear']);
 });
 check('fretboard quiz: notes match the question (3rd string, 7th fret = D) and standard tuning', () => {
   assert.equal(m.NOTE_NAMES[m.noteAt(3, 7)][0], L.d);
@@ -127,6 +127,64 @@ check('reference points: hours rise down the table; Vysotsky answers are valid',
     assert.ok(q && q.o[a], `${id}=${a}`);
   }
   assert.equal(m.QUESTIONS.find(q => q.id === 'repertoire').o[m.VYSOTSKY.repertoire][0], L.top);
+});
+// Deterministic noise for synthetic taps.
+const rng = seed => () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+const gauss = r => () => Math.sqrt(-2 * Math.log(1 - r())) * Math.cos(2 * Math.PI * r());
+const grid = (n, start, beat, f) => Array.from({ length: n }, (_, k) => f(start + k * beat, k)).flat();
+check('rhythm test: a constant offset (latency, tapping early) does not count, only the spread', () => {
+  // Players tap through the count-in too (8 beats before `start`), so an offset near a whole beat still fills every beat.
+  for (const off of [0, -0.04, 0.3, 0.49, 0.8, 1.7]) {
+    const st = m.rhythmStats(grid(40, 1000 - 8 * 750, 750, t => t + off * 750), 1000, 750, 32);
+    assert.ok(st.spread < 1e-9 && st.misses === 0 && st.extra === 0, `offset ${off}: ${JSON.stringify(st)}`);
+  }
+  const g = gauss(rng(7));
+  const st = m.rhythmStats(grid(32, 0, 600, t => t + 120 + 0.04 * 600 * g()), 0, 600, 32);
+  assert.ok(st.spread > 0.03 && st.spread < 0.05 && st.misses === 0, JSON.stringify(st));
+});
+check('rhythm test: missed beats, double taps, taps outside the measured bars', () => {
+  const st = m.rhythmStats(grid(32, 0, 500, (t, k) => (k % 10 === 3 ? [] : k === 5 ? [t, t + 40] : [t])), 0, 500, 32);
+  assert.deepEqual([st.misses, st.extra], [3, 1]);
+  const lead = grid(8, -4000, 500, t => t), after = [16000, 16500];
+  const st2 = m.rhythmStats([...lead, ...grid(32, 0, 500, t => t), ...after], 0, 500, 32);
+  assert.deepEqual([st2.misses, st2.extra], [0, 0]);
+  const none = m.rhythmStats([], 0, 500, 32);
+  assert.ok(none.misses === 32 && !Number.isFinite(none.spread));
+});
+check('rhythm test: random tapping is far over the limits', () => {
+  const r = rng(3), st = m.rhythmStats(Array.from({ length: 32 }, () => r() * 32 * 500), 0, 500, 32);
+  assert.ok(st.spread > m.RHYTHM.lost, JSON.stringify(st));
+  assert.equal(m.rhythmResult(0, st).stop, 0);
+});
+check('rhythm test: level results map to stops; the top stop is never suggested', () => {
+  const q = m.QUESTIONS.find(x => x.id === 'metronome'), top = q.o.length - 1;
+  const ok = { spread: 0.03, misses: 0, extra: 0 }, shaky = { spread: 0.11, misses: 1, extra: 0 };
+  assert.deepEqual(m.RHYTHM_LEVELS.map((_, k) => m.rhythmResult(k, ok).stop), [2, 3, 4]);
+  assert.ok(m.RHYTHM_LEVELS.every((_, k) => m.rhythmResult(k, ok).stop < top && m.rhythmResult(k, shaky).stop < top));
+  assert.deepEqual(m.RHYTHM_LEVELS.map((_, k) => m.rhythmResult(k, shaky).stop), [1, 2, 3]);
+  assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 9, extra: 0 }).stop, 0);
+  assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 3, extra: 0 }).pass, false);
+  assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 0, extra: 3 }).pass, false);
+  // Cameron & Grahn 2014 report the CV of inter-tap intervals; with independent tap errors that is √2 × our spread.
+  const cv = m.RHYTHM.pass * Math.SQRT2;
+  assert.ok(cv > 0.052 && cv < 0.115, `inter-tap CV ${cv} between percussionists and other musicians`);
+  const at = sd => { const g = gauss(rng(5)); return m.rhythmStats(grid(32, 0, 500, t => t + sd * 500 * g()), 0, 500, 32); };
+  assert.equal(m.rhythmResult(0, at(m.RHYTHM.pass * 0.7)).pass, true, 'a bit below the mark passes');
+  assert.equal(m.rhythmResult(0, at(m.RHYTHM.pass * 1.4)).pass, false, 'a bit above the mark fails');
+  assert.deepEqual(m.RHYTHM_LEVELS.map(l => l.clicks.length), [4, 2, 1]);
+});
+check('measured answers: count more only while the slider stays on the measured stop', () => {
+  const base = { ...m.EXAMPLE };
+  const plain = m.score(base), same = m.score(base, {});
+  assert.equal(plain.elo, same.elo);
+  // fretboard sits below the example's average, so weighting it more must pull the average down, by a known amount.
+  const meas = m.score(base, { fretboard: base.fretboard });
+  const q = m.QUESTIONS.find(x => x.id === 'fretboard'), e = m.eloFromHours(q.o[base.fretboard][1]);
+  const sw = m.QUESTIONS.reduce((a, x) => a + (base[x.id] != null ? x.w : 0), 0), extra = q.w * (m.MEASURED_WEIGHT - 1);
+  assert.ok(Math.abs(meas.elo - (plain.elo * sw + extra * e) / (sw + extra)) < 1e-9);
+  assert.ok(meas.elo < plain.elo);
+  assert.equal(m.score(base, { fretboard: base.fretboard + 1 }).elo, plain.elo, 'slider moved off the measured stop');
+  assert.ok(m.MEASURED_WEIGHT > 1 && m.MEASURED_WEIGHT <= 2);
 });
 check('unanswered questions are left out of the score', () => {
   const some = { chords: 3, metronome: 2, hardest: 1 };
