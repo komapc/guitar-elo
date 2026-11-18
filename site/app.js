@@ -68,7 +68,7 @@ const QDEF = [
   { id: 'changes', cat: 'harmony', w: 0.6, tool: 'minute', h: [3, 12, 30, 70, 150, 500, 1500, 6000, 15000] },
   { id: 'transpose', cat: 'harmony', w: 0.8, h: [10, 40, 300, 1500, 5000, 15000] },
   { id: 'theory', cat: 'harmony', w: 0.6, h: [20, 300, 1200, 5000, 18000] },
-  { id: 'metronome', cat: 'rhythm', w: 1.2, h: [10, 80, 400, 1800, 6000, 25000] },
+  { id: 'metronome', cat: 'rhythm', w: 1.2, tool: 'rhythm', h: [10, 80, 400, 1800, 6000, 25000] },
   { id: 'gap', cat: 'rhythm', w: 0.8, tool: 'gap', h: [20, 150, 600, 2000, 6000, 18000] },
   { id: 'strum', cat: 'rhythm', w: 0.8, h: [8, 50, 800, 3500, 14000] },
   { id: 'partner', cat: 'rhythm', w: 0.8, h: [30, 150, 800, 3000, 12000] },
@@ -104,17 +104,21 @@ const EXAMPLE = { chords: 4, changes: 6, transpose: 3, theory: 2, metronome: 3, 
 const BANDS = [0, 800, 1200, 1600, 2000, 2200, 2400, 2500, 2700].map((min, i) => ({ min, name: T.bands[i][0], guitar: T.bands[i][1] }));
 const bandOf = e => BANDS.reduce((b, x) => (e >= x.min ? x : b), BANDS[0]);
 
-function score(answers) {
+// An answer that a test on the page set ("Set it") counts MEASURED_WEIGHT times as much, as long as the slider stays
+// on the stop the test showed; moved elsewhere, it is a self-report again. The factor is a judgement call, kept modest
+// because a short test in a browser is noisy too (an online beat test retested at only r ≈ .3, Harrison & Müllensiefen 2018).
+const MEASURED_WEIGHT = 1.5;
+function score(answers, measured = {}) {
   let sw = 0, se = 0, n = 0;
   const items = [], cats = {};
   for (const q of QUESTIONS) {
     const a = answers[q.id];
     if (a == null || a === 'skip' || !q.o[a]) continue;
-    const e = eloFromHours(q.o[a][1]);
-    items.push({ e, w: q.w });
-    sw += q.w; se += q.w * e; n++;
+    const e = eloFromHours(q.o[a][1]), w = q.w * (measured[q.id] === a ? MEASURED_WEIGHT : 1);
+    items.push({ e, w });
+    sw += w; se += w * e; n++;
     const c = cats[q.cat] || (cats[q.cat] = { sw: 0, se: 0 });
-    c.sw += q.w; c.se += q.w * e;
+    c.sw += w; c.se += w * e;
   }
   if (!n) return { n: 0, catElo: {} };
   const elo = se / sw;
@@ -147,6 +151,43 @@ const EAR_LEVELS = [
   { name: T.earLevels[2], types: ['maj', 'min', 'dom7', 'maj7', 'min7', 'dim', 'aug', 'sus2', 'sus4'] },
 ];
 const EAR_ROUNDS = 10, EAR_PASS = 8;
+// Tap-along rhythm test under the metronome question. The page clicks and the player taps every beat; the levels thin
+// the clicks out: every beat, beats 2 and 4 only, beat 1 only. Each level is `lead` bars of clicks on every beat, then
+// `bars` measured bars. Passing level k suggests stop k + 2. Subdivisions, polyrhythms and playing ahead of or behind
+// the beat on purpose (the top stop) are not tested, so stop 5 is never suggested.
+// The limits are assumptions. `pass` (SD of the taps around the beat, as a share of a beat) sits between the inter-tap
+// variability of percussionists (CV 0.052) and of other trained musicians (0.115–0.127) in Cameron & Grahn 2014, a
+// related but not identical measure; `lost` and `misses` are judgement calls.
+const RHYTHM_LEVELS = [[0, 1, 2, 3], [1, 3], [0]].map((clicks, i) => ({ name: T.rhythmLevels[i], clicks }));
+const RHYTHM = { lead: 2, bars: 8, beats: 4, pass: 0.08, lost: 0.15, misses: 2 };
+// Taps against a grid of n beats from `start`, `beat` apart (any one time unit). Only the spread counts: a constant
+// offset (audio output latency, Bluetooth, touch delay, a habit of tapping early) is removed through the taps' mean
+// phase. Each beat keeps its closest tap; further taps on the same beat are `extra`.
+function rhythmStats(taps, start, beat, n) {
+  const ph = taps.map(t => (t - start) / beat);
+  let c = 0, s = 0;
+  for (const p of ph) { c += Math.cos(2 * Math.PI * p); s += Math.sin(2 * Math.PI * p); }
+  const off = ph.length ? Math.atan2(s, c) / (2 * Math.PI) : 0;
+  const best = new Array(n).fill(null);
+  let extra = 0;
+  for (const p of ph) {
+    const k = Math.round(p - off), d = p - off - k;
+    if (k < 0 || k >= n) continue;
+    if (best[k] == null) best[k] = d;
+    else { extra++; if (Math.abs(d) < Math.abs(best[k])) best[k] = d; }
+  }
+  const dev = best.filter(d => d != null);
+  const mean = dev.reduce((a, d) => a + d, 0) / (dev.length || 1);
+  const spread = dev.length > 1 ? Math.sqrt(dev.reduce((a, d) => a + (d - mean) ** 2, 0) / dev.length) : Infinity;
+  return { spread, misses: n - dev.length, extra, offset: off + mean };
+}
+// Level result → stop. Reaching level k > 0 means level k − 1 was passed in the same run of the test.
+function rhythmResult(level, st) {
+  const pass = st.spread <= RHYTHM.pass && st.misses <= RHYTHM.misses && st.extra <= RHYTHM.misses;
+  if (pass) return { pass, stop: level + 2 };
+  if (level > 0) return { pass, stop: level + 1 };
+  return { pass, stop: st.spread > RHYTHM.lost || st.misses > RHYTHM.bars * RHYTHM.beats / 4 ? 0 : 1 };
+}
 const chordNotes = (root, type) => [root - 12, ...CHORDS[type][1].map(i => root + i)];
 const midiHz = n => 440 * Math.pow(2, (n - 69) / 12);
 // Reference points for the scale, converted on the same curve. Music school: the hour norms of a current 5-year
@@ -190,13 +231,18 @@ const clampAnchor = v => Math.min(2100, Math.max(800, Number.isFinite(+v) && +v 
 
 // Questions that got a new stop at the bottom in a given revision; saved answers from before it move up by one.
 const REV = 2, SHIFTED = { 2: ['pick', 'fingers', 'noise', 'bend', 'vibrato', 'legato', 'ear', 'hardest'] };
-let state = { answers: {}, practice: { ...CAL }, anchorElo: 1250, example: false, rev: REV };
+// `measured`: the stop each test showed, by question id (see MEASURED_WEIGHT). A shift moves it along with the answer.
+let state = { answers: {}, measured: {}, practice: { ...CAL }, anchorElo: 1250, example: false, rev: REV };
 function load() {
   try {
     const raw = localStorage.getItem(STORE);
     const s = raw && JSON.parse(raw);
     if (s && typeof s.answers === 'object') {
-      for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const id of SHIFTED[r] || []) if (s.answers[id] != null) s.answers[id]++;
+      if (!s.measured || typeof s.measured !== 'object') s.measured = {};
+      for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const id of SHIFTED[r] || []) {
+        if (s.answers[id] != null) s.answers[id]++;
+        if (s.measured[id] != null) s.measured[id]++;
+      }
       s.rev = REV;
       return s;
     }
@@ -223,6 +269,10 @@ function toolHtml(kind) {
     + '<span class="tout" aria-live="polite">' + T.ui.earIdle + '</span>'
     + '<div class="qz" hidden><div class="qzq"><span class="qzpos"></span><span class="qzn"></span></div><div class="chords"></div>'
     + '<div><button type="button" class="btn tre">' + T.ui.replay + '</button></div></div></div>';
+  if (kind === 'rhythm') return `<div class="tool" data-tool="rhythm"><label>${T.ui.tempo}<select class="tbpm">`
+    + GAP_BPM.map(b => `<option${b === 80 ? ' selected' : ''}>${b}</option>`).join('')
+    + `</select></label><button type="button" class="btn tgo">${T.ui.rhythmGo}</button><span class="tout" aria-live="polite">${T.ui.rhythmIdle}</span>`
+    + `<div class="qz" hidden><div class="qzq"><span class="qzpos"></span></div><button type="button" class="tap">${T.ui.tap}</button></div></div>`;
   if (kind !== 'gap') return '';
   return `<div class="tool" data-tool="gap"><span>${T.ui.gapSilence}</span><span class="seg" role="group" aria-label="${T.ui.gapSilenceAria}">`
     + GAP_SILENT.map(n => `<button type="button" class="segb" data-n="${n}" aria-pressed="${n === 2}">${n}</button>`).join('')
@@ -417,10 +467,12 @@ function syncForm() {
 
 let last = null;
 function update() {
-  const r = score(state.answers);
+  const r = score(state.answers, state.measured);
   for (const q of QUESTIONS) {
-    const a = state.answers[q.id], chip = $('#e-' + q.id);
-    chip.textContent = a == null || !q.o[a] ? '' : '≈ ' + fmtElo(eloFromHours(q.o[a][1]));
+    const a = state.answers[q.id], chip = $('#e-' + q.id), meas = a != null && q.o[a] != null && state.measured[q.id] === a;
+    chip.textContent = a == null || !q.o[a] ? '' : '≈ ' + fmtElo(eloFromHours(q.o[a][1])) + (meas ? ' ✓' : '');
+    chip.classList.toggle('meas', meas);
+    if (meas) chip.title = T.ui.measured(String(MEASURED_WEIGHT).replace('.', T.dec)); else chip.removeAttribute('title');
   }
   const answered = QUESTIONS.filter(q => state.answers[q.id] != null).length;
   $('#progress').textContent = T.ui.progress(answered, QUESTIONS.length);
@@ -541,7 +593,10 @@ $('#quiz').addEventListener('click', ev => {
   const nx = t.closest && t.closest('.tnext');
   if (nx) { const el = nx.closest('.tool'); el.dataset.level = nx.dataset.level; toggleTool(el); return; }
   const set = t.closest && t.closest('.tset');
-  if (set) { setAnswer(set.dataset.q, Number(set.dataset.v)); set.disabled = true; set.textContent = T.ui.setDone; return; }
+  if (set) {
+    state.measured[set.dataset.q] = Number(set.dataset.v);
+    setAnswer(set.dataset.q, Number(set.dataset.v)); set.disabled = true; set.textContent = T.ui.setDone; return;
+  }
   const sb = t.closest && t.closest('.segb');
   if (sb) {
     for (const b of sb.parentNode.children) b.setAttribute('aria-pressed', String(b === sb));
@@ -550,8 +605,9 @@ $('#quiz').addEventListener('click', ev => {
 });
 $('#quiz').addEventListener('change', ev => { if (ev.target.classList.contains('tbpm')) restartTool(ev.target.closest('.tool')); });
 
-// Self-tests under two questions: a one-minute timer and a gap-click metronome. They only help to check yourself;
-// the answer is still what the slider says. Clicks are scheduled on the audio clock, a little ahead, so they do not drift.
+// Self-tests under the questions. The one-minute timer and the gap-click metronome only help to check yourself. The
+// fretboard, chord and rhythm tests measure and suggest a stop; "Set it" sets it and marks the answer as measured.
+// Clicks are scheduled on the audio clock, a little ahead, so they do not drift.
 let actx = null, running = null;
 function audio() {
   try {
@@ -639,7 +695,7 @@ function startGap(el) {
   } };
 }
 const fmtSec = x => x.toFixed(1).replace('.', T.dec);
-// Quizzes end with a suggested stop and a set button («Поставить»); the answer changes only if it is pressed.
+// Quizzes end with a suggested stop and a set button ("Set it"); the answer changes only if it is pressed.
 function suggest(id, stop) {
   return `${T.ui.suggest(qById(id).o[stop][0])} <button type="button" class="tset" data-q="${id}" data-v="${stop}">${T.ui.set}</button>`;
 }
@@ -743,7 +799,77 @@ function startChordQuiz(el) {
   next();
   return self;
 }
-const TOOLS = { minute: startMinute, gap: startGap, fretboard: startFretQuiz, chordear: startChordQuiz };
+function startRhythm(el) {
+  const go = el.querySelector('.tgo'), out = el.querySelector('.tout'), box = el.querySelector('.qz');
+  const head = el.querySelector('.qzpos'), pad = el.querySelector('.tap');
+  const level = Number(el.dataset.level) || 0;
+  delete el.dataset.level;
+  const ctx = audio();
+  if (!ctx) { out.textContent = T.ui.noAudio; return null; }
+  const { name, clicks } = RHYTHM_LEVELS[level], B = RHYTHM.beats, n = RHYTHM.bars * B, total = RHYTHM.lead * B + n;
+  const beat = 60 / Number(el.querySelector('.tbpm').value), t0 = ctx.currentTime + 0.15, start = t0 + RHYTHM.lead * B * beat;
+  const taps = [], release = keepAwake();
+  let nodes = [], i = 0;
+  // Taps use the event's own time stamp, so a busy main thread does not shift them; an old browser that stamps events
+  // on another clock falls back to the time of handling.
+  const stamp = ev => { const now = performance.now(); return Math.abs(ev.timeStamp - now) < 5000 ? ev.timeStamp : now; };
+  const onPad = ev => { ev.preventDefault(); taps.push(stamp(ev)); };
+  const onKey = ev => {
+    if (ev.key !== ' ' && ev.key !== 'Enter') return;
+    // Space or Enter on another control (the stop button, the tempo) keeps its usual meaning.
+    if (ev.target !== pad && ev.target.closest && ev.target.closest('button, select, input, textarea, a')) return;
+    ev.preventDefault();
+    if (!ev.repeat) taps.push(stamp(ev));
+  };
+  const schedule = () => {
+    while (i < total && t0 + i * beat < ctx.currentTime + 0.2) {
+      if (i < RHYTHM.lead * B || clicks.includes(i % B)) nodes.push(beep(ctx, t0 + i * beat, i % B ? 1000 : 1600));
+      i++;
+    }
+    nodes = nodes.filter(x => x.t > ctx.currentTime - 0.5);
+    // Half a beat after the last one, plus room for a slow output (Bluetooth).
+    if (ctx.currentTime > t0 + (total - 0.5) * beat + 0.4) finish(true);
+  };
+  // Context time → performance time, the clock of the taps. Any constant error cancels out in rhythmStats.
+  const toPerf = () => {
+    let ts = null;
+    try { ts = ctx.getOutputTimestamp && ctx.getOutputTimestamp(); } catch (e) {}
+    if (ts && ts.performanceTime > 0) return c => ts.performanceTime + (c - ts.contextTime) * 1000;
+    const p = performance.now(), c0 = ctx.currentTime;
+    return c => p + (c - c0) * 1000;
+  };
+  const self = { el, level, stop() { finish(false); } };
+  function finish(complete) {
+    clearInterval(iv); release();
+    pad.removeEventListener('pointerdown', onPad);
+    document.removeEventListener('keydown', onKey, true);
+    if (!complete) silence(nodes);
+    el.classList.remove('on'); box.hidden = true; go.textContent = T.ui.rhythmGo;
+    if (running === self) running = null;
+    if (!complete) { out.textContent = ''; return; }
+    const st = rhythmStats(taps, toPerf()(start), beat * 1000, n);
+    if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; return; }
+    const r = rhythmResult(level, st);
+    let html = T.ui.rhythmResult(name, Math.round(st.spread * 100), st.misses, st.extra, r.pass, Math.round(RHYTHM.pass * 100), RHYTHM.misses)
+      + suggest('metronome', r.stop);
+    if (r.pass && level + 1 < RHYTHM_LEVELS.length) html += ` <button type="button" class="btn tnext" data-level="${level + 1}">${T.ui.next(RHYTHM_LEVELS[level + 1].name)}</button>`;
+    out.innerHTML = html;
+  }
+  pad.addEventListener('pointerdown', onPad);
+  document.addEventListener('keydown', onKey, true);
+  head.textContent = name;
+  // Nothing on screen moves while the clicks are sparse: a counter or a flash would be a visual click.
+  el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = T.ui.rhythmRun;
+  pad.focus({ preventScroll: true });
+  const iv = setInterval(schedule, 25);
+  schedule();
+  // A blocked AudioContext stays suspended instead of throwing; without clicks the result would mean nothing.
+  setTimeout(() => {
+    if (running === self && ctx.state !== 'running') { stopTool(); out.textContent = T.ui.noAudio; }
+  }, 400);
+  return self;
+}
+const TOOLS = { minute: startMinute, gap: startGap, fretboard: startFretQuiz, chordear: startChordQuiz, rhythm: startRhythm };
 function stopTool() { if (running) running.stop(); running = null; }
 function toggleTool(el) {
   if (running && running.el === el) { stopTool(); return; }
@@ -751,7 +877,14 @@ function toggleTool(el) {
   const start = TOOLS[el.dataset.tool];
   running = start ? start(el) : null;
 }
-function restartTool(el) { if (running && running.el === el) { stopTool(); toggleTool(el); } }
+// A new setting restarts a running tool; a test keeps the level it was on.
+function restartTool(el) {
+  if (!running || running.el !== el) return;
+  const level = running.level;
+  stopTool();
+  if (level != null) el.dataset.level = level;
+  toggleTool(el);
+}
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopTool(); });
 $('#quiz').addEventListener('keyup', ev => {
   const t = ev.target;
@@ -774,6 +907,7 @@ $('#cal').addEventListener('change', ev => {
 function startFresh() {
   stopTool();
   state.answers = {};
+  state.measured = {};
   state.example = false;
   syncForm();
   persist();
@@ -786,6 +920,7 @@ $('#start').addEventListener('click', startFresh);
 $('#reset').addEventListener('click', startFresh);
 function showExample() {
   state.answers = { ...EXAMPLE };
+  state.measured = {};
   state.practice = { ...CAL };
   state.example = true;
   syncForm();
