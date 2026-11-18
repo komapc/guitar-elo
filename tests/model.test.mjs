@@ -7,7 +7,7 @@ const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</
 new Function(script); // the whole page script must parse
 
 const model = script.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY };')();
+const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo };')();
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
 let failed = 0;
 const check = (name, fn) => {
@@ -60,6 +60,13 @@ check('fretboard quiz: result maps to a stop, never the untested top one', () =>
   assert.equal(m.fretboardStop(8, 10, 9), 1);
   assert.equal(m.fretboardStop(6, 10, 1), 0);
   assert.equal(m.fretboardStop(0, 10, NaN), 0);
+});
+check('chart data: the expected-rating line passes through the sample means; groups rise', () => {
+  assert.ok(Math.abs(m.expectedElo(Math.pow(10, 3.9)) - 1990.8) < 1e-6);
+  assert.ok(Math.abs(m.EXPECTED.b - 315.6) < 0.1 && Math.abs(m.EXPECTED.sd - 182) < 0.5);
+  for (let i = 1; i < m.CHESS_GROUPS.length; i++) assert.ok(m.CHESS_GROUPS[i].e > m.CHESS_GROUPS[i - 1].e && m.CHESS_GROUPS[i].h > m.CHESS_GROUPS[i - 1].h);
+  assert.ok(m.REACH_2200.lo < m.REACH_2200.h && m.REACH_2200.h < m.REACH_2200.hi);
+  assert.equal(m.eloFromHours(m.REACH_2200.h), m.REACH_2200.e);
 });
 check('reference points: hours rise down the table; Vysotsky answers are valid', () => {
   for (let i = 1; i < m.REFS.length; i++) assert.ok(m.REFS[i].h > m.REFS[i - 1].h, m.REFS[i].who);

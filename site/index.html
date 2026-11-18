@@ -25,6 +25,7 @@
   --accent:#9A6510; --accent-soft:#F5E9D2; --on-accent:#FFFFFF;
   --board:#3D2B22; --fret:#C7CAC4; --string:#D9C9A3; --inlay:#EFE8D8; --pin-hours:#9FD3B4;
   --good:#2E7448; --warn:#A5461E;
+  --c-curve:#9A6510; --c-data:#2a78d6; --c-exp:#d55181;
   --f-display:'Unbounded','Inter',system-ui,sans-serif;
   --f-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -35,6 +36,7 @@
     --accent:#E2B050; --accent-soft:#3A2F19; --on-accent:#1A1408;
     --board:#2B1E18; --fret:#8F938D; --string:#B8A57C; --inlay:#D2CAB8; --pin-hours:#7CC79C;
     --good:#6DC28C; --warn:#E89068; color-scheme:dark;
+    --c-curve:#c98500; --c-data:#3987e5; --c-exp:#d55181;
   }
 }
 :root[data-theme="dark"]{
@@ -42,6 +44,7 @@
   --accent:#E2B050; --accent-soft:#3A2F19; --on-accent:#1A1408;
   --board:#2B1E18; --fret:#8F938D; --string:#B8A57C; --inlay:#D2CAB8; --pin-hours:#7CC79C;
   --good:#6DC28C; --warn:#E89068; color-scheme:dark;
+  --c-curve:#c98500; --c-data:#3987e5; --c-exp:#d55181;
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
@@ -179,6 +182,25 @@ fieldset.q legend{float:left;width:100%;padding:0;margin:0 0 12px;display:flex;g
 .method ol{padding-left:1.3em;display:grid;gap:6px}
 .calnote{color:var(--muted);font-size:13.5px}
 .cal{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.chart{margin:0;display:grid;gap:10px;min-width:0}
+.clegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted)}
+.clegend span{display:inline-flex;align-items:center;gap:8px}
+.key{flex:none;width:18px;height:10px;position:relative}
+.key::before{content:'';position:absolute;left:0;right:0;top:4px;border-top:2px solid var(--k)}
+.key.dot::before{left:4px;right:auto;top:0;width:10px;height:10px;border:0;border-radius:50%;background:var(--k)}
+.key.band{background:color-mix(in srgb,var(--k) 14%,transparent)}
+.key.ring::before{left:4px;right:auto;top:0;width:6px;height:6px;border:2px solid var(--k);border-radius:50%}
+.cplot{position:relative;border:1px solid var(--line);border-radius:10px;background:var(--surface);min-width:0}
+.cplot svg{display:block;width:100%;touch-action:pan-y;font-family:var(--f-body)}
+.cplot .tick{font:11px var(--f-mono);fill:var(--muted)}
+.cplot .grid{stroke:var(--line);stroke-width:1}
+.cplot .ttl{font-size:11.5px;fill:var(--muted)}
+.cplot .pt:focus{outline:none}
+.cplot .pt:focus-visible circle:last-child{stroke:var(--ink)}
+.ctip{position:absolute;z-index:2;pointer-events:none;max-width:250px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.12);font-size:12.5px;line-height:1.35;color:var(--muted)}
+.ctip b{color:var(--ink);font-size:14px}
+.ctip[hidden]{display:none}
+.method ul{margin:0;padding-left:1.3em;display:grid;gap:6px}
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
 th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
@@ -312,6 +334,34 @@ img{max-width:100%}
       </table>
     </div>
     <p>Между точками кривая идёт прямо в логарифме часов: каждое удвоение часов даёт примерно одинаковую прибавку.</p>
+
+    <h2>Часы и рейтинг: что в данных</h2>
+    <p>Все часы на графике общие: занятия в одиночку, с другими и турнирные партии. Данные — 104 аргентинских шахматиста из статьи Гобе и Кампителли (2007). Шкала часов логарифмическая. Наведи или нажми на точку, чтобы увидеть подробности.</p>
+    <figure class="chart">
+      <figcaption class="clegend">
+        <span><i class="key" style="--k:var(--c-curve)"></i>Кривая сайта: сколько часов обычно нужно, чтобы дойти до рейтинга</span>
+        <span><i class="key dot" style="--k:var(--c-data)"></i>Шахматисты: часы тех, кто сейчас на этом рейтинге; путь до 2200</span>
+        <span><i class="key band" style="--k:var(--c-exp)"></i>Какой рейтинг в среднем при таких часах, ±1 SD</span>
+        <span><i class="key ring" style="--k:var(--c-curve)"></i>Допущение, а не измерение</span>
+      </figcaption>
+      <div class="cplot" id="cplot"><div class="ctip" id="ctip" hidden></div></div>
+      <details><summary>Данные графика</summary>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Что</th><th>Часов</th><th>Рейтинг</th></tr></thead>
+          <tbody id="chartRows"></tbody>
+        </table></div>
+      </details>
+    </figure>
+    <p>На графике три разные вещи, и их легко спутать.</p>
+    <ul>
+      <li><b>Кривая сайта</b> показывает, сколько часов обычно нужно, чтобы дойти до рейтинга. Измерена она в одной точке: до 2200 игроки дошли в среднем за 11 053 часа, самый быстрый за 3 016, самый медленный за 23 608. Остальные точки — допущения и продолжение линии вниз.</li>
+      <li><b>Синие точки</b> — сколько часов у тех, кто сейчас на этом рейтинге. Они правее кривой: часы считали на момент опроса, а дойдя до своего уровня, люди продолжают заниматься, хотя рейтинг растёт уже медленно. У мастеров ФИДЕ в среднем 19 600 часов, а до 2200 доходят в среднем за 11 000.</li>
+      <li><b>Розовая линия</b> отвечает на обратный вопрос: какой рейтинг в среднем у игрока с таким числом часов. Она намного положе: 1 404 часа дают в среднем около 1750–1800, 11 053 часа — около 2040. Полоса вокруг неё — ±1 стандартное отклонение, около ±180.</li>
+    </ul>
+    <p><b>Почему линии так расходятся.</b> Часы объясняют меньшую часть различий. В этой выборке корреляция рейтинга с логарифмом часов r = 0,57, то есть на часы приходится около трети разброса. Метаанализ Макнамары и др. (2014) даёт 26 % для игр и 21 % для музыки, а с поправкой на неточные самоотчёты — около трети (Хамбрик и др., 2014). Остальное — возраст, в котором начал, тренер, то, как именно занимался, и многое, что не измеряли. Когда связь слабая, средний рейтинг при данных часах прижат к общему среднему, а средние часы при данном рейтинге разъезжаются в стороны. К тому же игроков слабее 1490 в выборку не брали, и это приподнимает левый край розовой линии. Обе линии верны, просто отвечают на разные вопросы.</p>
+    <p><b>Что это значит для теста.</b> Опросник устроен как кривая сайта: навык → сколько часов обычно нужно, чтобы до него дойти. Поэтому результат — не прогноз того, что тебе «положено» за твои часы. Если навыков больше или меньше, чем у других с теми же часами, это нормально. У шахматистов с одинаковыми часами рейтинг расходится примерно на ±200, а путь до одного уровня отличается по часам в восемь раз. Некоторые игроки и за 25 000 часов не дошли до 2200. В музыке так же: до 8-го грейда британского экзамена дети шли в среднем около 3 300 часов, но на каждом грейде одни занимались меньше пятой части среднего, а другие больше чем вчетверо больше (Слобода и коллеги).</p>
+    <p><b>Верх кривой.</b> Точки «25 000 часов — 2500» и «50 000 часов — 2750» данными не подкреплены. Восемь гроссмейстеров, дошедших до первой десятки мира, к своему пику набрали в среднем около 14 000 часов (Ховард, по пересказу Хамбрика и др., 2014). На самом верху, похоже, решают не только часы.</p>
+    <p class="sources">К графику: Gobet & Campitelli 2007, таблицы 1–2 и с. 21 (ссылка ниже); линия среднего рейтинга выведена из их r = 0,57, средних и SD. D. Hambrick et al., <a href="https://doi.org/10.1016/j.intell.2013.04.001" target="_blank" rel="noopener">Deliberate practice: Is that all it takes to become an expert?</a>, Intelligence, 2014. B. Macnamara, D. Hambrick, F. Oswald, <a href="https://doi.org/10.1177/0956797614535810" target="_blank" rel="noopener">Deliberate practice and performance in music, games, sports, education, and professions: a meta-analysis</a>, Psychological Science, 2014. M. Howe, J. Davidson, J. Sloboda, <a href="https://doi.org/10.1017/S0140525X9800123X" target="_blank" rel="noopener">Innate talents: Reality or myth?</a>, Behavioral and Brain Sciences, 1998.</p>
 
     <h2>Шкала</h2>
     <div class="bands" id="bands"></div>
@@ -648,6 +698,23 @@ const REFS = [
   { who: 'Гроссмейстер', h: 25000, note: 'например, 20 лет по 3,5 часа каждый день' },
 ];
 // Vysotsky answered for him, only where a seven-string guitar fits the question. The author's guess, not a measurement.
+// Hours vs rating in chess, on the curve's own hours measure: total practice (alone, with others, tournament games).
+// Gobet & Campitelli 2007, 104 Argentine players, national ratings. Table 1: hours at the time of the survey,
+// arithmetic means (SD) per title group. p. 21: total hours when players first reached 2200.
+const CHESS_GROUPS = [
+  { who: 'Без международного рейтинга', n: 39, e: 1780, h: 8303, sd: 7900 },
+  { who: 'С рейтингом ФИДЕ, без звания', n: 39, e: 2030, h: 11715, sd: 9029 },
+  { who: 'Мастера ФИДЕ', n: 13, e: 2165, h: 19618, sd: 10917 },
+  { who: 'Международные мастера', n: 10, e: 2300, h: 27929, sd: 15804 },
+];
+const REACH_2200 = { e: 2200, h: 11053, lo: 3016, hi: 23608, n: 34 };
+// The opposite question, rating expected for given hours: least squares from the paper's r = .57 between rating and
+// log10 total hours, means 1991 and 3.9, SDs 221.5 and 0.4 (Table 2). Residual SD = 221.5·√(1 − .57²) ≈ 182.
+// The paper prints the log SDs rounded to 0.4, so the slope is uncertain by about a fifth: the same derivation for group
+// hours gives 299, while the paper's exact group-hours line has 252.
+// Drawn over the sample's middle 95 % of hours (3.9 ± 2·0.4 in log10).
+const EXPECTED = { a: 1990.8 - 0.57 * 221.5 / 0.4 * 3.9, b: 0.57 * 221.5 / 0.4, sd: 221.5 * Math.sqrt(1 - 0.57 ** 2), from: 1260, to: 50000 };
+const expectedElo = h => EXPECTED.a + EXPECTED.b * Math.log10(h);
 const VYSOTSKY = { chords: 3, strum: 2, fingers: 1, dynamics: 3, repertoire: 14, hardest: 2, party: 5, record: 3, stage: 4 };
 const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
 /*END MODEL*/
@@ -769,6 +836,106 @@ function renderAnchors() {
   $('#anchors').innerHTML = curveAnchors().map(a =>
     `<tr${a.cal ? ' class="calrow"' : ''}><td class="n">${a.h.toLocaleString('ru-RU')}</td><td class="n">${a.e}</td><td>${a.src}</td></tr>`).join('');
   renderRefs();
+  renderChart();
+}
+// Hours vs rating chart. Redrawn on calibration change and on resize; sized in CSS pixels so text stays readable on phones.
+const CH = { hMax: 60000, eMin: 400, eMax: 2850 };
+let chartPts = [];
+function renderChart() {
+  const box = $('#cplot'), W = Math.round(box.clientWidth) || 640, H = W < 520 ? 320 : 380;
+  const M = { l: 44, r: 14, t: 14, b: 42 }, pw = W - M.l - M.r, ph = H - M.t - M.b;
+  const X = h => M.l + (lx(h) - lx(0)) / (lx(CH.hMax) - lx(0)) * pw;
+  const Y = e => M.t + (CH.eMax - e) / (CH.eMax - CH.eMin) * ph;
+  const f = x => x.toFixed(1), hrs = h => Math.round(h).toLocaleString('ru-RU');
+  let g = '';
+  for (const e of [400, 800, 1200, 1600, 2000, 2400, 2800]) g += `<line class="grid" x1="${M.l}" x2="${W - M.r}" y1="${f(Y(e))}" y2="${f(Y(e))}"/><text class="tick" x="${M.l - 6}" y="${f(Y(e) + 4)}" text-anchor="end">${e}</text>`;
+  // On a phone 10 000 and 50 000 sit too close for two labels; the 50 000 gridline stays.
+  for (const h of [0, 100, 1000, 10000, 50000]) g += `<line class="grid" x1="${f(X(h))}" x2="${f(X(h))}" y1="${M.t}" y2="${M.t + ph}"/>`
+    + (h === 50000 && pw < 420 ? '' : `<text class="tick" x="${f(X(h))}" y="${M.t + ph + 15}" text-anchor="middle">${hrs(h)}</text>`);
+  g += `<text class="ttl" x="${M.l + pw}" y="${H - 6}" text-anchor="end">часов занятий, всего</text>`;
+  // Expected rating for given hours, with its ±1 SD band.
+  const hs = [];
+  for (let x = Math.log10(EXPECTED.from); x <= Math.log10(EXPECTED.to) + 1e-9; x += 0.05) hs.push(Math.pow(10, x));
+  const up = hs.map(h => `${f(X(h))},${f(Y(expectedElo(h) + EXPECTED.sd))}`), dn = hs.map(h => `${f(X(h))},${f(Y(expectedElo(h) - EXPECTED.sd))}`).reverse();
+  g += `<polygon points="${up.concat(dn).join(' ')}" fill="var(--c-exp)" fill-opacity=".12"/>`;
+  g += `<polyline points="${hs.map(h => `${f(X(h))},${f(Y(expectedElo(h)))}`).join(' ')}" fill="none" stroke="var(--c-exp)" stroke-width="2" stroke-linecap="round"/>`;
+  // The site's curve.
+  const cs = [];
+  for (let x = lx(0); x <= lx(CH.hMax) + 1e-9; x += 0.02) cs.push(Math.max(0, Math.pow(10, x) - 10));
+  g += `<polyline points="${cs.map(h => `${f(X(h))},${f(Y(eloFromHours(h)))}`).join(' ')}" fill="none" stroke="var(--c-curve)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  // Hours spread on the way to 2200.
+  const ry = f(Y(REACH_2200.e));
+  g += `<line x1="${f(X(REACH_2200.lo))}" x2="${f(X(REACH_2200.hi))}" y1="${ry}" y2="${ry}" stroke="var(--c-data)" stroke-width="2"/>`
+    + [REACH_2200.lo, REACH_2200.hi].map(h => `<line x1="${f(X(h))}" x2="${f(X(h))}" y1="${ry - 5}" y2="${+ry + 5}" stroke="var(--c-data)" stroke-width="2"/>`).join('');
+  // Points: the curve's anchors, the title groups, the 2200 mean. Each is focusable and has a tooltip.
+  chartPts = [];
+  for (const a of curveAnchors()) {
+    if (a.h === REACH_2200.h) continue;
+    chartPts.push({ h: a.h, e: a.e, kind: 'ring', head: `${a.e} · ${hrs(a.h)} ч`, text: a.src });
+  }
+  chartPts.find(p => p.h === CAL_HOURS).band = [1100, 1400]; // the range the data allow for the calibration
+  for (const c of CHESS_GROUPS) chartPts.push({ h: c.h, e: c.e, kind: 'dot', head: `${c.e} · ${hrs(c.h)} ч`, text: `${c.who}, ${c.n} чел.: средний рейтинг и средние часы на момент опроса (SD часов ${hrs(c.sd)}).` });
+  chartPts.push({ h: REACH_2200.h, e: REACH_2200.e, kind: 'dot', head: `2200 · ${hrs(REACH_2200.h)} ч`, text: `Столько в среднем было часов у ${REACH_2200.n} игроков в момент, когда они впервые набрали 2200. Самый быстрый дошёл за ${hrs(REACH_2200.lo)} ч, самый медленный за ${hrs(REACH_2200.hi)}. Это единственная измеренная точка кривой.` });
+  for (const p of chartPts) {
+    p.x = X(p.h); p.y = Y(p.e);
+    const lab = `${p.head}. ${p.text}`;
+    if (p.band) g += `<line x1="${f(p.x)}" x2="${f(p.x)}" y1="${f(Y(p.band[1]))}" y2="${f(Y(p.band[0]))}" stroke="var(--c-curve)" stroke-width="2" stroke-opacity=".45"/>`;
+    g += `<g class="pt" tabindex="0" role="img" aria-label="${lab.replace(/"/g, '&quot;')}"><circle cx="${f(p.x)}" cy="${f(p.y)}" r="12" fill="transparent"/>`
+      + (p.kind === 'dot'
+        ? `<circle cx="${f(p.x)}" cy="${f(p.y)}" r="5" fill="var(--c-data)" stroke="var(--surface)" stroke-width="2"/>`
+        : `<circle cx="${f(p.x)}" cy="${f(p.y)}" r="4" fill="var(--surface)" stroke="var(--c-curve)" stroke-width="2"/>`) + '</g>';
+  }
+  g += `<line class="cross" x1="0" x2="0" y1="${M.t}" y2="${M.t + ph}" stroke="var(--muted)" stroke-width="1" visibility="hidden"/>`;
+  const svg = `<svg viewBox="0 0 ${W} ${H}" height="${H}" aria-label="График: часы занятий и рейтинг">${g}</svg>`;
+  box.querySelector('svg')?.remove();
+  box.insertAdjacentHTML('beforeend', svg);
+  chartGeom = { X, Y, M, pw, ph, W };
+  $('#chartRows').innerHTML = curveAnchors().map(a => `<tr><td>Кривая сайта${a.h === REACH_2200.h ? ' (измерено)' : ' (допущение)'}</td><td class="n">${hrs(a.h)}</td><td class="n">${a.e}</td></tr>`).join('')
+    + CHESS_GROUPS.map(c => `<tr><td>${c.who}, сейчас (n = ${c.n})</td><td class="n">${hrs(c.h)}</td><td class="n">${c.e}</td></tr>`).join('')
+    + `<tr><td>Путь до 2200: быстрейший и медленнейший</td><td class="n">${hrs(REACH_2200.lo)}–${hrs(REACH_2200.hi)}</td><td class="n">2200</td></tr>`
+    + [1404, 3000, 11053, 30000].map(h => `<tr><td>Средний рейтинг при таких часах</td><td class="n">${hrs(h)}</td><td class="n">${Math.round(expectedElo(h) / 10) * 10} ±${Math.round(EXPECTED.sd / 10) * 10}</td></tr>`).join('');
+}
+let chartGeom = null;
+function chartTip(ev) {
+  const box = $('#cplot'), tip = $('#ctip'), svg = box.querySelector('svg'), cross = svg && svg.querySelector('.cross');
+  if (!svg || !chartGeom) return;
+  const r = svg.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  const { X, M, pw, W } = chartGeom;
+  let best = null, bd = 22;
+  for (const p of chartPts) { const d = Math.hypot(p.x - x, p.y - y); if (d < bd) { bd = d; best = p; } }
+  let html, px, py;
+  if (best) {
+    html = `<b>${best.head}</b><br>${best.text}`; px = best.x; py = best.y; cross.setAttribute('visibility', 'hidden');
+  } else if (x >= M.l && x <= M.l + pw) {
+    const h = Math.max(0, Math.pow(10, lx(0) + (x - M.l) / pw * (lx(CH.hMax) - lx(0))) - 10);
+    const hr = h < 1000 ? Math.round(h / 10) * 10 : Math.round(h / 100) * 100;
+    html = `<b>${hr.toLocaleString('ru-RU')} ч</b><br>Кривая сайта: ${Math.round(eloFromHours(h) / 10) * 10}`;
+    if (h >= EXPECTED.from && h <= EXPECTED.to) html += `<br>В среднем при таких часах: ${Math.round(expectedElo(h) / 10) * 10} ±${Math.round(EXPECTED.sd / 10) * 10}`;
+    px = x; py = y;
+    cross.setAttribute('x1', x); cross.setAttribute('x2', x); cross.setAttribute('visibility', 'visible');
+  } else { chartHide(); return; }
+  tip.innerHTML = html; tip.hidden = false;
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  tip.style.left = Math.max(4, Math.min(W - tw - 4, px + 14 + tw > W ? px - tw - 14 : px + 14)) + 'px';
+  tip.style.top = Math.max(4, py - th - 10) + 'px';
+}
+function chartHide() {
+  $('#ctip').hidden = true;
+  const c = $('#cplot svg .cross'); if (c) c.setAttribute('visibility', 'hidden');
+}
+$('#cplot').addEventListener('pointermove', chartTip);
+$('#cplot').addEventListener('pointerdown', chartTip);
+$('#cplot').addEventListener('pointerleave', ev => { if (ev.pointerType !== 'touch') chartHide(); });
+document.addEventListener('pointerdown', ev => { if (!ev.target.closest || !ev.target.closest('#cplot')) chartHide(); });
+$('#cplot').addEventListener('focusin', ev => {
+  const g = ev.target.closest('.pt'); if (!g) return;
+  const c = g.querySelector('circle').getBoundingClientRect();
+  chartTip({ clientX: c.left + c.width / 2, clientY: c.top + c.height / 2 });
+});
+$('#cplot').addEventListener('focusout', chartHide);
+if (window.ResizeObserver) {
+  let lastW = 0;
+  new ResizeObserver(es => { const w = Math.round(es[0].contentRect.width); if (w && w !== lastW) { lastW = w; renderChart(); } }).observe($('#cplot'));
 }
 // Runs before qById exists, so it looks questions up directly. Follows the calibration like the anchor table.
 function renderRefs() {

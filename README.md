@@ -28,6 +28,16 @@ From Gobet & Campitelli (2007), 104 Argentine players rated 1490–2473 on the A
 
 The curve answers "how many hours does a player of this rating typically have", because the questionnaire works the same way (skill → typical hours to reach it). The opposite question, "average rating of a player with these hours", gives about 1650–1800 for 1 404 h from the paper's own regression, but that figure is inflated: players below 1490 were not sampled.
 
+### Hours and rating: three different lines
+
+The page draws a chart (hours on a log scale, all hours = total practice) with three things that are easy to confuse, all from the same 104 players in Gobet & Campitelli (2007):
+
+- **The site's curve**: hours typically needed to *reach* a rating. Measured at one point only: players first reached 2200 after 11 053 h on average (range 3 016–23 608, n = 34). The other anchors are assumptions.
+- **Title groups** (Table 1): hours *accumulated by players now at* a rating, at the time of the survey — 8 303 h at 1780, 11 715 at 2030, 19 618 at 2165 (FIDE masters), 27 929 at 2300 (IMs). They sit right of the curve because players keep practising after their rating levels off, and arithmetic means of skewed hours run high.
+- **Rating expected for given hours**: least squares from the paper's r = .57 between rating and log10 total hours (means 1991 and 3.9, SDs 221.5 and 0.4): about 300 Elo per tenfold hours, residual SD ≈ 182. The paper prints the log SDs rounded to 0.4, so the slope is uncertain by about a fifth (the same derivation for group hours gives 299 against the paper's exact 252). Much flatter either way: 1 404 h → about 1750–1800, 11 053 h → about 2040; the 1490 rating floor of the sample also lifts its low end.
+
+The gap between the lines is what a moderate correlation looks like. Hours explain about a third of rating differences here (r² = .33); meta-analyses give 26 % for games and 21 % for music, about a third after correcting for unreliable self-reports (Macnamara, Hambrick & Oswald 2014; Hambrick et al. 2014). Players with equal hours differ by about ±200 Elo (1 SD); the hours needed to reach 2200 differ eightfold, and some players passed 25 000 h without reaching it. In music, Grade 8 took about 3 300 h on average (Howe, Davidson & Sloboda 1998), with some students at every grade practising under a fifth of the mean and others over four times as much. The 25 000 h → 2500 and 50 000 h → 2750 anchors have no data behind them; eight grandmasters who reached the world top ten had about 14 000 h at their peak (Howard, as reported by Hambrick et al. 2014).
+
 Sources: F. Gobet, G. Campitelli, [The role of domain-specific practice, handedness, and starting age in chess](https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf), Developmental Psychology 43 (2007), 159–172. N. Charness et al., [The role of deliberate practice in chess expertise](https://doi.org/10.1002/acp.1106), Applied Cognitive Psychology 19 (2005), 151–165.
 
 ## Run locally
