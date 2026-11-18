@@ -35,6 +35,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      # Pages caches every file for 10 minutes; a commit stamp keeps a fresh page from pairing with an old app.js.
+      - name: Stamp asset URLs with the commit
+        run: |
+          sed -i "s/?v=dev\"/?v=${GITHUB_SHA::8}\"/g" site/index.html site/ru/index.html
+          test "$(cat site/index.html site/ru/index.html | grep -o "?v=${GITHUB_SHA::8}\"" | wc -l)" -eq 6
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
