@@ -1,6 +1,6 @@
 // Checks the scoring model in site/app.js with each language's strings (site/i18n/*.js), and that the two
 // languages agree. No dependencies: run with `node tests/model.test.mjs`.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read = f => readFileSync(new URL('../site/' + f, import.meta.url), 'utf8');
@@ -49,6 +49,27 @@ check('the page loads its own strings before app.js', () => {
   assert.ok(html.includes(`<link rel="canonical" href="${url}">`) && html.includes(`<meta property="og:url" content="${url}">`), 'canonical');
   for (const [h, u] of [['en', ''], ['ru', 'ru/'], ['x-default', '']]) assert.ok(html.includes(`<link rel="alternate" hreflang="${h}" href="https://guitar-elo.lipu.dev/${u}">`), h);
   assert.equal((html.match(/\?v=dev"/g) || []).length, 3, 'the three own assets carry the ?v=dev stamp the deploy replaces');
+});
+check('search and social tags: preview image, structured data, sitemap alternates', () => {
+  const url = 'https://guitar-elo.lipu.dev/' + (lang === 'en' ? '' : lang + '/');
+  const img = html.match(/<meta property="og:image" content="([^"]+)">/)?.[1];
+  assert.equal(img, `https://guitar-elo.lipu.dev/og-${lang}.png`);
+  const png = readFileSync(new URL(`../site/og-${lang}.png`, import.meta.url));
+  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630], 'og image is 1200×630');
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(x => JSON.parse(x[1]));
+  assert.equal(blocks.length, 1);
+  const ld = blocks[0];
+  assert.deepEqual([ld['@type'], ld.url, ld.inLanguage, ld.image], ['WebApplication', url, lang, img]);
+  assert.equal(ld.description, html.match(/<meta name="description" content="([^"]+)">/)[1]);
+  assert.ok(!/aggregateRating|review|author/i.test(JSON.stringify(ld)), 'no ratings or personal names');
+  // The sitemap entry for this page lists the same alternates as the page head.
+  const map = readFileSync(new URL('../site/sitemap.xml', import.meta.url), 'utf8');
+  const entry = map.split('<url>').find(u => u.includes(`<loc>${url}</loc>`));
+  const alt = src => [...src.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map(x => x[1] + ' ' + x[2]).sort();
+  assert.ok(entry, 'page is in the sitemap');
+  assert.deepEqual(alt(entry), alt(html.split('</head>')[0].replace(/<a [^>]*>/g, '')));
+  if (lang === 'en') assert.ok(html.includes('<meta name="msvalidate.01" content="'), 'Bing verification on /');
 });
 
 check('calibration point sits on the curve', () => {
@@ -206,5 +227,11 @@ check('question count in the page text matches the quiz', () => {
   assert.ok(html.includes(`id="progress">${L.T.ui.progress(0, n)}<`), 'progress placeholder');
 });
 }
+
+check('IndexNow key file: one at the site root, named after its content', () => {
+  const keys = readdirSync(new URL('../site/', import.meta.url)).filter(f => /^[0-9a-f]{32}\.txt$/.test(f));
+  assert.equal(keys.length, 1);
+  assert.equal(read(keys[0]), keys[0].slice(0, 32));
+});
 
 if (failed) { console.log(`${failed} failed`); process.exit(1); }

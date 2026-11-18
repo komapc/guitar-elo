@@ -3,9 +3,11 @@
   <url><loc>https://guitar-elo.lipu.dev/</loc><lastmod>2026-11-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://guitar-elo.lipu.dev/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://guitar-elo.lipu.dev/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://guitar-elo.lipu.dev/"/>
   </url>
   <url><loc>https://guitar-elo.lipu.dev/ru/</loc><lastmod>2026-11-18</lastmod>
     <xhtml:link rel="alternate" hreflang="en" href="https://guitar-elo.lipu.dev/"/>
     <xhtml:link rel="alternate" hreflang="ru" href="https://guitar-elo.lipu.dev/ru/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://guitar-elo.lipu.dev/"/>
   </url>
 </urlset>

@@ -47,7 +47,13 @@ python3 -m http.server 8000 -d site
 node tests/model.test.mjs
 ```
 
-No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass; the deploy only replaces `?v=dev` in the two pages with the commit, so a cached old `app.js` never meets a new page.
+No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass; the deploy replaces `?v=dev` in the two pages with the commit, so a cached old `app.js` never meets a new page, and sets the sitemap's `lastmod` to the date of the last commit that changed `site/`.
+
+## Search and sharing
+
+- Each page has its own canonical URL, `hreflang` alternates (en, ru, x-default; the sitemap lists the same), a description, a `WebApplication` JSON-LD block and a 1200×630 preview image. The tests check that these agree.
+- The preview images `site/og-en.png` and `site/og-ru.png` are rendered from `og/og.html` by `python3 og/render.py` (Playwright). They name no question count, so they need no update when questions are added.
+- `/` carries the Bing verification meta tag; the 32-hex `.txt` file at the site root is the IndexNow key for this host.
 
 ## Languages
 
