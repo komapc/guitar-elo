@@ -219,7 +219,7 @@ tr.calrow td{background:var(--accent-soft)}
 .bar-mobile{display:none}
 @media (max-width:900px){
   .layout{grid-template-columns:minmax(0,1fr)}
-  .score{position:static;max-height:none;order:-1}
+  .score{position:static;max-height:none}
   .bar-mobile.show{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;align-items:center;justify-content:space-between;gap:12px;
     padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
     padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
