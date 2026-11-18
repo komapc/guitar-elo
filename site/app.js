@@ -274,7 +274,8 @@ function toolHtml(kind) {
   if (kind === 'rhythm') return `<div class="tool" data-tool="rhythm"><label>${T.ui.tempo}<select class="tbpm">`
     + GAP_BPM.map(b => `<option${b === 80 ? ' selected' : ''}>${b}</option>`).join('')
     + `</select></label><button type="button" class="btn tgo">${T.ui.rhythmGo}</button><span class="tout" aria-live="polite">${T.ui.rhythmIdle}</span>`
-    + `<div class="qz" hidden><div class="qzq"><span class="qzpos"></span></div><button type="button" class="tap">${T.ui.tap}</button></div></div>`;
+    + `<div class="qz" hidden><div class="qzq"><span class="qzpos"></span></div><div class="tprog" aria-hidden="true"><i></i></div>`
+    + `<button type="button" class="tap">${T.ui.tap}<span class="tapn" aria-hidden="true"></span></button></div></div>`;
   if (kind !== 'gap') return '';
   return `<div class="tool" data-tool="gap"><span>${T.ui.gapSilence}</span><span class="seg" role="group" aria-label="${T.ui.gapSilenceAria}">`
     + GAP_SILENT.map(n => `<button type="button" class="segb" data-n="${n}" aria-pressed="${n === 2}">${n}</button>`).join('')
@@ -803,25 +804,30 @@ function startChordQuiz(el) {
 }
 function startRhythm(el) {
   const go = el.querySelector('.tgo'), out = el.querySelector('.tout'), box = el.querySelector('.qz');
-  const head = el.querySelector('.qzpos'), pad = el.querySelector('.tap');
+  const head = el.querySelector('.qzpos'), pad = el.querySelector('.tap'), count = el.querySelector('.tapn');
   const level = Number(el.dataset.level) || 0;
   delete el.dataset.level;
   const ctx = audio();
   if (!ctx) { out.textContent = T.ui.noAudio; return null; }
   const { name, clicks } = RHYTHM_LEVELS[level], B = RHYTHM.beats, n = RHYTHM.bars * B, total = RHYTHM.lead * B + n;
   const beat = 60 / Number(el.querySelector('.tbpm').value), t0 = ctx.currentTime + 0.15, start = t0 + RHYTHM.lead * B * beat;
-  const taps = [], release = keepAwake();
-  let nodes = [], i = 0;
+  const taps = [], release = keepAwake(), secs = Math.round(0.15 + total * beat);
+  let nodes = [], i = 0, lit = 0;
   // Taps use the event's own time stamp, so a busy main thread does not shift them; an old browser that stamps events
   // on another clock falls back to the time of handling.
   const stamp = ev => { const now = performance.now(); return Math.abs(ev.timeStamp - now) < 5000 ? ev.timeStamp : now; };
-  const onPad = ev => { ev.preventDefault(); taps.push(stamp(ev)); };
+  // Each tap lights the pad and counts, so the player sees it was taken. Both follow the player's own taps, never the beat.
+  const took = t => {
+    taps.push(t); count.textContent = T.ui.taps(taps.length);
+    pad.classList.add('hit'); clearTimeout(lit); lit = setTimeout(() => pad.classList.remove('hit'), 90);
+  };
+  const onPad = ev => { ev.preventDefault(); took(stamp(ev)); };
   const onKey = ev => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     // Space or Enter on another control (the stop button, the tempo) keeps its usual meaning.
     if (ev.target !== pad && ev.target.closest && ev.target.closest('button, select, input, textarea, a')) return;
     ev.preventDefault();
-    if (!ev.repeat) taps.push(stamp(ev));
+    if (!ev.repeat) took(stamp(ev));
   };
   const schedule = () => {
     while (i < total && t0 + i * beat < ctx.currentTime + 0.2) {
@@ -842,13 +848,13 @@ function startRhythm(el) {
   };
   const self = { el, level, stop() { finish(false); } };
   function finish(complete) {
-    clearInterval(iv); release();
+    clearInterval(iv); clearTimeout(lit); release();
     pad.removeEventListener('pointerdown', onPad);
     document.removeEventListener('keydown', onKey, true);
     if (!complete) silence(nodes);
-    el.classList.remove('on'); box.hidden = true; go.textContent = T.ui.rhythmGo;
+    el.classList.remove('on'); box.hidden = true; go.textContent = T.ui.rhythmGo; pad.classList.remove('hit');
     if (running === self) running = null;
-    if (!complete) { out.textContent = ''; return; }
+    if (!complete) { out.textContent = T.ui.rhythmStopped(secs); return; }
     const st = rhythmStats(taps, toPerf()(start), beat * 1000, n);
     if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; return; }
     const r = rhythmResult(level, st);
@@ -859,9 +865,12 @@ function startRhythm(el) {
   }
   pad.addEventListener('pointerdown', onPad);
   document.addEventListener('keydown', onKey, true);
-  head.textContent = name;
-  // Nothing on screen moves while the clicks are sparse: a counter or a flash would be a visual click.
-  el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = T.ui.rhythmRun;
+  head.textContent = name; count.textContent = '';
+  // Nothing on screen marks the beat while the clicks are sparse: a beat counter or a flash would be a visual click.
+  // The progress bar fills smoothly over the whole run, so it shows how long is left without a pulse.
+  const bar = el.querySelector('.tprog i');
+  bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = `tprog ${secs}s linear forwards`;
+  el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = T.ui.rhythmRun(secs);
   pad.focus({ preventScroll: true });
   const iv = setInterval(schedule, 25);
   schedule();

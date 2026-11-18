@@ -251,8 +251,10 @@ const T = {
     earIdle: 'The page plays a chord, you pick which one it is.',
     rhythmGo: '▶ Test my rhythm',
     rhythmIdle: 'Two bars of clicks on every beat first, then eight bars with fewer clicks. The page measures how evenly you tap.',
-    rhythmRun: 'Tap every beat: a two-bar count-in, then eight bars.',
+    rhythmRun: s => `Tap every beat: a two-bar count-in, then eight bars. The result appears when the clicks stop, in about ${s} s.`,
+    rhythmStopped: s => `Stopped before the end, so there is no result. A full run takes about ${s} s.`,
     tap: 'Tap here',
+    taps: n => `${n} tap${n === 1 ? '' : 's'}`,
     rhythmResult: (name, spread, missed, extra, pass, need, miss) => `${name}: spread ${spread}% of a beat`
       + (missed ? `, ${missed} ${plEn(missed, 'beat', 'beats')} missed` : '')
       + (extra ? `, ${extra} extra ${plEn(extra, 'tap', 'taps')}` : '')
