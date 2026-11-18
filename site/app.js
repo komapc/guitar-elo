@@ -106,7 +106,7 @@ const bandOf = e => BANDS.reduce((b, x) => (e >= x.min ? x : b), BANDS[0]);
 
 // An answer that a test on the page set ("Set it") counts MEASURED_WEIGHT times as much, as long as the slider stays
 // on the stop the test showed; moved elsewhere, it is a self-report again. The factor is a judgement call, kept modest
-// because a short test in a browser is noisy too (an online beat test retested at only r ≈ .3, Harrison & Müllensiefen 2018).
+// because a short test in a browser is noisy too (an online beat-perception test retested at only r ≈ .30, Harrison & Müllensiefen 2018).
 const MEASURED_WEIGHT = 1.5;
 function score(answers, measured = {}) {
   let sw = 0, se = 0, n = 0;
