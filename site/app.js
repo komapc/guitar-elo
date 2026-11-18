@@ -523,7 +523,7 @@ function startRhythm(el) {
   // The progress bar fills smoothly over the whole run, so it shows how long is left without a pulse.
   const bar = el.querySelector('.tprog i');
   bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = `tprog ${secs}s linear forwards`;
-  el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = T.ui.rhythmRun(secs);
+  el.classList.add('on'); box.hidden = false; go.textContent = T.ui.stop; out.textContent = T.ui.rhythmRun(secs, level);
   pad.focus({ preventScroll: true });
   const iv = setInterval(schedule, 25);
   schedule();
