@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- Social preview card, 1200×630. Rendered to site/og-en.png and site/og-ru.png by og/render.py; ?lang=ru for Russian. -->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Unbounded:wght@700&display=block">
+<style>
+  :root { --bg:#F3F4F1; --ink:#191C1A; --muted:#5C645F; --accent:#9A6510; --board:#3D2B22; --fret:#C7CAC4; --string:#D9C9A3; --inlay:#EFE8D8; }
+  * { margin:0; box-sizing:border-box; }
+  html, body { width:1200px; height:630px; background:var(--bg); color:var(--ink); overflow:hidden; }
+  body { font-family:'Inter',sans-serif; padding:64px 72px 0; position:relative; }
+  .site { font:500 24px 'JetBrains Mono',monospace; color:var(--accent); letter-spacing:.02em; }
+  h1 { font:700 104px/1.05 'Unbounded',sans-serif; letter-spacing:-.02em; margin-top:22px; }
+  p { font:500 38px/1.3 'Inter',sans-serif; color:var(--muted); margin-top:26px; max-width:1000px; }
+  .neck { position:absolute; left:0; right:0; bottom:0; height:150px; background:var(--board); }
+  .str { position:absolute; left:0; right:0; height:2px; background:var(--string); opacity:.75; }
+  .fret { position:absolute; top:0; bottom:0; width:6px; background:var(--fret); }
+  .lab { position:absolute; top:12px; font:500 22px 'JetBrains Mono',monospace; color:var(--inlay); white-space:nowrap; }
+  .band { position:absolute; bottom:22px; font:600 22px 'Inter',sans-serif; color:var(--inlay); opacity:.85; transform:translateX(-50%); white-space:nowrap; }
+  .dot { position:absolute; width:30px; height:30px; border-radius:50%; background:#E2B050; top:61px; transform:translateX(-50%); box-shadow:0 0 0 6px rgba(226,176,80,.25); }
+</style>
+</head>
+<body>
+  <div class="site">guitar-elo.lipu.dev</div>
+  <h1 id="t"></h1>
+  <p id="d"></p>
+  <div class="neck" id="neck"></div>
+<script>
+  const ru = new URLSearchParams(location.search).get('lang') === 'ru';
+  const L = ru
+    ? { t: 'Гитарный Elo', d: 'Насколько хорошо ты играешь на гитаре? Узнай свой уровень по шахматной шкале.', b: ['Новичок', 'Любитель', 'Клубный', 'Сильный', 'КМС', 'Мастер'] }
+    : { t: 'Guitar Elo', d: 'How good are you at guitar? See your level on the chess rating scale.', b: ['Beginner', 'Amateur', 'Club', 'Strong', 'Expert', 'Master'] };
+  document.getElementById('t').textContent = L.t;
+  document.getElementById('d').textContent = L.d;
+  // Frets at the band limits 800…2200 on a 400…2600 axis; labels between them; a dot near the calibration point (1250).
+  const neck = document.getElementById('neck'), x = e => (e - 400) / 2200 * 1200;
+  for (const y of [52, 68, 84, 100]) neck.insertAdjacentHTML('beforeend', `<div class="str" style="top:${y}px"></div>`);
+  const lim = [800, 1200, 1600, 2000, 2200];
+  for (const e of lim) neck.insertAdjacentHTML('beforeend', `<div class="fret" style="left:${x(e) - 3}px"></div><div class="lab" style="left:${x(e) + 12}px">${e}</div>`);
+  const mids = [600, 1000, 1400, 1800, 2100, 2400];
+  mids.forEach((e, i) => neck.insertAdjacentHTML('beforeend', `<div class="band" style="left:${x(e)}px">${L.b[i]}</div>`));
+  neck.insertAdjacentHTML('beforeend', `<div class="dot" style="left:${x(1250)}px"></div>`);
+</script>
+</body>
+</html>
