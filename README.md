@@ -1,15 +1,15 @@
 # Guitar Elo
 
-A 25-question self-assessment for guitarists, in Russian, answered with sliders, at <https://guitar-elo.lipu.dev/>. Each answer stands for the practice hours a guitarist typically needs to reach that skill; the hours are turned into a chess-style Elo rating on a single curve. The result is an Elo *equivalent*: the rating of a chess player who put in the same number of hours. Real Elo comes from games, and there are no games here.
+A 25-question self-assessment for guitarists, answered with sliders, in English at <https://guitar-elo.lipu.dev/> and in Russian at <https://guitar-elo.lipu.dev/ru/>. Each answer stands for the practice hours a guitarist typically needs to reach that skill; the hours are turned into a chess-style Elo rating on a single curve. The result is an Elo *equivalent*: the rating of a chess player who put in the same number of hours. Real Elo comes from games, and there are no games here.
 
 ## How the score works
 
-1. Every slider stop carries a typical number of practice hours (`QUESTIONS` in `site/index.html`). These hours are the author's estimates, not measurements: only the hours → Elo curve below is anchored on data. Every slider runs up to professional level (at least 12 000 h), so a strong player is not pulled down by a short scale.
+1. Every slider stop carries a typical number of practice hours (`QDEF` in `site/app.js`). These hours are the author's estimates, not measurements: only the hours → Elo curve below is anchored on data. Every slider runs up to professional level (at least 12 000 h), so a strong player is not pulled down by a short scale.
 2. Hours map to Elo by piecewise-linear interpolation in log(hours) through the anchors in `curveAnchors()`.
 3. The rating is the weighted mean over answered questions. Each slider starts at "silly question, I'd rather not answer"; a question left there is not counted, so a classical player is not penalised for not using a pick. The rating appears after six answers.
 4. Practice time the visitor enters is not part of the score; it is only shown for comparison.
 
-Four questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count; a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence, with clicks scheduled on the Web Audio clock and nothing on screen moving during the silent bars; a ten-note fretboard quiz that measures accuracy and answer time; and a chord-by-ear quiz in three levels of ten chords (major/minor, then 7/maj7/m7, then dim/aug/sus2/sus4; a level passes at 8 of 10). Chords are synthesised in the browser: a strummed sawtooth pluck with a closing low-pass, the root doubled in the bass, roots between G3 and F#4 so phone speakers carry them. The timer and the metronome never set an answer. The quizzes suggest a slider stop and set it only when the visitor presses «Поставить»; the top stops (intervals, extended chords) are not tested and never suggested.
+Four questions come with a self-test on the page, so the answer can be checked rather than guessed: a one-minute timer for the C↔G chord-change count; a gap-click metronome (two bars of clicks, then one bar of clicks and 1–16 silent bars, repeated) for holding the tempo in silence, with clicks scheduled on the Web Audio clock and nothing on screen moving during the silent bars; a ten-note fretboard quiz that measures accuracy and answer time; and a chord-by-ear quiz in three levels of ten chords (major/minor, then 7/maj7/m7, then dim/aug/sus2/sus4; a level passes at 8 of 10). Chords are synthesised in the browser: a strummed sawtooth pluck with a closing low-pass, the root doubled in the bass, roots between G3 and F#4 so phone speakers carry them. The timer and the metronome never set an answer. The quizzes suggest a slider stop and set it only when the visitor presses "Set it"; the top stops (intervals, extended chords) are not tested and never suggested.
 
 The page also lists reference points converted on the same curve: hours of a five-year music-school guitar programme by grade (from the programme's hour norms), violin students from Ericsson et al. (1993) and the 2019 replication, and a grandmaster at 2500. It adds a guessed answer sheet for Vladimir Vysotsky to show how a mixed profile averages out.
 
@@ -47,7 +47,15 @@ python3 -m http.server 8000 -d site
 node tests/model.test.mjs
 ```
 
-No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass.
+No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass; the deploy only replaces `?v=dev` in the two pages with the commit, so a cached old `app.js` never meets a new page.
+
+## Languages
+
+- `site/index.html` is the English page, `site/ru/index.html` the Russian one. Each holds its own static text and loads its strings, then the shared logic.
+- `site/app.js` has the logic and every number: hours per slider stop, weights, the curve, the chart data. It never contains visible text.
+- `site/i18n/en.js` and `site/i18n/ru.js` define `T`, all strings `app.js` shows, keyed by question id and in stop order.
+- Both languages share one saved state (slider positions as indices), so their keys, option counts and table lengths must match; `tests/model.test.mjs` checks that and runs every model test once per language. An English label has to name the same skill as its Russian twin, since both carry the same hours.
+- `/` is English unless the visitor picked Russian with the switch (remembered in `localStorage`). A Russian-language browser without a saved choice sees a hint linking to `/ru/`, never an automatic redirect.
 
 ## License
 
