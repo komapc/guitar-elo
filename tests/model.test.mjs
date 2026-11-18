@@ -1,16 +1,19 @@
-// Checks the scoring model in site/app.js with each language's strings (site/i18n/*.js), and that the two
-// languages agree. No dependencies: run with `node tests/model.test.mjs`.
+// Checks the scoring model in site/common.js with each language's strings (site/i18n/*.js), that the two languages
+// agree, and the head of every page. No dependencies: run with `node tests/model.test.mjs`.
 import { readFileSync, readdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
 const read = f => readFileSync(new URL('../site/' + f, import.meta.url), 'utf8');
-const app = read('app.js');
-new Function(app); // the whole page script must parse
-const model = app.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
+for (const f of ['common.js', 'app.js', 'about.js']) new Function(read(f)); // every page script must parse
+const model = read('common.js').split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
+// Every page, by path under the site root. The quiz pages run app.js, the reading pages about.js; all load their
+// language's strings, then common.js.
+const PAGES = ['', 'method/', 'compare/'];
+const pageFile = (lang, path) => (lang === 'en' ? '' : lang + '/') + path + 'index.html';
 const EXPORTS = 'score, eloFromHours, hoursFromElo, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, rhythmStats, rhythmResult';
 const LANGS = {
-  en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more', script: /<script src="i18n\/en\.js[^"]*"><\/script>\s*<script src="app\.js/ },
-  ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше', script: /<script src="\.\.\/i18n\/ru\.js[^"]*"><\/script>\s*<script src="\.\.\/app\.js/ },
+  en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more' },
+  ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше' },
 };
 let failed = 0;
 const check = (name, fn) => {
@@ -42,34 +45,57 @@ check('every string the model needs exists', () => {
   for (const x of [...m.curveAnchors().map(a => a.src), ...m.BANDS.flatMap(b => [b.name, b.guitar]), ...m.CATS.map(c => c.name),
     ...m.REFS.map(r => r.who), ...m.CHESS_GROUPS.map(c => c.who), ...m.EAR_LEVELS.map(l => l.name), ...Object.values(m.CHORDS).map(c => c[0])]) assert.ok(typeof x === 'string' && x, String(x));
 });
-check('the page loads its own strings before app.js', () => {
-  assert.match(html, L.script);
-  assert.match(html, new RegExp(`<html lang="${lang}">`));
-  const url = 'https://guitar-elo.lipu.dev/' + (lang === 'en' ? '' : lang + '/');
-  assert.ok(html.includes(`<link rel="canonical" href="${url}">`) && html.includes(`<meta property="og:url" content="${url}">`), 'canonical');
-  for (const [h, u] of [['en', ''], ['ru', 'ru/'], ['x-default', '']]) assert.ok(html.includes(`<link rel="alternate" hreflang="${h}" href="https://guitar-elo.lipu.dev/${u}">`), h);
-  assert.equal((html.match(/\?v=dev"/g) || []).length, 3, 'the three own assets carry the ?v=dev stamp the deploy replaces');
+for (const path of PAGES) {
+const page = read(pageFile(lang, path)), url = 'https://guitar-elo.lipu.dev/' + (lang === 'en' ? '' : lang + '/') + path;
+const up = '../'.repeat((lang === 'en' ? 0 : 1) + (path ? 1 : 0));
+check(`/${lang === 'en' ? '' : lang + '/'}${path}: language, canonical, alternates, scripts in order`, () => {
+  assert.match(page, new RegExp(`<html lang="${lang}">`));
+  assert.ok(page.includes(`<link rel="canonical" href="${url}">`) && page.includes(`<meta property="og:url" content="${url}">`), 'canonical');
+  for (const [h, u] of [['en', ''], ['ru', 'ru/'], ['x-default', '']]) assert.ok(page.includes(`<link rel="alternate" hreflang="${h}" href="https://guitar-elo.lipu.dev/${u}${path}">`), h);
+  const scripts = [...page.matchAll(/<script src="([^"?]+)\?v=dev"><\/script>/g)].map(x => x[1]);
+  assert.deepEqual(scripts, [`${up}i18n/${lang}.js`, `${up}common.js`, `${up}${path ? 'about' : 'app'}.js`]);
+  assert.ok(page.includes(`<link rel="stylesheet" href="${up}app.css?v=dev">`), 'stylesheet');
+  assert.equal((page.match(/\?v=dev"/g) || []).length, 4, 'the four own assets carry the ?v=dev stamp the deploy replaces');
+  // Relative links stay inside the site and inside this page's language, except the language switch.
+  for (const [, href] of page.matchAll(/<a href="([^"]+)"/g)) {
+    if (/^https?:/.test(href)) continue;
+    const to = new URL(href, url).pathname;
+    assert.ok(PAGES.some(p => to === `/${p}` || to === `/ru/${p}`), href);
+  }
+  if (lang === 'en' && /redirect|location\.replace/.test(page)) assert.ok(page.includes("location.replace('/ru' + location.pathname"), 'redirect keeps the page');
 });
-check('search and social tags: preview image, structured data, sitemap alternates', () => {
-  const url = 'https://guitar-elo.lipu.dev/' + (lang === 'en' ? '' : lang + '/');
-  const img = html.match(/<meta property="og:image" content="([^"]+)">/)?.[1];
+check(`/${lang === 'en' ? '' : lang + '/'}${path}: preview image, structured data, sitemap alternates`, () => {
+  const img = page.match(/<meta property="og:image" content="([^"]+)">/)?.[1];
   assert.equal(img, `https://guitar-elo.lipu.dev/og-${lang}.png`);
   const png = readFileSync(new URL(`../site/og-${lang}.png`, import.meta.url));
   assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630], 'og image is 1200×630');
-  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
-  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(x => JSON.parse(x[1]));
-  assert.equal(blocks.length, 1);
-  const ld = blocks[0];
-  assert.deepEqual([ld['@type'], ld.url, ld.inLanguage, ld.image], ['WebApplication', url, lang, img]);
-  assert.equal(ld.description, html.match(/<meta name="description" content="([^"]+)">/)[1]);
-  assert.ok(!/aggregateRating|review|author/i.test(JSON.stringify(ld)), 'no ratings or personal names');
+  assert.ok(page.includes('<meta name="twitter:card" content="summary_large_image">'));
+  const desc = page.match(/<meta name="description" content="([^"]+)">/)?.[1];
+  assert.ok(desc && desc.length >= 70 && desc.length <= 200, `description length ${desc && desc.length}`);
+  assert.equal(page.match(/<meta property="og:description" content="([^"]+)">/)?.[1], desc);
+  const blocks = [...page.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(x => JSON.parse(x[1]));
+  // Structured data describes the app, so it sits on its home page only.
+  assert.equal(blocks.length, path ? 0 : 1);
+  if (!path) {
+    const ld = blocks[0];
+    assert.deepEqual([ld['@type'], ld.url, ld.inLanguage, ld.image], ['WebApplication', url, lang, img]);
+    assert.equal(ld.description, desc);
+    assert.ok(!/aggregateRating|review|author/i.test(JSON.stringify(ld)), 'no ratings or personal names');
+  }
   // The sitemap entry for this page lists the same alternates as the page head.
   const map = readFileSync(new URL('../site/sitemap.xml', import.meta.url), 'utf8');
   const entry = map.split('<url>').find(u => u.includes(`<loc>${url}</loc>`));
   const alt = src => [...src.matchAll(/hreflang="([^"]+)" href="([^"]+)"/g)].map(x => x[1] + ' ' + x[2]).sort();
   assert.ok(entry, 'page is in the sitemap');
-  assert.deepEqual(alt(entry), alt(html.split('</head>')[0].replace(/<a [^>]*>/g, '')));
-  if (lang === 'en') assert.ok(html.includes('<meta name="msvalidate.01" content="'), 'Bing verification on /');
+  assert.deepEqual(alt(entry), alt(page.split('</head>')[0].replace(/<a [^>]*>/g, '')));
+  assert.equal(page.includes('<meta name="msvalidate.01" content="'), lang === 'en' && !path, 'Bing verification on / only');
+});
+}
+check('the reading pages carry the elements about.js draws into', () => {
+  const ids = f => new Set([...read(pageFile(lang, f)).matchAll(/ id="([^"]+)"/g)].map(x => x[1]));
+  for (const id of ['cal', 'anchors', 'cplot', 'ctip', 'chartRows']) assert.ok(ids('method/').has(id), 'method ' + id);
+  for (const id of ['bands', 'refs', 'vysElo', 'vysList']) assert.ok(ids('compare/').has(id), 'compare ' + id);
+  for (const id of ['quiz', 'score', 'progress']) assert.ok(ids('').has(id) && !ids('method/').has(id) && !ids('compare/').has(id), id);
 });
 
 check('calibration point sits on the curve', () => {
@@ -221,7 +247,7 @@ check('the example persona leaves at least one question unanswered', () => {
 });
 check('question count in the page text matches the quiz', () => {
   const n = m.QUESTIONS.length;
-  for (const re of [/name="description" content="(\d+) /, /property="og:description" content="(\d+) /, /<p class="lede">(\d+) /]) {
+  for (const re of [/name="description" content="(\d+) /, /property="og:description" content="(\d+) /, /<p class="lede">[^<]*?(\d+) /]) {
     assert.equal(Number(html.match(re)?.[1]), n, String(re));
   }
   assert.ok(html.includes(`id="progress">${L.T.ui.progress(0, n)}<`), 'progress placeholder');

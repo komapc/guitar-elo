@@ -4,7 +4,7 @@ A 25-question self-assessment for guitarists, answered with sliders, in English 
 
 ## How the score works
 
-1. Every slider stop carries a typical number of practice hours (`QDEF` in `site/app.js`). These hours are the author's estimates, not measurements: only the hours → Elo curve below is anchored on data. Every slider runs up to professional level (at least 12 000 h), so a strong player is not pulled down by a short scale.
+1. Every slider stop carries a typical number of practice hours (`QDEF` in `site/common.js`). These hours are the author's estimates, not measurements: only the hours → Elo curve below is anchored on data. Every slider runs up to professional level (at least 12 000 h), so a strong player is not pulled down by a short scale.
 2. Hours map to Elo by piecewise-linear interpolation in log(hours) through the anchors in `curveAnchors()`.
 3. The rating is the weighted mean over answered questions. Each slider starts at "silly question, I'd rather not answer"; a question left there is not counted, so a classical player is not penalised for not using a pick. An answer set by an on-page test counts `MEASURED_WEIGHT` (1.5) times as much while the slider stays on the stop the test showed; moved elsewhere, it is a self-report again. The rating appears after six answers.
 4. Practice time the visitor enters is not part of the score; it is only shown for comparison.
@@ -47,21 +47,21 @@ python3 -m http.server 8000 -d site
 node tests/model.test.mjs
 ```
 
-No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass; the deploy replaces `?v=dev` in the two pages with the commit, so a cached old `app.js` never meets a new page, and sets the sitemap's `lastmod` to the date of the last commit that changed `site/`.
+No build step: `site/` is served as it is. GitHub Pages deploys it on every push to `main` (`.github/workflows/pages.yml`) after the model tests pass; the deploy replaces `?v=dev` in every page with the commit, so a cached old script never meets a new page, and sets the sitemap's `lastmod` to the date of the last commit that changed `site/`. It stops if a page is left without its four stamps or is missing from the sitemap.
 
 ## Search and sharing
 
-- Each page has its own canonical URL, `hreflang` alternates (en, ru, x-default; the sitemap lists the same), a description, a `WebApplication` JSON-LD block and a 1200×630 preview image. The tests check that these agree.
+- Each page has its own canonical URL, `hreflang` alternates (en, ru, x-default; the sitemap lists the same), a description and a 1200×630 preview image. The two quiz pages also carry a `WebApplication` JSON-LD block. The tests check that these agree.
 - The preview images `site/og-en.png` and `site/og-ru.png` are rendered from `og/og.html` by `python3 og/render.py` (Playwright). They name no question count, so they need no update when questions are added.
 - `/` carries the Bing verification meta tag; the 32-hex `.txt` file at the site root is the IndexNow key for this host.
 
 ## Languages
 
-- `site/index.html` is the English page, `site/ru/index.html` the Russian one. Each holds its own static text and loads its strings, then the shared logic.
-- `site/app.js` has the logic and every number: hours per slider stop, weights, the curve, the chart data. It never contains visible text.
-- `site/i18n/en.js` and `site/i18n/ru.js` define `T`, all strings `app.js` shows, keyed by question id and in stop order.
+- Three pages per language: the quiz (`site/index.html`, `site/ru/index.html`), "How it is scored" (`method/`: the curve, its calibration and chart) and "Scale and comparisons" (`compare/`: rating bands, the reference table, Vysotsky). The Russian pages sit under `site/ru/` at the same paths. Each page holds its own static text and loads its strings, then the shared logic, then its own script.
+- `site/common.js` has the model and every number: hours per slider stop, weights, the curve, the chart data. It also keeps the calibration, which has its own saved value (`guitar-elo-cal`), so a change on `method/` reaches the quiz, including in another tab or after Back. `site/app.js` runs the quiz, `site/about.js` the two reading pages. None of them contains visible text.
+- `site/i18n/en.js` and `site/i18n/ru.js` define `T`, all strings the scripts show, keyed by question id and in stop order.
 - Both languages share one saved state (slider positions as indices), so their keys, option counts and table lengths must match; `tests/model.test.mjs` checks that and runs every model test once per language. An English label has to name the same skill as its Russian twin, since both carry the same hours.
-- `/` is English unless the visitor picked Russian with the switch (remembered in `localStorage`). A Russian-language browser without a saved choice sees a hint linking to `/ru/`, never an automatic redirect.
+- The English pages stay English unless the visitor picked Russian with the switch (remembered in `localStorage`); then each goes to the same page under `/ru/`. A Russian-language browser without a saved choice sees a hint linking to that page, never an automatic redirect.
 
 ## License
 
