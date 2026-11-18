@@ -7,7 +7,7 @@ const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</
 new Function(script); // the whole page script must parse
 
 const model = script.split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
-const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo };')();
+const m = new Function(model + '; return { score, eloFromHours, hoursFromElo, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_RU, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo };')();
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
 let failed = 0;
 const check = (name, fn) => {
@@ -45,7 +45,7 @@ check('gap metronome: two bars of clicks, then the click returns after exactly N
 });
 check('self-tests sit under the questions they check', () => {
   const tools = m.QUESTIONS.filter(q => q.tool).map(q => q.id + ':' + q.tool);
-  assert.deepEqual(tools, ['changes:minute', 'gap:gap', 'fretboard:fretboard']);
+  assert.deepEqual(tools, ['changes:minute', 'gap:gap', 'fretboard:fretboard', 'chordear:chordear']);
 });
 check('fretboard quiz: notes match the question (3rd string, 7th fret = ре) and standard tuning', () => {
   assert.equal(m.NOTE_RU[m.noteAt(3, 7)][0], 'ре');
@@ -60,6 +60,20 @@ check('fretboard quiz: result maps to a stop, never the untested top one', () =>
   assert.equal(m.fretboardStop(8, 10, 9), 1);
   assert.equal(m.fretboardStop(6, 10, 1), 0);
   assert.equal(m.fretboardStop(0, 10, NaN), 0);
+});
+check('chord quiz: each level keeps the earlier chord types; every type sounds different', () => {
+  for (let k = 1; k < m.EAR_LEVELS.length; k++) for (const t of m.EAR_LEVELS[k - 1].types) assert.ok(m.EAR_LEVELS[k].types.includes(t), `${t} in level ${k}`);
+  const sets = Object.keys(m.CHORDS).map(t => m.chordNotes(60, t).map(n => n - 48).join(','));
+  assert.equal(new Set(sets).size, sets.length);
+  assert.deepEqual(m.chordNotes(60, 'maj'), [48, 60, 64, 67]);
+  assert.deepEqual(m.chordNotes(57, 'min7'), [45, 57, 60, 64, 67]);
+  assert.ok(Math.abs(m.midiHz(69) - 440) < 1e-9 && Math.abs(m.midiHz(60) - 261.6256) < 1e-3);
+});
+check('chord quiz: passing every level suggests at most the next-to-top stop', () => {
+  const q = m.QUESTIONS.find(x => x.id === 'chordear');
+  assert.equal(q.tool, 'chordear');
+  assert.equal(m.EAR_LEVELS.length, q.o.length - 2);
+  assert.ok(m.EAR_PASS > m.EAR_ROUNDS / 2 + 2, 'guessing major/minor must not pass easily');
 });
 check('chart data: the expected-rating line passes through the sample means; groups rise', () => {
   assert.ok(Math.abs(m.expectedElo(Math.pow(10, 3.9)) - 1990.8) < 1e-6);
