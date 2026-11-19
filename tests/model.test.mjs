@@ -287,7 +287,7 @@ check('the example persona leaves at least one question unanswered', () => {
 });
 check('question count in the page text matches the quiz', () => {
   const n = m.QUESTIONS.length;
-  for (const re of [/name="description" content="(\d+) /, /property="og:description" content="(\d+) /, /<p class="lede">[^<]*?(\d+) /]) {
+  for (const re of [/name="description" content="[^"]*?(\d+) /, /property="og:description" content="[^"]*?(\d+) /, /<p class="lede">[^<]*?(\d+) /]) {
     assert.equal(Number(html.match(re)?.[1]), n, String(re));
   }
   assert.ok(html.includes(`id="progress">${L.T.ui.progress(0, n)}<`), 'progress placeholder');
