@@ -109,23 +109,29 @@ const bandOf = e => BANDS.reduce((b, x) => (e >= x.min ? x : b), BANDS[0]);
 // on the stop the test showed; moved elsewhere, it is a self-report again. The factor is a judgement call, kept modest
 // because a short test in a browser is noisy too (an online beat-perception test retested at only r ≈ .30, Harrison & Müllensiefen 2018).
 const MEASURED_WEIGHT = 1.5;
+// The answers are estimates of hours, so the hours are averaged (weighted, in log hours: the curve's own x axis) and
+// the mean goes through the curve once. Averaging each answer's Elo instead would let the steep part of the curve
+// (1 404–11 053 h, about 3× the slope below 100 h) pull an uneven profile up: 10 h and 11 053 h would give ≈1 350,
+// not the ≈1 060 of their mean hours. Categories are averaged the same way. sd is the weighted RMS distance of the
+// answers' own Elo from the result, so it also grows when the answers are lopsided.
+const eloAtX = x => eloFromHours(Math.pow(10, x) - 10);
 function score(answers, measured = {}) {
-  let sw = 0, se = 0, n = 0;
+  let sw = 0, sx = 0, n = 0;
   const items = [], cats = {};
   for (const q of QUESTIONS) {
     const a = answers[q.id];
     if (a == null || a === 'skip' || !q.o[a]) continue;
-    const e = eloFromHours(q.o[a][1]), w = q.w * (measured[q.id] === a ? MEASURED_WEIGHT : 1);
-    items.push({ e, w });
-    sw += w; se += w * e; n++;
-    const c = cats[q.cat] || (cats[q.cat] = { sw: 0, se: 0 });
-    c.sw += w; c.se += w * e;
+    const x = lx(q.o[a][1]), w = q.w * (measured[q.id] === a ? MEASURED_WEIGHT : 1);
+    items.push({ e: eloAtX(x), w });
+    sw += w; sx += w * x; n++;
+    const c = cats[q.cat] || (cats[q.cat] = { sw: 0, sx: 0 });
+    c.sw += w; c.sx += w * x;
   }
   if (!n) return { n: 0, catElo: {} };
-  const elo = se / sw;
+  const elo = eloAtX(sx / sw);
   const sd = Math.sqrt(items.reduce((s, it) => s + it.w * (it.e - elo) ** 2, 0) / sw);
   const catElo = {};
-  for (const k in cats) catElo[k] = cats[k].se / cats[k].sw;
+  for (const k in cats) catElo[k] = eloAtX(cats[k].sx / cats[k].sw);
   return { n, elo, sd, spread: Math.min(250, 60 + 0.4 * sd), catElo };
 }
 // Gap-click metronome: `lead` bars of clicks to lock onto the tempo, then one bar of clicks and `silent` bars of silence, repeated.

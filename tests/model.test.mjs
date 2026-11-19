@@ -10,7 +10,7 @@ const model = read('common.js').split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
 // language's strings, then common.js.
 const PAGES = ['', 'method/', 'compare/'];
 const pageFile = (lang, path) => (lang === 'en' ? '' : lang + '/') + path + 'index.html';
-const EXPORTS = 'score, eloFromHours, hoursFromElo, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, rhythmStats, rhythmResult';
+const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, rhythmStats, rhythmResult';
 const LANGS = {
   en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more' },
   ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше' },
@@ -35,6 +35,8 @@ for (const [lang, L] of Object.entries(LANGS)) {
 const m = new Function('T', model + `; return { ${EXPORTS} };`)(L.T);
 const html = L.page;
 const pick = f => Object.fromEntries(m.QUESTIONS.map(q => [q.id, f(q)]));
+// The curve's x axis (log hours, shifted so 0 h is finite) and a point on it back to Elo.
+const lx = h => Math.log10(Math.max(0, h) + 10), eAt = x => m.eloFromHours(10 ** x - 10);
 const check = (name, fn) => {
   try { fn(); console.log('ok  ', `[${lang}]`, name); } catch (e) { failed++; console.log('FAIL', `[${lang}]`, name, '-', e.message); }
 };
@@ -103,6 +105,42 @@ check('calibration point sits on the curve', () => {
 });
 check('hours <-> Elo round-trips', () => {
   for (const e of [500, 900, 1250, 1700, 2200, 2600]) assert.ok(Math.abs(m.eloFromHours(m.hoursFromElo(e)) - e) < 1, String(e));
+});
+check('the result is the weighted mean of log hours through the curve, not the mean of Elo', () => {
+  // Half the answers at the bottom stop, half at the top: the mean of their Elo would sit far above their mean hours.
+  const ans = pick(q => (m.QUESTIONS.indexOf(q) % 2 ? q.o.length - 1 : 0)), r = m.score(ans);
+  let sw = 0, sx = 0, se = 0;
+  for (const q of m.QUESTIONS) { const h = q.o[ans[q.id]][1]; sw += q.w; sx += q.w * lx(h); se += q.w * m.eloFromHours(h); }
+  assert.ok(Math.abs(r.elo - eAt(sx / sw)) < 1e-9);
+  assert.ok(r.elo < se / sw - 100, `log-hours mean ${Math.round(r.elo)} vs Elo mean ${Math.round(se / sw)}`);
+});
+check('the total lies between the lowest and the highest category', () => {
+  for (const ans of [m.EXAMPLE, pick(q => (m.QUESTIONS.indexOf(q) % 3 ? 0 : q.o.length - 1)), pick(q => (q.cat === 'left' ? q.o.length - 1 : 1))]) {
+    const r = m.score(ans), v = Object.values(r.catElo);
+    assert.ok(r.elo >= Math.min(...v) - 1e-9 && r.elo <= Math.max(...v) + 1e-9, `${Math.round(r.elo)} outside ${v.map(Math.round)}`);
+  }
+});
+check('every calibration the page allows keeps the curve rising and invertible', () => {
+  const saved = m.MODEL.anchorElo;
+  try {
+    for (let a = 800; a <= 2100; a += 50) {
+      m.MODEL.anchorElo = a;
+      let prev = -Infinity;
+      for (let h = 0; h <= 60000; h += h < 200 ? 5 : h < 2000 ? 50 : 500) {
+        const e = m.eloFromHours(h);
+        assert.ok(e >= prev, `anchor ${a}: not rising at ${h} h`);
+        prev = e;
+        if (h <= 50000) assert.ok(Math.abs(m.hoursFromElo(e) - h) <= Math.max(1e-6, h * 1e-9), `anchor ${a}: ${h} h does not round-trip`);
+      }
+      assert.ok(Math.abs(m.eloFromHours(m.CAL_HOURS) - a) < 1e-9, `anchor ${a}`);
+    }
+  } finally { m.MODEL.anchorElo = saved; }
+});
+check('practice hours from years, sessions and session length', () => {
+  assert.equal(m.practiceHours({ years: 3, perWeek: 3, hours: 3 }), m.CAL_HOURS);
+  assert.equal(m.practiceHours({ years: -2, perWeek: 3, hours: 3 }), 0);
+  assert.equal(m.practiceHours({ years: '', perWeek: 'x', hours: 3 }), 0);
+  assert.equal(m.practiceHours({}), 0);
 });
 check('every question lists options in rising hours', () => {
   for (const q of m.QUESTIONS) for (let i = 1; i < q.o.length; i++) assert.ok(q.o[i][1] > q.o[i - 1][1], `${q.id} option ${i}`);
@@ -224,13 +262,15 @@ check('measured answers: count more only while the slider stays on the measured 
   const base = { ...m.EXAMPLE };
   const plain = m.score(base), same = m.score(base, {});
   assert.equal(plain.elo, same.elo);
-  // fretboard sits below the example's average, so weighting it more must pull the average down, by a known amount.
-  const meas = m.score(base, { fretboard: base.fretboard });
-  const q = m.QUESTIONS.find(x => x.id === 'fretboard'), e = m.eloFromHours(q.o[base.fretboard][1]);
-  const sw = m.QUESTIONS.reduce((a, x) => a + (base[x.id] != null ? x.w : 0), 0), extra = q.w * (m.MEASURED_WEIGHT - 1);
-  assert.ok(Math.abs(meas.elo - (plain.elo * sw + extra * e) / (sw + extra)) < 1e-9);
+  // gap sits below the example's average, so weighting it more must pull the average down, by a known amount:
+  // the weighted mean of log hours with the extra weight, through the curve.
+  const meas = m.score(base, { gap: base.gap });
+  const q = m.QUESTIONS.find(x => x.id === 'gap'), used = m.QUESTIONS.filter(x => base[x.id] != null);
+  const sw = used.reduce((a, x) => a + x.w, 0), sx = used.reduce((a, x) => a + x.w * lx(x.o[base[x.id]][1]), 0);
+  const extra = q.w * (m.MEASURED_WEIGHT - 1);
+  assert.ok(Math.abs(meas.elo - eAt((sx + extra * lx(q.o[base.gap][1])) / (sw + extra))) < 1e-9);
   assert.ok(meas.elo < plain.elo);
-  assert.equal(m.score(base, { fretboard: base.fretboard + 1 }).elo, plain.elo, 'slider moved off the measured stop');
+  assert.equal(m.score(base, { gap: base.gap + 1 }).elo, plain.elo, 'slider moved off the measured stop');
   assert.ok(m.MEASURED_WEIGHT > 1 && m.MEASURED_WEIGHT <= 2);
 });
 check('unanswered questions are left out of the score', () => {
