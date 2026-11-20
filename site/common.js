@@ -234,7 +234,8 @@ const fmtHours = h => {
   const r = h < 100 ? Math.round(h / 5) * 5 : h < 1000 ? Math.round(h / 10) * 10 : Math.round(h / 100) * 100;
   return r.toLocaleString(T.locale);
 };
-const SCALE_MIN = 400, SCALE_MAX = 2800;
+// The board ends where the model does: a rating at ELO_MAX (over ~66,000 h) must not pin short of its own number.
+const SCALE_MIN = 400, SCALE_MAX = ELO_MAX;
 const pct = e => ((Math.min(SCALE_MAX, Math.max(SCALE_MIN, e)) - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * 100;
 const clampAnchor = v => Math.min(2100, Math.max(800, Number.isFinite(+v) && +v ? +v : 1250));
 
