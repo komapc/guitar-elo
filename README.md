@@ -40,6 +40,8 @@ The gap between the lines is what a moderate correlation looks like. Hours expla
 
 Sources: F. Gobet, G. Campitelli, [The role of domain-specific practice, handedness, and starting age in chess](https://bura.brunel.ac.uk/bitstream/2438/611/1/Gobet_DevPsyc_Final.pdf), Developmental Psychology 43 (2007), 159–172. N. Charness et al., [The role of deliberate practice in chess expertise](https://doi.org/10.1002/acp.1106), Applied Cognitive Psychology 19 (2005), 151–165.
 
+A wider literature review (graded exams, practice hours, self-report accuracy, lab tests, rating scales) is in [docs/research/](docs/research/): the report in Russian, the working notes in English.
+
 ## Run locally
 
 ```sh
