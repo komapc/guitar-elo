@@ -10,7 +10,7 @@ const model = read('common.js').split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
 // language's strings, then common.js.
 const PAGES = ['', 'method/', 'compare/'];
 const pageFile = (lang, path) => (lang === 'en' ? '' : lang + '/') + path + 'index.html';
-const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, rhythmStats, rhythmResult';
+const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, RHYTHM_STOPS, rhythmStats, rhythmResult, EAR_STOPS, chordearStop, REV, SHIFTED, STOP_REMAP, MEASURED_REMAP, migrateSave, GRADE8_HOURS, unmeasured';
 const LANGS = {
   en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more' },
   ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше' },
@@ -156,7 +156,7 @@ check('top answers everywhere reach master range', () => {
   assert.ok(m.score(pick(q => q.o.length - 1)).elo > 2300);
 });
 check('gap metronome: two bars of clicks, then the click returns after exactly N silent bars', () => {
-  for (const n of [1, 2, 4, 8, 16]) {
+  for (const n of [1, 2, 4, 6, 8, 12, 16]) {
     const bars = Array.from({ length: 3 * (n + 1) + 2 }, (_, b) => m.gapBarClicks(b, n));
     assert.deepEqual(bars.slice(0, 2), [true, true], `n=${n} lead-in`);
     for (let start = 1; start + n + 1 < bars.length; start += n + 1) {
@@ -178,8 +178,8 @@ check('fretboard quiz: notes match the question (3rd string, 7th fret = D) and s
   assert.equal(m.noteAt(3, 4), m.noteAt(2, 0)); // except G -> B, at the fourth fret
 });
 check('fretboard quiz: result maps to a stop, never the untested top one', () => {
-  assert.equal(m.fretboardStop(10, 10, 1.4), 3);
-  assert.equal(m.fretboardStop(9, 10, 3.5), 2);
+  assert.equal(m.fretboardStop(10, 10, 1.4), 4);
+  assert.equal(m.fretboardStop(9, 10, 3.5), 3);
   assert.equal(m.fretboardStop(8, 10, 9), 1);
   assert.equal(m.fretboardStop(6, 10, 1), 0);
   assert.equal(m.fretboardStop(0, 10, NaN), 0);
@@ -195,7 +195,11 @@ check('chord quiz: each level keeps the earlier chord types; every type sounds d
 check('chord quiz: passing every level suggests at most the next-to-top stop', () => {
   const q = m.QUESTIONS.find(x => x.id === 'chordear');
   assert.equal(q.tool, 'chordear');
-  assert.equal(m.EAR_LEVELS.length, q.o.length - 2);
+  assert.equal(m.EAR_STOPS.length, m.EAR_LEVELS.length + 1);
+  for (let k = 1; k < m.EAR_STOPS.length; k++) assert.ok(m.EAR_STOPS[k] > m.EAR_STOPS[k - 1]);
+  assert.equal(m.chordearStop(0, false), 0);
+  assert.equal(m.chordearStop(m.EAR_LEVELS.length - 1, true), m.EAR_STOPS[m.EAR_STOPS.length - 1]);
+  assert.ok(m.EAR_STOPS[m.EAR_STOPS.length - 1] < q.o.length - 1);
   assert.ok(m.EAR_PASS > m.EAR_ROUNDS / 2 + 2, 'guessing major/minor must not pass easily');
 });
 check('chart data: the expected-rating line passes through the sample means; groups rise', () => {
@@ -244,7 +248,7 @@ check('rhythm test: random tapping is far over the limits', () => {
 check('rhythm test: level results map to stops; the top stop is never suggested', () => {
   const q = m.QUESTIONS.find(x => x.id === 'metronome'), top = q.o.length - 1;
   const ok = { spread: 0.03, misses: 0, extra: 0 }, shaky = { spread: 0.11, misses: 1, extra: 0 };
-  assert.deepEqual(m.RHYTHM_LEVELS.map((_, k) => m.rhythmResult(k, ok).stop), [2, 3, 4]);
+  assert.deepEqual(m.RHYTHM_LEVELS.map((_, k) => m.rhythmResult(k, ok).stop), m.RHYTHM_STOPS);
   assert.ok(m.RHYTHM_LEVELS.every((_, k) => m.rhythmResult(k, ok).stop < top && m.rhythmResult(k, shaky).stop < top));
   assert.deepEqual(m.RHYTHM_LEVELS.map((_, k) => m.rhythmResult(k, shaky).stop), [1, 2, 3]);
   assert.equal(m.rhythmResult(0, { spread: 0.05, misses: 9, extra: 0 }).stop, 0);
@@ -272,6 +276,38 @@ check('measured answers: count more only while the slider stays on the measured 
   assert.ok(meas.elo < plain.elo);
   assert.equal(m.score(base, { gap: base.gap + 1 }).elo, plain.elo, 'slider moved off the measured stop');
   assert.ok(m.MEASURED_WEIGHT > 1 && m.MEASURED_WEIGHT <= 2);
+});
+check('saved answers from older stop revisions keep their stop', () => {
+  for (const [r, map] of Object.entries(m.STOP_REMAP)) for (const [id, mp] of Object.entries(map)) {
+    const q = m.QUESTIONS.find(x => x.id === id);
+    assert.ok(q && !q.num, `${r}/${id}`);
+    assert.ok(mp[0] === 0 && mp[mp.length - 1] === q.o.length - 1, `${r}/${id}: ends stay ends`);
+    for (let i = 1; i < mp.length; i++) assert.ok(mp[i] > mp[i - 1], `${r}/${id}: order`);
+  }
+  // A revision-1 save goes through the bottom shift of revision 2, then the remap of revision 3.
+  const s = m.migrateSave({ answers: { bend: 3, stage: 1, chords: 'skip', pick: 5 }, measured: { bend: 3 } });
+  assert.deepEqual(s.answers, { bend: m.STOP_REMAP[3].bend[4], stage: m.STOP_REMAP[3].stage[1], chords: 'skip', pick: 6 });
+  assert.deepEqual(s.measured, { bend: s.answers.bend });
+  assert.equal(s.rev, m.REV);
+  // Measured marks follow what the test checks: an old rhythm level-2 or fast-fretboard mark sits on the stop the test
+  // suggests now, and the answer, kept on its old label, counts as a self-report.
+  const t = m.migrateSave({ answers: { metronome: 3, fretboard: 3, chordear: 2 }, measured: { metronome: 3, fretboard: 3, chordear: 2 }, rev: 2 });
+  assert.deepEqual(t.measured, { metronome: m.rhythmResult(1, { spread: 0, misses: 0, extra: 0 }).stop, fretboard: m.fretboardStop(10, 10, 1), chordear: m.chordearStop(1, true) });
+  assert.deepEqual(t.answers, { metronome: m.STOP_REMAP[3].metronome[3], fretboard: m.STOP_REMAP[3].fretboard[3], chordear: m.STOP_REMAP[3].chordear[2] });
+  assert.equal(m.score(t.answers, t.measured).elo, m.score(t.answers, { chordear: t.answers.chordear }).elo, 'only the chord quiz, which checks the same thing, keeps its weight');
+  for (const [id, mp] of Object.entries(m.MEASURED_REMAP[3])) assert.equal(mp.length, m.STOP_REMAP[3][id].length, id);
+  const now = m.migrateSave({ answers: { stage: 4 }, measured: {}, rev: m.REV });
+  assert.deepEqual(now.answers, { stage: 4 }, 'a current save is left alone');
+});
+check('above the measured Grade 8 hours the ± grows, without a jump', () => {
+  const e8 = m.eloFromHours(m.GRADE8_HOURS);
+  assert.equal(m.unmeasured(e8 - 50), 0);
+  assert.equal(m.unmeasured(e8), 0);
+  assert.ok(Math.abs(m.unmeasured(e8 + 1)) <= 0.5);
+  assert.equal(m.unmeasured(e8 + 400), 200);
+  const top = m.score(pick(q => q.o.length - 1)), ex = m.score(m.EXAMPLE);
+  assert.equal(ex.extra, 0);
+  assert.ok(top.extra > 0 && Math.abs(top.spread - (Math.min(250, 60 + 0.4 * top.sd) + top.extra)) < 1e-9);
 });
 check('unanswered questions are left out of the score', () => {
   const some = { chords: 3, metronome: 2, hardest: 1 };

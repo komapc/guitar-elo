@@ -1,22 +1,16 @@
 // Guitar Elo, the quiz page (/ and /ru/): questions, self-tests and the score panel. Loads after common.js, which holds
 // the model, the calibration and the language switch.
 
-// Questions that got a new stop at the bottom in a given revision; saved answers from before it move up by one.
-const REV = 2, SHIFTED = { 2: ['pick', 'fingers', 'noise', 'bend', 'vibrato', 'legato', 'ear', 'hardest'] };
-// `measured`: the stop each test showed, by question id (see MEASURED_WEIGHT). A shift moves it along with the answer.
+// `measured`: the stop each test showed, by question id (see MEASURED_WEIGHT). Saves from an older revision of the stops
+// are moved along by migrateSave (common.js), the measured stop together with the answer.
 let state = { answers: {}, measured: {}, practice: { ...CAL }, example: false, rev: REV };
 function load() {
   try {
     const raw = localStorage.getItem(STORE);
     const s = raw && JSON.parse(raw);
-    if (s && typeof s.answers === 'object') {
+    if (s && s.answers && typeof s.answers === 'object') {
       if (!s.measured || typeof s.measured !== 'object') s.measured = {};
-      for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const id of SHIFTED[r] || []) {
-        if (s.answers[id] != null) s.answers[id]++;
-        if (s.measured[id] != null) s.measured[id]++;
-      }
-      s.rev = REV;
-      return s;
+      return migrateSave(s);
     }
   } catch (e) {}
   return null;
@@ -28,7 +22,7 @@ if (saved) state = { ...state, ...saved, practice: { ...CAL, ...(saved.practice 
 delete state.anchorElo; // its own key now, see readCal in common.js
 
 const UNSET = T.ui.unset;
-const GAP_SILENT = [1, 2, 4, 8, 16], GAP_BPM = [60, 70, 80, 90, 100, 110, 120];
+const GAP_SILENT = [1, 2, 4, 6, 8, 12, 16], GAP_BPM = [60, 70, 80, 90, 100, 110, 120];
 function toolHtml(kind) {
   if (kind === 'minute') return '<div class="tool" data-tool="minute"><button type="button" class="btn tgo">' + T.ui.minuteGo + '</button>'
     + '<span class="tclock"></span><span class="tout" aria-live="polite">' + T.ui.minuteIdle + '</span></div>';
@@ -136,7 +130,9 @@ function update() {
     $('#pm').textContent = '±' + round10(r.spread);
     $('#band').textContent = b.name;
     $('#bandtext').textContent = b.guitar;
-    $('#equiv').innerHTML = T.ui.equiv(fmtHours(hoursFromElo(r.elo)));
+    $('#equiv').innerHTML = r.extra > 0
+      ? T.ui.equivRange(fmtHours(hoursFromElo(r.elo - r.spread)), fmtHours(hoursFromElo(r.elo + r.spread)))
+      : T.ui.equiv(fmtHours(hoursFromElo(r.elo)));
     $('#pinSkill').style.left = pct(r.elo) + '%';
     $('#pinSkill').hidden = false;
     $('#barElo').textContent = fmtElo(r.elo);
@@ -440,7 +436,7 @@ function startChordQuiz(el) {
     el.classList.remove('on'); box.hidden = true; go.textContent = T.ui.earGo;
     if (running === self) running = null;
     if (!complete) { out.textContent = ''; return; }
-    const pass = right >= EAR_PASS, stop = level + (pass ? 1 : 0);
+    const pass = right >= EAR_PASS, stop = chordearStop(level, pass);
     let html = T.ui.earResult(name, right, EAR_ROUNDS, pass, EAR_PASS) + suggest('chordear', stop);
     if (pass && level + 1 < EAR_LEVELS.length) html += ` <button type="button" class="btn tnext" data-level="${level + 1}">${T.ui.next(EAR_LEVELS[level + 1].name)}</button>`;
     out.innerHTML = html; reveal(out);
