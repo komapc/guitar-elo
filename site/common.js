@@ -229,6 +229,20 @@ function rhythmStats(taps, start, beat, n) {
   const spread = dev.length > 1 ? Math.sqrt(dev.reduce((a, d) => a + (d - mean) ** 2, 0) / dev.length) : Infinity;
   return { spread, misses: n - dev.length, extra, offset: off + mean };
 }
+// The taps and the clicks are timed on clocks that can disagree by whole seconds: an event's own time stamp and the
+// audio output time both come from the browser and the system, and a wrong one moves the beat grid away from the taps,
+// so they count as missed («hardly any taps» with the counter at 30). Each is therefore taken two ways (event stamp and
+// time of handling; output time and the plain context clock), and the pairing that puts the most taps on a beat wins,
+// the first, most precise one on a tie. A constant offset within half a beat cancels in rhythmStats anyway, so this
+// only settles which beat is which. `taps` and `clock` say which pairing won (0 = the first, precise one).
+function rhythmAligned(tapSets, starts, beat, n) {
+  let best = null;
+  tapSets.forEach((taps, ti) => starts.forEach((start, si) => {
+    const st = rhythmStats(taps, start, beat, n);
+    if (!best || st.misses < best.misses) best = { ...st, taps: ti, clock: si };
+  }));
+  return best;
+}
 // Level result → stop. Reaching level k > 0 means level k − 1 was passed in the same run of the test.
 function rhythmResult(level, st) {
   const pass = st.spread <= RHYTHM.pass && st.misses <= RHYTHM.misses && st.extra <= RHYTHM.misses;

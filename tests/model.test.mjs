@@ -10,7 +10,7 @@ const model = read('common.js').split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
 // language's strings, then common.js.
 const PAGES = ['', 'method/', 'compare/'];
 const pageFile = (lang, path) => (lang === 'en' ? '' : lang + '/') + path + 'index.html';
-const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, RHYTHM_STOPS, rhythmStats, rhythmResult, EAR_STOPS, chordearStop, REV, SHIFTED, STOP_REMAP, MEASURED_REMAP, migrateSave, GRADE8_HOURS, unmeasured';
+const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, RHYTHM_STOPS, rhythmStats, rhythmAligned, rhythmResult, EAR_STOPS, chordearStop, REV, SHIFTED, STOP_REMAP, MEASURED_REMAP, migrateSave, GRADE8_HOURS, unmeasured';
 const LANGS = {
   en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more' },
   ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше' },
@@ -230,6 +230,18 @@ check('rhythm test: a constant offset (latency, tapping early) does not count, o
   const g = gauss(rng(7));
   const st = m.rhythmStats(grid(32, 0, 600, t => t + 120 + 0.04 * 600 * g()), 0, 600, 32);
   assert.ok(st.spread > 0.03 && st.spread < 0.05 && st.misses === 0, JSON.stringify(st));
+});
+check('rhythm test: a clock off by seconds is caught; the precise pairing wins a tie', () => {
+  // A steady player who starts on the first measured beat. Handling times lag the event stamps a little and wobble.
+  const g = gauss(rng(11)), stamped = grid(32, 1000, 750, t => t + 0.02 * 750 * g()), handled = stamped.map(t => t + 8 + 4 * g());
+  const off = stamped.map(t => t + 3000); // event stamps on a clock 4 beats off
+  assert.ok(m.rhythmStats(off, 1000, 750, 32).misses >= 4);
+  assert.equal(m.rhythmAligned([off, handled], [1000], 750, 32).misses, 0, 'falls back to the handling time');
+  // An output time stamp on another clock origin puts every tap outside the measured bars.
+  assert.equal(m.rhythmStats(stamped, 1000 + 3.6e6, 750, 32).misses, 32);
+  assert.equal(m.rhythmAligned([stamped], [1000 + 3.6e6, 1000], 750, 32).misses, 0, 'falls back to the plain context clock');
+  assert.deepEqual(m.rhythmAligned([stamped, handled], [1000, 1080], 750, 32), { ...m.rhythmStats(stamped, 1000, 750, 32), taps: 0, clock: 0 }, 'all fine: event stamps, output time');
+  assert.deepEqual([m.rhythmAligned([off, handled], [1000], 750, 32).taps, m.rhythmAligned([stamped], [1000 + 3.6e6, 1000], 750, 32).clock], [1, 1]);
 });
 check('rhythm test: missed beats, double taps, taps outside the measured bars', () => {
   const st = m.rhythmStats(grid(32, 0, 500, (t, k) => (k % 10 === 3 ? [] : k === 5 ? [t, t + 40] : [t])), 0, 500, 32);

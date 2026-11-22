@@ -460,23 +460,23 @@ function startRhythm(el) {
   if (!ctx) { out.textContent = T.ui.noAudio; return null; }
   const { name, clicks } = RHYTHM_LEVELS[level], B = RHYTHM.beats, n = RHYTHM.bars * B, total = RHYTHM.lead * B + n;
   const beat = 60 / Number(el.querySelector('.tbpm').value), t0 = ctx.currentTime + 0.15, start = t0 + RHYTHM.lead * B * beat;
-  const taps = [], release = keepAwake(), secs = Math.round(0.15 + total * beat);
+  // Each tap keeps the event's own time stamp, which a busy main thread does not shift, and the time it was handled,
+  // in case the stamp's clock is off (see rhythmAligned).
+  const stamped = [], handled = [], release = keepAwake(), secs = Math.round(0.15 + total * beat);
   let nodes = [], i = 0, lit = 0;
-  // Taps use the event's own time stamp, so a busy main thread does not shift them; an old browser that stamps events
-  // on another clock falls back to the time of handling.
-  const stamp = ev => { const now = performance.now(); return Math.abs(ev.timeStamp - now) < 5000 ? ev.timeStamp : now; };
   // Each tap lights the pad and counts, so the player sees it was taken. Both follow the player's own taps, never the beat.
-  const took = t => {
-    taps.push(t); count.textContent = T.ui.taps(taps.length);
+  const took = ev => {
+    handled.push(performance.now()); stamped.push(Number.isFinite(ev.timeStamp) ? ev.timeStamp : handled[handled.length - 1]);
+    count.textContent = T.ui.taps(handled.length);
     pad.classList.add('hit'); clearTimeout(lit); lit = setTimeout(() => pad.classList.remove('hit'), 90);
   };
-  const onPad = ev => { ev.preventDefault(); took(stamp(ev)); };
+  const onPad = ev => { ev.preventDefault(); took(ev); };
   const onKey = ev => {
     if (ev.key !== ' ' && ev.key !== 'Enter') return;
     // Space or Enter on another control (the stop button, the tempo) keeps its usual meaning.
     if (ev.target !== pad && ev.target.closest && ev.target.closest('button, select, input, textarea, a')) return;
     ev.preventDefault();
-    if (!ev.repeat) took(stamp(ev));
+    if (!ev.repeat) took(ev);
   };
   const schedule = () => {
     while (i < total && t0 + i * beat < ctx.currentTime + 0.2) {
@@ -487,13 +487,13 @@ function startRhythm(el) {
     // Half a beat after the last one, plus room for a slow output (Bluetooth).
     if (ctx.currentTime > t0 + (total - 0.5) * beat + 0.4) finish(true);
   };
-  // Context time → performance time, the clock of the taps. Any constant error cancels out in rhythmStats.
-  const toPerf = () => {
+  // Context time → performance time, the clock of the taps: through the output time stamp (it includes the output
+  // latency) and through the plain context clock. Any constant error within half a beat cancels out in rhythmStats.
+  const toPerf = c => {
+    const p = performance.now(), c0 = ctx.currentTime, plain = p + (c - c0) * 1000;
     let ts = null;
     try { ts = ctx.getOutputTimestamp && ctx.getOutputTimestamp(); } catch (e) {}
-    if (ts && ts.performanceTime > 0) return c => ts.performanceTime + (c - ts.contextTime) * 1000;
-    const p = performance.now(), c0 = ctx.currentTime;
-    return c => p + (c - c0) * 1000;
+    return ts && ts.performanceTime > 0 ? [ts.performanceTime + (c - ts.contextTime) * 1000, plain] : [plain];
   };
   const self = { el, level, stop() { finish(false); } };
   function finish(complete) {
@@ -504,8 +504,16 @@ function startRhythm(el) {
     el.classList.remove('on'); box.hidden = true; go.textContent = T.ui.rhythmGo; pad.classList.remove('hit');
     if (running === self) running = null;
     if (!complete) { out.textContent = T.ui.rhythmStopped(secs); return; }
-    const st = rhythmStats(taps, toPerf()(start), beat * 1000, n);
-    if (n - st.misses < n / 2) { out.textContent = T.ui.rhythmFew; reveal(out); return; }
+    const starts = toPerf(start), st = rhythmAligned([stamped, handled], starts, beat * 1000, n);
+    // A fallback pairing that won means one of the browser's clocks was off: leave a trace for a bug report.
+    if (st.taps || st.clock) console.info('Guitar Elo rhythm test: clocks disagreed', {
+      taps: st.taps ? 'time of handling' : 'event time stamps', clicks: st.clock ? 'context clock' : 'output time stamp',
+      onBeat: n - st.misses, onBeatPrecise: n - rhythmStats(stamped, starts[0], beat * 1000, n).misses, of: n,
+      stampLagMs: Math.round(handled[0] - stamped[0]), outputVsContextMs: starts.length > 1 ? Math.round(starts[0] - starts[1]) : null });
+    if (n - st.misses < n / 2) {
+      out.textContent = handled.length >= n / 2 ? T.ui.rhythmOff(handled.length, n - st.misses, n) : T.ui.rhythmFew;
+      reveal(out); return;
+    }
     const r = rhythmResult(level, st);
     let html = T.ui.rhythmResult(name, (st.spread * 100).toFixed(1).replace('.', T.dec), st.misses, st.extra, r.pass, Math.round(RHYTHM.pass * 100), RHYTHM.misses)
       + suggest('metronome', r.stop);
