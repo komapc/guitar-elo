@@ -111,11 +111,15 @@ const STOP_REMAP = { 3: {
   ear: [0, 1, 2, 4, 6, 8], chordear: [0, 1, 3, 5, 7], reading: [0, 2, 3, 5, 7], improv: [0, 1, 3, 5, 7],
   hardest: [0, 1, 2, 3, 5, 7, 9, 11], party: [0, 1, 2, 4, 6, 8], record: [0, 1, 3, 5, 7], stage: [0, 2, 4, 6, 7],
 } };
+// A measured stop follows what the test checks, not the old label: revision 3 points the rhythm and fretboard tests at
+// new stops (RHYTHM_STOPS, fretboardStop), so an old measured mark moves there. An answer whose label now sits elsewhere
+// keeps its label and simply counts as a self-report again.
+const MEASURED_REMAP = { 3: { metronome: [0, 1, 2, 3, 5, 8], fretboard: [0, 1, 3, 4, 7] } };
 // Brings a saved { answers, measured, rev } up to REV in place. A skipped question ('skip') stays skipped.
 function migrateSave(s) {
   for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const a of [s.answers, s.measured]) {
     for (const id of SHIFTED[r] || []) if (typeof a[id] === 'number') a[id]++;
-    const map = STOP_REMAP[r] || {};
+    const map = { ...STOP_REMAP[r], ...(a === s.measured ? MEASURED_REMAP[r] : {}) };
     for (const id in map) if (typeof a[id] === 'number' && map[id][a[id]] != null) a[id] = map[id][a[id]];
   }
   s.rev = REV;
@@ -181,7 +185,7 @@ function fretboardStop(correct, total, medianSec) {
 }
 // Chord-by-ear quiz. Intervals in semitones above the root; the root is doubled an octave lower, in the bass.
 // Each level adds chord types to the previous ones. EAR_STOPS[k] is the stop for k levels passed: none, major/minor,
-// sevenths, dim/aug/sus. The stops in between (C from C7, the bass note) and above them are not tested, never suggested.
+// sevenths, dim/aug/sus. The stops in between (C from C7, dim alone) and above them are never suggested.
 const CHORDS = { maj: [T.chords.maj, [0, 4, 7]], min: [T.chords.min, [0, 3, 7]], dom7: ['7', [0, 4, 7, 10]], maj7: ['maj7', [0, 4, 7, 11]],
   min7: ['m7', [0, 3, 7, 10]], dim: ['dim', [0, 3, 6]], aug: ['aug', [0, 4, 8]], sus2: ['sus2', [0, 2, 7]], sus4: ['sus4', [0, 5, 7]] };
 const EAR_LEVELS = [

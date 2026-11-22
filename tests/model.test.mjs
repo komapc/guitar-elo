@@ -10,7 +10,7 @@ const model = read('common.js').split('/*MODEL*/')[1].split('/*END MODEL*/')[0];
 // language's strings, then common.js.
 const PAGES = ['', 'method/', 'compare/'];
 const pageFile = (lang, path) => (lang === 'en' ? '' : lang + '/') + path + 'index.html';
-const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, RHYTHM_STOPS, rhythmStats, rhythmResult, EAR_STOPS, chordearStop, REV, SHIFTED, STOP_REMAP, migrateSave, GRADE8_HOURS, unmeasured';
+const EXPORTS = 'score, eloFromHours, hoursFromElo, practiceHours, QDEF, QUESTIONS, EXAMPLE, MODEL, CAL_HOURS, gapBarClicks, noteAt, NOTE_NAMES, fretboardStop, REFS, VYSOTSKY, CHORDS, EAR_LEVELS, EAR_PASS, EAR_ROUNDS, chordNotes, midiHz, CHESS_GROUPS, REACH_2200, EXPECTED, expectedElo, BANDS, CATS, curveAnchors, MEASURED_WEIGHT, RHYTHM, RHYTHM_LEVELS, RHYTHM_STOPS, rhythmStats, rhythmResult, EAR_STOPS, chordearStop, REV, SHIFTED, STOP_REMAP, MEASURED_REMAP, migrateSave, GRADE8_HOURS, unmeasured';
 const LANGS = {
   en: { page: read('index.html'), T: new Function(read('i18n/en.js') + '; return T;')(), d: 'D', open: ['E', 'A', 'D', 'G', 'B', 'E'], top: '200 or more' },
   ru: { page: read('ru/index.html'), T: new Function(read('i18n/ru.js') + '; return T;')(), d: 'ре', open: ['ми', 'ля', 'ре', 'соль', 'си', 'ми'], top: '200 и больше' },
@@ -289,6 +289,13 @@ check('saved answers from older stop revisions keep their stop', () => {
   assert.deepEqual(s.answers, { bend: m.STOP_REMAP[3].bend[4], stage: m.STOP_REMAP[3].stage[1], chords: 'skip', pick: 6 });
   assert.deepEqual(s.measured, { bend: s.answers.bend });
   assert.equal(s.rev, m.REV);
+  // Measured marks follow what the test checks: an old rhythm level-2 or fast-fretboard mark sits on the stop the test
+  // suggests now, and the answer, kept on its old label, counts as a self-report.
+  const t = m.migrateSave({ answers: { metronome: 3, fretboard: 3, chordear: 2 }, measured: { metronome: 3, fretboard: 3, chordear: 2 }, rev: 2 });
+  assert.deepEqual(t.measured, { metronome: m.rhythmResult(1, { spread: 0, misses: 0, extra: 0 }).stop, fretboard: m.fretboardStop(10, 10, 1), chordear: m.chordearStop(1, true) });
+  assert.deepEqual(t.answers, { metronome: m.STOP_REMAP[3].metronome[3], fretboard: m.STOP_REMAP[3].fretboard[3], chordear: m.STOP_REMAP[3].chordear[2] });
+  assert.equal(m.score(t.answers, t.measured).elo, m.score(t.answers, { chordear: t.answers.chordear }).elo, 'only the chord quiz, which checks the same thing, keeps its weight');
+  for (const [id, mp] of Object.entries(m.MEASURED_REMAP[3])) assert.equal(mp.length, m.STOP_REMAP[3][id].length, id);
   const now = m.migrateSave({ answers: { stage: 4 }, measured: {}, rev: m.REV });
   assert.deepEqual(now.answers, { stage: 4 }, 'a current save is left alone');
 });
