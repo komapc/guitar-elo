@@ -325,6 +325,7 @@ const T = {
       + (missed ? `, ${missed} ${plEn(missed, 'beat', 'beats')} missed` : '')
       + (extra ? `, ${extra} extra ${plEn(extra, 'tap', 'taps')}` : '')
       + (pass ? '. Level passed. ' : `. To pass: ${need}% or less, and no more than ${miss} missed beats. `),
+    rhythmOff: (taps, hit, n) => `${taps} taps, but only ${hit} landed in the measured part (${n} beats after the 8 warm-up clicks). Keep tapping every beat until the clicks stop.`,
     rhythmFew: 'Hardly any taps came in. Tap the “Tap with the clicks” button (or the space bar) on every beat.',
     measured: w => `Checked by a test: this answer counts ${w} times as much`,
     replay: '↻ Play again',
