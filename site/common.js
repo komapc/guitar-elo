@@ -65,31 +65,31 @@ const NUM_PICK = { values: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 16
 const NUM_REPERTOIRE = { values: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 200],
   pts: [[0, 8], [2, 20], [5, 60], [10, 250], [20, 1000], [30, 1600], [50, 2800], [100, 6000], [200, 15000]] };
 const QDEF = [
-  { id: 'chords', cat: 'harmony', w: 1, h: [5, 25, 120, 400, 1500, 9000, 28000] },
-  { id: 'changes', cat: 'harmony', w: 0.6, tool: 'minute', h: [3, 12, 30, 70, 150, 500, 1500, 6000, 15000] },
-  { id: 'transpose', cat: 'harmony', w: 0.8, h: [10, 40, 300, 1500, 5000, 15000] },
-  { id: 'theory', cat: 'harmony', w: 0.6, h: [20, 300, 1200, 5000, 18000] },
-  { id: 'metronome', cat: 'rhythm', w: 1.2, tool: 'rhythm', h: [10, 80, 400, 1800, 6000, 25000] },
-  { id: 'gap', cat: 'rhythm', w: 0.8, tool: 'gap', h: [20, 150, 600, 2000, 6000, 18000] },
-  { id: 'strum', cat: 'rhythm', w: 0.8, h: [8, 50, 800, 3500, 14000] },
-  { id: 'partner', cat: 'rhythm', w: 0.8, h: [30, 150, 800, 3000, 12000] },
+  { id: 'chords', cat: 'harmony', w: 1, h: [5, 25, 120, 400, 1500, 3000, 5500, 9000, 16000, 28000] },
+  { id: 'changes', cat: 'harmony', w: 0.6, tool: 'minute', h: [3, 12, 30, 70, 150, 500, 1500, 3000, 6000, 10000, 15000] },
+  { id: 'transpose', cat: 'harmony', w: 0.8, h: [10, 40, 300, 1500, 2800, 5000, 9000, 15000] },
+  { id: 'theory', cat: 'harmony', w: 0.6, h: [20, 300, 1200, 2500, 5000, 9000, 18000] },
+  { id: 'metronome', cat: 'rhythm', w: 1.2, tool: 'rhythm', h: [10, 80, 400, 900, 1800, 3500, 6000, 12000, 25000] },
+  { id: 'gap', cat: 'rhythm', w: 0.8, tool: 'gap', h: [20, 150, 600, 2000, 3500, 6000, 11000, 18000] },
+  { id: 'strum', cat: 'rhythm', w: 0.8, h: [8, 50, 250, 800, 1700, 3500, 7000, 14000] },
+  { id: 'partner', cat: 'rhythm', w: 0.8, h: [30, 150, 800, 1500, 3000, 6000, 12000] },
   { id: 'pick', cat: 'right', w: 1, h: [10], num: NUM_PICK },
-  { id: 'fingers', cat: 'right', w: 1, h: [10, 50, 800, 1500, 6000, 25000] },
-  { id: 'dynamics', cat: 'right', w: 0.8, h: [20, 150, 1200, 5000, 25000] },
-  { id: 'noise', cat: 'right', w: 0.8, h: [10, 20, 200, 1200, 5000, 15000] },
-  { id: 'bend', cat: 'left', w: 0.8, h: [10, 40, 200, 800, 2500, 7000, 18000] },
-  { id: 'vibrato', cat: 'left', w: 0.8, h: [10, 30, 200, 1200, 4000, 20000] },
-  { id: 'legato', cat: 'left', w: 0.8, h: [10, 40, 300, 1500, 5000, 22000] },
-  { id: 'fretboard', cat: 'ear', w: 0.8, tool: 'fretboard', h: [20, 150, 1200, 4000, 15000] },
-  { id: 'ear', cat: 'ear', w: 1, h: [8, 20, 150, 1400, 4500, 20000] },
-  { id: 'chordear', cat: 'ear', w: 0.6, tool: 'chordear', h: [15, 150, 1200, 4000, 15000] },
-  { id: 'reading', cat: 'ear', w: 0.6, h: [20, 300, 1200, 6000, 18000] },
-  { id: 'improv', cat: 'music', w: 1, h: [20, 150, 1300, 5000, 22000] },
+  { id: 'fingers', cat: 'right', w: 1, h: [10, 50, 250, 800, 1500, 3300, 6000, 12000, 25000] },
+  { id: 'dynamics', cat: 'right', w: 0.8, h: [20, 150, 450, 1200, 2500, 5000, 11000, 25000] },
+  { id: 'noise', cat: 'right', w: 0.8, h: [10, 20, 200, 1200, 2500, 5000, 9000, 15000] },
+  { id: 'bend', cat: 'left', w: 0.8, h: [10, 40, 200, 800, 1400, 2500, 4200, 7000, 11000, 18000] },
+  { id: 'vibrato', cat: 'left', w: 0.8, h: [10, 30, 200, 1200, 2200, 4000, 7000, 12000, 20000] },
+  { id: 'legato', cat: 'left', w: 0.8, h: [10, 40, 300, 1500, 2800, 5000, 10000, 22000] },
+  { id: 'fretboard', cat: 'ear', w: 0.8, tool: 'fretboard', h: [20, 150, 450, 1200, 2200, 4000, 8000, 15000] },
+  { id: 'ear', cat: 'ear', w: 1, h: [8, 20, 150, 500, 1400, 2500, 4500, 9000, 20000] },
+  { id: 'chordear', cat: 'ear', w: 0.6, tool: 'chordear', h: [15, 150, 450, 1200, 2200, 4000, 8000, 15000] },
+  { id: 'reading', cat: 'ear', w: 0.6, h: [20, 80, 300, 1200, 2000, 3300, 7000, 18000] },
+  { id: 'improv', cat: 'music', w: 1, h: [20, 150, 500, 1300, 2500, 5000, 9000, 22000] },
   { id: 'repertoire', cat: 'music', w: 0.8, h: [], num: NUM_REPERTOIRE },
-  { id: 'hardest', cat: 'music', w: 1.2, h: [8, 30, 200, 700, 1800, 4000, 9000, 28000] },
-  { id: 'party', cat: 'music', w: 0.7, h: [10, 30, 200, 1500, 6000, 20000] },
-  { id: 'record', cat: 'music', w: 0.7, h: [40, 200, 1200, 5000, 15000] },
-  { id: 'stage', cat: 'music', w: 0.6, h: [200, 1200, 5000, 15000, 30000] },
+  { id: 'hardest', cat: 'music', w: 1.2, h: [8, 30, 200, 700, 1100, 1800, 2800, 4000, 6000, 9000, 16000, 28000] },
+  { id: 'party', cat: 'music', w: 0.7, h: [10, 30, 200, 600, 1500, 3000, 6000, 11000, 20000] },
+  { id: 'record', cat: 'music', w: 0.7, h: [40, 200, 500, 1200, 2500, 5000, 9000, 15000] },
+  { id: 'stage', cat: 'music', w: 0.6, h: [200, 500, 1200, 2500, 5000, 9000, 15000, 30000] },
 ];
 const QUESTIONS = QDEF.map(({ h, num, ...d }) => {
   const t = T.q[d.id], o = h.map((x, i) => [t.o[i], x]);
@@ -97,10 +97,35 @@ const QUESTIONS = QDEF.map(({ h, num, ...d }) => {
   return { ...d, text: t.text, ...(t.hint ? { hint: t.hint } : {}), o };
 });
 
+// Saved answers (and the stops tests measured) are stop indices, so a revision that adds stops moves old saves along.
+// Revision 2 added a stop at the bottom of the listed questions: +1. Revision 3 added intermediate stops: for each
+// question, the new index of every old stop. Its one split, `hardest` «Hotel California…, Spanish Romance», keeps the
+// old hours under «Hotel California…»; Spanish Romance got its own lower stop.
+const REV = 3;
+const SHIFTED = { 2: ['pick', 'fingers', 'noise', 'bend', 'vibrato', 'legato', 'ear', 'hardest'] };
+const STOP_REMAP = { 3: {
+  chords: [0, 1, 2, 3, 4, 7, 9], changes: [0, 1, 2, 3, 4, 5, 6, 8, 10], transpose: [0, 1, 2, 3, 5, 7],
+  theory: [0, 1, 2, 4, 6], metronome: [0, 1, 2, 4, 6, 8], gap: [0, 1, 2, 3, 5, 7], strum: [0, 1, 3, 5, 7],
+  partner: [0, 1, 2, 4, 6], fingers: [0, 1, 3, 4, 5, 8], dynamics: [0, 1, 3, 5, 7], noise: [0, 1, 2, 3, 5, 7],
+  bend: [0, 1, 2, 3, 5, 7, 9], vibrato: [0, 1, 2, 3, 5, 8], legato: [0, 1, 2, 3, 5, 7], fretboard: [0, 1, 3, 5, 7],
+  ear: [0, 1, 2, 4, 6, 8], chordear: [0, 1, 3, 5, 7], reading: [0, 2, 3, 5, 7], improv: [0, 1, 3, 5, 7],
+  hardest: [0, 1, 2, 3, 5, 7, 9, 11], party: [0, 1, 2, 4, 6, 8], record: [0, 1, 3, 5, 7], stage: [0, 2, 4, 6, 7],
+} };
+// Brings a saved { answers, measured, rev } up to REV in place. A skipped question ('skip') stays skipped.
+function migrateSave(s) {
+  for (let r = (s.rev || 1) + 1; r <= REV; r++) for (const a of [s.answers, s.measured]) {
+    for (const id of SHIFTED[r] || []) if (typeof a[id] === 'number') a[id]++;
+    const map = STOP_REMAP[r] || {};
+    for (const id in map) if (typeof a[id] === 'number' && map[id][a[id]] != null) a[id] = map[id][a[id]];
+  }
+  s.rev = REV;
+  return s;
+}
+
 // The 3×3×3 guitarist used as the example and as the calibration persona. Missing ids stay unanswered.
-const EXAMPLE = { chords: 4, changes: 6, transpose: 3, theory: 2, metronome: 3, gap: 2, strum: 2, partner: 2,
-  pick: 7, fingers: 3, dynamics: 2, noise: 3, bend: 3, vibrato: 3, legato: 3, fretboard: 2, ear: 3, chordear: 1,
-  improv: 2, repertoire: 9, hardest: 4, party: 3, record: 2, stage: 1 };
+const EXAMPLE = { chords: 4, changes: 6, transpose: 3, theory: 2, metronome: 4, gap: 2, strum: 3, partner: 2,
+  pick: 7, fingers: 4, dynamics: 3, noise: 3, bend: 3, vibrato: 3, legato: 3, fretboard: 3, ear: 4, chordear: 1,
+  improv: 3, repertoire: 9, hardest: 5, party: 4, record: 3, stage: 2 };
 
 const BANDS = [0, 800, 1200, 1600, 2000, 2200, 2400, 2500, 2700].map((min, i) => ({ min, name: T.bands[i][0], guitar: T.bands[i][1] }));
 const bandOf = e => BANDS.reduce((b, x) => (e >= x.min ? x : b), BANDS[0]);
@@ -114,6 +139,11 @@ const MEASURED_WEIGHT = 1.5;
 // (1 404–11 053 h, about 3× the slope below 100 h) pull an uneven profile up: 10 h and 11 053 h would give ≈1 350,
 // not the ≈1 060 of their mean hours. Categories are averaged the same way. sd is the weighted RMS distance of the
 // answers' own Elo from the result, so it also grows when the answers are lopsided.
+// Above the practice measured for Grade 8, about 3 300 h (Sloboda et al. 1996, quoted by Howe, Davidson & Sloboda
+// 1998; Williamon & Valentine found the same), there are no guitar measurements at all and the stop hours are guesses,
+// so the ± also grows by half the distance above that point (`extra`), and the page shows hours as a range.
+const GRADE8_HOURS = 3300;
+const unmeasured = elo => Math.max(0, (elo - eloFromHours(GRADE8_HOURS)) / 2);
 const eloAtX = x => eloFromHours(Math.pow(10, x) - 10);
 function score(answers, measured = {}) {
   let sw = 0, sx = 0, n = 0;
@@ -132,7 +162,8 @@ function score(answers, measured = {}) {
   const sd = Math.sqrt(items.reduce((s, it) => s + it.w * (it.e - elo) ** 2, 0) / sw);
   const catElo = {};
   for (const k in cats) catElo[k] = eloAtX(cats[k].sx / cats[k].sw);
-  return { n, elo, sd, spread: Math.min(250, 60 + 0.4 * sd), catElo };
+  const extra = unmeasured(elo);
+  return { n, elo, sd, spread: Math.min(250, 60 + 0.4 * sd) + extra, extra, catElo };
 }
 // Gap-click metronome: `lead` bars of clicks to lock onto the tempo, then one bar of clicks and `silent` bars of silence, repeated.
 const gapBarClicks = (bar, silent, lead = 1) => bar < lead || (bar - lead) % (silent + 1) === 0;
@@ -142,14 +173,15 @@ const OPEN_STRINGS = [null, 4, 11, 7, 2, 9, 4];
 const NOTE_NAMES = T.notes;
 const noteAt = (string, fret) => (OPEN_STRINGS[string] + fret) % 12;
 // Quiz result → stop of the fretboard question. The time includes finding one of twelve buttons, so the limits are
-// lenient. The top stop is about intervals, which the quiz does not test, so it is never suggested.
+// lenient. Fast and right is «I name any note on any fret instantly»; the stops above it (all the Ds around it, shapes,
+// intervals) are not tested, so they are never suggested.
 function fretboardStop(correct, total, medianSec) {
   if (correct < 0.7 * total) return 0;
-  return medianSec <= 2.5 ? 3 : medianSec <= 5 ? 2 : 1;
+  return medianSec <= 2.5 ? 4 : medianSec <= 5 ? 3 : 1;
 }
 // Chord-by-ear quiz. Intervals in semitones above the root; the root is doubled an octave lower, in the bass.
-// Each level adds chord types to the previous ones, so passing level k means stop k of the question.
-// The top stop (extensions, alterations) is not tested and never suggested.
+// Each level adds chord types to the previous ones. EAR_STOPS[k] is the stop for k levels passed: none, major/minor,
+// sevenths, dim/aug/sus. The stops in between (C from C7, the bass note) and above them are not tested, never suggested.
 const CHORDS = { maj: [T.chords.maj, [0, 4, 7]], min: [T.chords.min, [0, 3, 7]], dom7: ['7', [0, 4, 7, 10]], maj7: ['maj7', [0, 4, 7, 11]],
   min7: ['m7', [0, 3, 7, 10]], dim: ['dim', [0, 3, 6]], aug: ['aug', [0, 4, 8]], sus2: ['sus2', [0, 2, 7]], sus4: ['sus4', [0, 5, 7]] };
 const EAR_LEVELS = [
@@ -157,11 +189,13 @@ const EAR_LEVELS = [
   { name: T.earLevels[1], types: ['maj', 'min', 'dom7', 'maj7', 'min7'] },
   { name: T.earLevels[2], types: ['maj', 'min', 'dom7', 'maj7', 'min7', 'dim', 'aug', 'sus2', 'sus4'] },
 ];
-const EAR_ROUNDS = 10, EAR_PASS = 8;
+const EAR_ROUNDS = 10, EAR_PASS = 8, EAR_STOPS = [0, 1, 3, 5];
+const chordearStop = (level, pass) => EAR_STOPS[level + (pass ? 1 : 0)];
 // Tap-along rhythm test under the metronome question. The page clicks and the player taps every beat; the levels thin
 // the clicks out: every beat, beats 2 and 4 only, beat 1 only. Each level is `lead` bars of clicks on every beat, then
-// `bars` measured bars. Passing level k suggests stop k + 2. Subdivisions, polyrhythms and playing ahead of or behind
-// the beat on purpose (the top stop) are not tested, so stop 5 is never suggested.
+// `bars` measured bars. Passing level k suggests RHYTHM_STOPS[k]: even eighths, steady with the click on 2 and 4 only,
+// steady with one click a bar. Subdivisions, polyrhythms and playing ahead of or behind the beat on purpose are not
+// tested, so the stops that name them are never suggested.
 // The limits are assumptions. `pass` is the SD of the taps around the beat, as a share of a beat. With independent tap
 // errors the variability of the intervals between taps is √2 times that, so 0.05 ≈ an inter-tap CV of 0.07: between
 // percussionists (0.052) and other trained musicians (0.115) in Cameron & Grahn 2014, whose task (finding the beat of a
@@ -169,6 +203,7 @@ const EAR_ROUNDS = 10, EAR_PASS = 8;
 // weakly (Repp 2010: amateurs ≈ non-musicians), so the first level says the least. `lost` and `misses` are judgement calls.
 const RHYTHM_LEVELS = [[0, 1, 2, 3], [1, 3], [0]].map((clicks, i) => ({ name: T.rhythmLevels[i], clicks }));
 const RHYTHM = { lead: 2, bars: 8, beats: 4, pass: 0.05, lost: 0.15, misses: 2 };
+const RHYTHM_STOPS = [2, 3, 5];
 // Taps against a grid of n beats from `start`, `beat` apart (any one time unit). Only the spread counts: a constant
 // offset (audio output latency, Bluetooth, touch delay, a habit of tapping early) is removed through the taps' mean
 // phase. Each beat keeps its closest tap; further taps on the same beat are `extra`.
@@ -193,8 +228,8 @@ function rhythmStats(taps, start, beat, n) {
 // Level result → stop. Reaching level k > 0 means level k − 1 was passed in the same run of the test.
 function rhythmResult(level, st) {
   const pass = st.spread <= RHYTHM.pass && st.misses <= RHYTHM.misses && st.extra <= RHYTHM.misses;
-  if (pass) return { pass, stop: level + 2 };
-  if (level > 0) return { pass, stop: level + 1 };
+  if (pass) return { pass, stop: RHYTHM_STOPS[level] };
+  if (level > 0) return { pass, stop: RHYTHM_STOPS[level - 1] };
   return { pass, stop: st.spread > RHYTHM.lost || st.misses > RHYTHM.bars * RHYTHM.beats / 4 ? 0 : 1 };
 }
 const chordNotes = (root, type) => [root - 12, ...CHORDS[type][1].map(i => root + i)];
@@ -222,7 +257,7 @@ const REACH_2200 = { e: 2200, h: 11053, lo: 3016, hi: 23608, n: 34 };
 // Drawn over the sample's middle 95 % of hours (3.9 ± 2·0.4 in log10).
 const EXPECTED = { a: 1990.8 - 0.57 * 221.5 / 0.4 * 3.9, b: 0.57 * 221.5 / 0.4, sd: 221.5 * Math.sqrt(1 - 0.57 ** 2), from: 1260, to: 50000 };
 const expectedElo = h => EXPECTED.a + EXPECTED.b * Math.log10(h);
-const VYSOTSKY = { chords: 3, strum: 2, fingers: 1, dynamics: 3, repertoire: 14, hardest: 2, party: 5, record: 3, stage: 4 };
+const VYSOTSKY = { chords: 3, strum: 3, fingers: 1, dynamics: 5, repertoire: 14, hardest: 2, party: 8, record: 5, stage: 7 };
 const practiceHours = p => Math.max(0, +p.years || 0) * 52 * Math.max(0, +p.perWeek || 0) * Math.max(0, +p.hours || 0);
 /*END MODEL*/
 
