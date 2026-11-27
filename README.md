@@ -55,7 +55,7 @@ No build step: `site/` is served as it is. GitHub Pages deploys it on every push
 
 - Each page has its own canonical URL, `hreflang` alternates (en, ru, x-default; the sitemap lists the same), a description and a 1200×630 preview image. The two quiz pages also carry a `WebApplication` JSON-LD block. The tests check that these agree.
 - The preview images `site/og-en.png` and `site/og-ru.png` are rendered from `og/og.html` by `python3 og/render.py` (Playwright). They name no question count, so they need no update when questions are added.
-- `/` carries the Bing verification meta tag; the 32-hex `.txt` file at the site root is the IndexNow key for this host.
+- `/` carries the Bing verification meta tag; the 32-hex `.txt` file at the site root is the IndexNow key for this host. After each deploy that changed `site/`, the workflow submits every sitemap URL to IndexNow (Bing, Yandex); a push that changes only README or tests submits nothing, and a manual run (`workflow_dispatch`) always submits.
 
 ## Languages
 
