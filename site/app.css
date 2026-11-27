@@ -1,10 +1,10 @@
 /* Layout: questionnaire column + sticky scorecard whose rating sits on a fretboard strip; on phones the scorecard leads and a slim bottom bar keeps the number in view. */
 :root{
   --bg:#F3F4F1; --surface:#FFFFFF; --ink:#191C1A; --muted:#5C645F; --line:#D9DDD8;
-  --accent:#9A6510; --accent-soft:#F5E9D2; --on-accent:#FFFFFF;
+  --accent:#8E5D0F; --accent-soft:#F5E9D2; --on-accent:#FFFFFF;
   --board:#3D2B22; --fret:#C7CAC4; --string:#D9C9A3; --inlay:#EFE8D8; --pin-hours:#9FD3B4;
   --good:#2E7448; --warn:#A5461E;
-  --c-curve:#9A6510; --c-data:#2a78d6; --c-exp:#d55181;
+  --c-curve:#8E5D0F; --c-data:#2a78d6; --c-exp:#d55181;
   --f-display:'Unbounded','Inter',system-ui,sans-serif;
   --f-body:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -250,3 +250,5 @@ img{max-width:100%}
 .foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--muted)}
 .foot a{color:var(--muted)}
 .foot a:hover{color:var(--accent)}
+/* The shared consent banner (geo.lipu.dev/consent.js) writes white on its accent button; on the light dark-theme accent that is 2:1. */
+body #lipu-consent button.y{color:var(--on-accent)}
