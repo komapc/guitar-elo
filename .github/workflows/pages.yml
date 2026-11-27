@@ -57,3 +57,20 @@ jobs:
           path: site
       - id: deployment
         uses: actions/deploy-pages@v4
+      # Tell the IndexNow engines (Bing, Yandex) about every sitemap page, but only when site/ changed:
+      # a push that touches only README or tests submits nothing. A failed ping does not fail the deploy.
+      - name: Submit the pages to IndexNow
+        continue-on-error: true
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE^{commit}" 2>/dev/null && git diff --quiet "$BEFORE" HEAD -- site; then
+            echo "site/ unchanged since $BEFORE, nothing to submit"; exit 0
+          fi
+          host=$(cat site/CNAME)
+          key=$(find site -maxdepth 1 -regextype egrep -regex 'site/[0-9a-f]{32}\.txt' -printf '%f' | cut -c1-32)
+          urls=$(grep -o '<loc>[^<]*</loc>' site/sitemap.xml | sed 's/<[^>]*>//g' | jq -R . | jq -sc .)
+          jq -nc --arg h "$host" --arg k "$key" --argjson u "$urls" \
+            '{host: $h, key: $k, keyLocation: "https://\($h)/\($k).txt", urlList: $u}' \
+            | curl -sS --fail-with-body -X POST -H 'Content-Type: application/json; charset=utf-8' \
+                --data-binary @- -w 'IndexNow: HTTP %{http_code}\n' https://api.indexnow.org/indexnow
